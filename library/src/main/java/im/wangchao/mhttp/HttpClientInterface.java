@@ -8,9 +8,20 @@ package im.wangchao.mhttp;
  * <p>Time         : 下午1:18.</p>
  */
 public interface HttpClientInterface {
-
+    /**
+     * 执行请求
+     *
+     * @param httpRequest   请求对象
+     * @return              this
+     */
     HttpClientInterface execute(HttpRequest httpRequest);
 
+    /**
+     * 取消请求
+     *
+     * @param request   请求对象
+     * @return          this
+     */
     HttpClientInterface cancel(HttpRequest request);
 
 }

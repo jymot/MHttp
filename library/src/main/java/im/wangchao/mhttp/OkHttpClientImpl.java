@@ -68,7 +68,7 @@ import timber.log.Timber;
                 post(httpRequest);
             } break;
         }
-        return null;
+        return this;
 
     }
 
