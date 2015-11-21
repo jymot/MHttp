@@ -12,6 +12,7 @@
     public abstract void testApi(String key0,
                                  String key1,
                                  @Callback JSONResponseHandler callback);
+                                 
     @GET(url="https://www.baidu.com")
     public abstract HttpRequest testApi2(@Callback JSONResponseHandler callback);
   }
@@ -23,6 +24,7 @@
         @Timeout(40) String timeout;
         @RequestContentType(RequestParams.APPLICATION_FORM) String Content_Type;
         @Header("Android") String User_Agent;
+        
         @CommonParamsMethod
         public Map<String, String> getCommonParams() {
             Map<String, String> params = new HashMap<>();
