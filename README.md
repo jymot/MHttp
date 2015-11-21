@@ -9,6 +9,10 @@
 ```java
   public abstract class SimpleApi{
   
+    public static SimpleApi instance() {
+      return HttpRequest.inject(SimpleApi.class);
+    }
+  
     @Post(url="http://test.com", timeout=40, tag="tag", heads = {"key", "value"})
     public abstract void testApi(String key0,
                                  String key1,
@@ -19,6 +23,34 @@
     
   }
 ```
+```java
+  public class TestActivity extends Activity{
+      
+      private void invokeTestApi(){
+        SimpleApi.instance().testApi("value0", "value1", new JSONResponseHandler(){
+        
+              public void onSuccess(JSONObject jsonObject, HttpResponse response){
+              }
+              
+        });
+        //auto execute
+      }
+      
+      private void invokeTestApi2(){
+        HttpRequest request = SimpleApi.instance().testApi2(new JSONResponseHandler(){
+        
+            public void onSuccess(JSONObject jsonObject, HttpResponse response){
+            }
+            
+        });
+        
+        //execute
+        request.execute();
+      }
+    
+  }
+```
+
 #####common settings
 ```java
   public abstract class BaseApi{
