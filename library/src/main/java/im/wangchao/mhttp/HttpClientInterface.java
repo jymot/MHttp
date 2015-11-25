@@ -19,9 +19,9 @@ public interface HttpClientInterface {
     /**
      * 取消请求
      *
-     * @param request   请求对象
+     * @param tag       Request Tag
      * @return          this
      */
-    HttpClientInterface cancel(HttpRequest request);
+    HttpClientInterface cancel(Object tag);
 
 }

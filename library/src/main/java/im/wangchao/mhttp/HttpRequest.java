@@ -88,7 +88,11 @@ final public class HttpRequest {
     }
 
     public HttpRequest cancel(){
-        getHttpClient().cancel(this);
+        return cancel(null);
+    }
+
+    public HttpRequest cancel(Object tag){
+        getHttpClient().cancel(tag);
         return this;
     }
 

@@ -72,27 +72,31 @@ import timber.log.Timber;
 
     }
 
-    @Override public HttpClientInterface cancel(final HttpRequest request) {
-        if (weakCall != null){
-            final Call call = weakCall.get();
-            if (call != null){
-                Runnable r = new Runnable() {
-                    @Override
-                    public void run() {
-                        call.cancel();
-                        if (responseHandler != null){
-                            responseHandler.sendCancelMessage();
-                        }
-                    }
-                };
-
-                if (Looper.myLooper() == Looper.getMainLooper()){
-                    new Thread(r).start();
+    @Override public HttpClientInterface cancel(final Object tag) {
+        final Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                if (tag != null){
+                    httpClient.cancel(tag);
                 } else {
-                    r.run();
+                    final Call call = weakCall == null ? null : weakCall.get();
+                    if (call != null){
+                        call.cancel();
+                    }
+                }
+
+                if (responseHandler != null) {
+                    responseHandler.sendCancelMessage();
                 }
             }
+        };
+
+        if (Looper.myLooper() == Looper.getMainLooper()){
+            new Thread(r).start();
+        } else {
+            r.run();
         }
+
         return this;
     }
 
