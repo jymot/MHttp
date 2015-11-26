@@ -1,6 +1,7 @@
 package im.wangchao.mhttp;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -95,9 +96,20 @@ public abstract class AbsResponseHandler {
     }
 
     public AbsResponseHandler(){
+        this(true);
+    }
+
+    public AbsResponseHandler(boolean useHandler){
         isCanceled = false;
         isFinished = false;
-        handler    = new ResponderHandler(this);
+        if (useHandler){
+            handler = new ResponderHandler(this);
+        } else {
+            if (Looper.myLooper() == null){
+                throw new RuntimeException("Can't create handler inside thread that has not called Looper.prepare()");
+            }
+            handler = null;
+        }
     }
 
     final public AbsResponseHandler setRequest(@NonNull HttpRequest request){
