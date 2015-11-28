@@ -9,4 +9,7 @@ package im.wangchao.mhttp;
  */
 public class HttpClientManager {
     // TODO: 15/11/27 manage all request, eg. cancel request , common settings ..
+    public void cancel(Object tag){
+
+    }
 }
