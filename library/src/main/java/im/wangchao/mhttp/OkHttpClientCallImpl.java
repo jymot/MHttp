@@ -37,29 +37,36 @@ import timber.log.Timber;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午1:23.</p>
  */
-/*package*/ class OkHttpClientImpl implements HttpClientInterface {
+/*package*/ class OkHttpClientCallImpl implements IHttpCall {
     final private static MediaType MEDIA_TYPE_STREAM = MediaType.parse(RequestParams.APPLICATION_OCTET_STREAM);
     final private static int BUFFER_SIZE = 4096;
 
-    private OkHttpClient httpClient;
-    private Request.Builder requestBuilder;
     private AbsResponseHandler responseHandler;
     private String url;
     private WeakReference<Call> weakCall;
 
-    public OkHttpClientImpl(){
-        httpClient      = OkHttpClientRef.getInstance();
-        requestBuilder  = new Request.Builder();
-        httpClient.setCookieHandler(Cookie.instanceManager());
+    final private OkHttpClient httpClient;
+    final private Request.Builder requestBuilder;
+    final private HttpRequest httpRequest;
+
+    public OkHttpClientCallImpl(HttpRequest request, OkHttpClient httpClient){
+        this.httpRequest     = request;
+        this.requestBuilder  = new Request.Builder();
+        this.httpClient      = httpClient;
+        init(request);
     }
 
-    @Override public HttpClientInterface execute(HttpRequest httpRequest) {
+    private void init(HttpRequest httpRequest){
         setUrl(httpRequest.getRequestUrl());
         setTimeout(httpRequest.getTimeout());
         setHeaders(httpRequest.getHeaders());
         setRequestParams(httpRequest.getRequestParams(), httpRequest.getMethod());
         setResponseHandler(httpRequest);
         setTag(httpRequest.getTag());
+    }
+
+    @Override public IHttpCall execute() {
+
         switch (httpRequest.getMethod()){
             case HttpRequest.Method.GET: {
                 get(httpRequest);
@@ -72,17 +79,13 @@ import timber.log.Timber;
 
     }
 
-    @Override public HttpClientInterface cancel(final Object tag) {
+    @Override public IHttpCall cancel() {
         final Runnable r = new Runnable() {
             @Override
             public void run() {
-                if (tag != null){
-                    httpClient.cancel(tag);
-                } else {
-                    final Call call = weakCall == null ? null : weakCall.get();
-                    if (call != null){
-                        call.cancel();
-                    }
+                final Call call = weakCall == null ? null : weakCall.get();
+                if (call != null) {
+                    call.cancel();
                 }
 
                 if (responseHandler != null) {
@@ -100,7 +103,7 @@ import timber.log.Timber;
         return this;
     }
 
-    private HttpClientInterface setTag(Object tag) {
+    private IHttpCall setTag(Object tag) {
         if (tag == null || TextUtils.isEmpty(tag.toString())){
             String millis = String.valueOf(System.currentTimeMillis());
             tag = TextUtils.isEmpty(url) ? millis : url.concat(millis);
@@ -109,29 +112,27 @@ import timber.log.Timber;
         return this;
     }
 
-    private HttpClientInterface setUrl(String url) {
+    private IHttpCall setUrl(String url) {
         this.url = url;
         requestBuilder.url(url);
         return this;
     }
 
-    private HttpClientInterface setTimeout(int second) {
+    private IHttpCall setTimeout(int second) {
         if (second <= 0){
             return this;
         }
-        httpClient.setConnectTimeout(second, TimeUnit.SECONDS);
-        httpClient.setWriteTimeout(second, TimeUnit.SECONDS);
-        httpClient.setReadTimeout(second, TimeUnit.SECONDS);
+        httpRequest.getHttpClient().setTimeout(second, TimeUnit.SECONDS);
         return this;
     }
 
-    private HttpClientInterface setHeaders(Headers headers) {
+    private IHttpCall setHeaders(Headers headers) {
         com.squareup.okhttp.Headers okHeaders = com.squareup.okhttp.Headers.of(headers.namesAndValues());
         requestBuilder.headers(okHeaders);
         return this;
     }
 
-    private HttpClientInterface setRequestParams(RequestParams params, String method) {
+    private IHttpCall setRequestParams(RequestParams params, String method) {
         if (params == null){
             return this;
         }
@@ -158,7 +159,7 @@ import timber.log.Timber;
         return this;
     }
 
-    private HttpClientInterface setResponseHandler(HttpRequest request) {
+    private IHttpCall setResponseHandler(HttpRequest request) {
         if (request == null){
             return this;
         }
@@ -168,7 +169,7 @@ import timber.log.Timber;
         return this;
     }
 
-    private HttpClientInterface post(final HttpRequest httpRequest) {
+    private IHttpCall post(final HttpRequest httpRequest) {
         Request okRequest   = requestBuilder.build();
         Call    call        = httpClient.newCall(okRequest);
         weakCall = new WeakReference<>(call);
@@ -212,7 +213,7 @@ import timber.log.Timber;
         return this;
     }
 
-    private HttpClientInterface get(HttpRequest httpRequest) {
+    private IHttpCall get(HttpRequest httpRequest) {
         //okHttp post 和 get调用方式类似所以直接调用 post，已经在设置参数时设置了请求方法
         post(httpRequest);
         return this;

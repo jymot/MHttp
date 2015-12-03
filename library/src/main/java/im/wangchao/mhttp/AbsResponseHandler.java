@@ -67,6 +67,7 @@ public abstract class AbsResponseHandler {
 
     private HttpRequest request;
     private HttpResponse response;
+    private ResponseHandlerHook handlerHook;
     private ResponseDataType responseDataType = ResponseDataType.JSON;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
@@ -112,8 +113,18 @@ public abstract class AbsResponseHandler {
         }
     }
 
+    final public AbsResponseHandler setResponseHandlerHook(ResponseHandlerHook hook){
+        this.handlerHook = hook;
+        return this;
+    }
+
+    /*package*/ @Nullable protected ResponseHandlerHook getResponseHandlerHook(){
+        return handlerHook;
+    }
+
     final public AbsResponseHandler setRequest(@NonNull HttpRequest request){
         this.request = request;
+        setResponseHandlerHook(this.request.getHttpClient().getResponseHandlerHook());
         return this;
     }
 
@@ -195,28 +206,38 @@ public abstract class AbsResponseHandler {
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length != 0 && !isCanceled){
                     this.response = (HttpResponse) responseObject[0];
-                    onSuccess((HttpResponse) responseObject[0]);
+                    if (handlerHook == null || !handlerHook.doSuccess(this.response)){
+                        onSuccess((HttpResponse) responseObject[0]);
+                    }
                 }
                 break;
             case FAILURE_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length == 2 && !isCanceled) {
                     this.response = (HttpResponse) responseObject[0];
-                    onFailure((HttpResponse) responseObject[0], (Throwable) responseObject[1]);
+                    if (handlerHook == null || !handlerHook.doFailure(this.response)){
+                        onFailure((HttpResponse) responseObject[0], (Throwable) responseObject[1]);
+                    }
                 }
                 break;
             case START_MESSAGE:
-                onStart();
+                if (handlerHook == null || !handlerHook.doStart()){
+                    onStart();
+                }
                 break;
             case FINISH_MESSAGE:
                 this.isFinished = true;
-                onFinish();
+                if (handlerHook == null || !handlerHook.doFinish()) {
+                    onFinish();
+                }
                 break;
             case PROGRESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length == 2) {
                     try {
-                        onProgress((Integer) responseObject[0], (Integer) responseObject[1]);
+                        if (handlerHook == null || !handlerHook.doProgress((Integer) responseObject[0], (Integer) responseObject[1])){
+                            onProgress((Integer) responseObject[0], (Integer) responseObject[1]);
+                        }
                     } catch (Throwable t) {
                         //
                     }
@@ -224,7 +245,9 @@ public abstract class AbsResponseHandler {
                 break;
             case CANCEL_MESSAGE:
                 this.isCanceled = true;
-                onCancel();
+                if (handlerHook == null || !handlerHook.doCancel()){
+                    onCancel();
+                }
                 break;
         }
     }

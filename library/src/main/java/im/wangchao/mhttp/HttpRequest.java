@@ -30,10 +30,11 @@ final public class HttpRequest {
     final private Headers               headers;
     final private RequestParams         requestParams;
     final private String                method;
-    final private HttpClientInterface   httpClient;
+    final private HttpClientManager      httpClient;
     final private AbsResponseHandler    responseHandler;
     final private int                   timeout;
     final private Object                tag;
+    private IHttpCall                   call;
 
     public HttpRequest(Builder builder){
         this.requestUrl         = builder.requestUrl;
@@ -66,7 +67,7 @@ final public class HttpRequest {
         return method;
     }
 
-    public HttpClientInterface getHttpClient() {
+    public HttpClientManager getHttpClient(){
         return httpClient;
     }
 
@@ -83,16 +84,15 @@ final public class HttpRequest {
     }
 
     public HttpRequest execute(){
-        getHttpClient().execute(this);
+        this.call = httpClient.newCall(this);
+        call.execute();
         return this;
     }
 
     public HttpRequest cancel(){
-        return cancel(null);
-    }
-
-    public HttpRequest cancel(Object tag){
-        getHttpClient().cancel(tag);
+        if (this.call != null){
+            call.cancel();
+        }
         return this;
     }
 
@@ -105,7 +105,7 @@ final public class HttpRequest {
         private Headers.Builder     headers;
         private RequestParams       requestParams;
         private String              method;
-        private HttpClientInterface httpClient;
+        private HttpClientManager   httpClient;
         private AbsResponseHandler  responseHandler;
         private int                 timeout;
         private Object              tag;
@@ -113,11 +113,11 @@ final public class HttpRequest {
         /*                  default                 */
         public Builder(){
             this.method             = Method.POST;
-            this.httpClient         = new OkHttpClientImpl();
+            this.httpClient         = HttpClientManager.getSingleInstance();
             this.headers            = new Headers.Builder();
             this.requestParams      = new RequestParams();
             this.responseHandler    = new SilentResponseHandler();
-            this.timeout            = 30;
+            this.timeout            = 0;
         }
 
         private Builder(HttpRequest request){
@@ -143,7 +143,7 @@ final public class HttpRequest {
             return this;
         }
 
-        public Builder httpClient(@NonNull HttpClientInterface httpClient){
+        public Builder httpClient(@NonNull HttpClientManager httpClient){
             this.httpClient = httpClient;
             return this;
         }
