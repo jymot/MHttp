@@ -76,4 +76,4 @@
   }
 ```
 ###
-link [网络请求适配性封装](http://wangchao.im/2015/11/21/mhttpadapter-post.html)
+link [网络请求适配性封装](http://wangchao.im/2015/11/22/mhttpadapter-post.html)

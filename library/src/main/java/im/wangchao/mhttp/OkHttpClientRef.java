@@ -59,7 +59,7 @@ import javax.net.SocketFactory;
         long size = 5 * 1024 * 1024;
         try {
             StatFs statFs = new StatFs(cache.getAbsolutePath());
-            long available = ((long) statFs.getBlockCount()) * statFs.getBlockSize();
+            long available = statFs.getBlockCountLong() * statFs.getBlockSize();
             // Target 2% of the total space.
             size = available / 50;
         } catch (IllegalArgumentException ignored) {
