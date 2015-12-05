@@ -1,6 +1,7 @@
 package im.wangchao.mhttp;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.StatFs;
 
 import com.squareup.okhttp.Cache;
@@ -20,7 +21,7 @@ import javax.net.SocketFactory;
  * <p>Date         : 15/10/31.</p>
  * <p>Time         : 上午9:45.</p>
  */
-/*package*/ class OkHttpClientRef extends OkHttpClient implements IHttpClient {
+/*package*/ class OkHttpClientRef extends OkHttpClient implements IHttpClient<OkHttpClient> {
     public OkHttpClientRef(){}
 
     private WeakReference<IHttpCall> call;
@@ -59,7 +60,15 @@ import javax.net.SocketFactory;
         long size = 5 * 1024 * 1024;
         try {
             StatFs statFs = new StatFs(cache.getAbsolutePath());
-            long available = statFs.getBlockCountLong() * statFs.getBlockSize();
+            long count, blockSize;
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1){
+                count = statFs.getBlockCountLong();
+                blockSize = statFs.getBlockSizeLong();
+            } else {
+                count = statFs.getBlockCount();
+                blockSize = statFs.getBlockSize();
+            }
+            long available = count * blockSize;
             // Target 2% of the total space.
             size = available / 50;
         } catch (IllegalArgumentException ignored) {
@@ -71,6 +80,10 @@ import javax.net.SocketFactory;
 
     @Override public void setSslSocketFactoryHook(SocketFactory factory) {
         setSocketFactory(factory);
+    }
+
+    @Override public OkHttpClientRef getHttpClient() {
+        return this;
     }
 
 

@@ -14,7 +14,7 @@ import javax.net.SocketFactory;
  * <p>Date         : 15/12/2.</p>
  * <p>Time         : 下午9:15.</p>
  */
-public interface IHttpClient {
+public interface IHttpClient<T> {
     /**
      * 设置超时时间
      *
@@ -59,4 +59,7 @@ public interface IHttpClient {
      * @param factory SocketFactory
      */
     void setSslSocketFactoryHook(SocketFactory factory);
+
+    T getHttpClient();
+
 }
