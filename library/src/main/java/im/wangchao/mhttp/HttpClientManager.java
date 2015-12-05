@@ -78,6 +78,14 @@ public class HttpClientManager {
         return this.responseHandlerHook;
     }
 
+    @Nullable public <T> T getHttpClient(){
+        try {
+            return (T)this.httpClient.getHttpClient();
+        } catch (Exception e){
+            return null;
+        }
+    }
+
     /**
      * 设置默认的 IHttpClient
      *
