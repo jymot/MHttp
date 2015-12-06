@@ -182,13 +182,17 @@ import timber.log.Timber;
             @Override
             public void onFailure(Request request, IOException e) {
                 if (responseHandler != null) {
-                    responseHandler.sendFailureMessage(responseWrapper(httpRequest, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), new byte[0]), e);
                     responseHandler.sendFinishMessage();
+                    responseHandler.sendFailureMessage(responseWrapper(httpRequest, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), new byte[0]), e);
                 }
             }
 
             @Override
             public void onResponse(Response response) throws IOException {
+                if (responseHandler != null) {
+                    responseHandler.sendFinishMessage();
+                }
+
                 if (response.isSuccessful()) {
                     if (responseHandler != null) {
                         if (responseHandler.getResponseDataType() == AbsResponseHandler.ResponseDataType.FILE) {
@@ -203,10 +207,6 @@ import timber.log.Timber;
                         Headers headers = parseOkHeader(okHeaders);
                         responseHandler.sendFailureMessage(responseWrapper(httpRequest, response.code(), response.message(), headers, response.body().bytes()), null);
                     }
-                }
-
-                if (responseHandler != null) {
-                    responseHandler.sendFinishMessage();
                 }
             }
         });
