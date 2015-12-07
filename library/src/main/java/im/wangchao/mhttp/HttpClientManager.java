@@ -80,6 +80,7 @@ public class HttpClientManager {
 
     @Nullable public <T> T getHttpClient(){
         try {
+            //获取 HttpClient，为第三方Client，如OkHttpClient
             return (T)this.httpClient.getHttpClient();
         } catch (Exception e){
             return null;
