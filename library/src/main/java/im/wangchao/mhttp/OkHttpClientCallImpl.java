@@ -165,7 +165,7 @@ import timber.log.Timber;
         }
         this.responseHandler = request.getResponseHandler();
         this.responseHandler.setRequest(request);
-        requestBuilder.addHeader("Accept", responseHandler.getResponseDataType().accept());
+        requestBuilder.addHeader("Accept", responseHandler.accept());
         return this;
     }
 

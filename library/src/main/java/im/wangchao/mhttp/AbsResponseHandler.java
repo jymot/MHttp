@@ -5,6 +5,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.File;
@@ -25,16 +26,14 @@ public abstract class AbsResponseHandler {
         IMAGE("image/png,image/jpeg,image/*"),
         FILE("application/octet-stream"){
             private File file;
-            @Override
-            public void set(Object o){
+            @Override public void set(Object o){
                 if (o instanceof File){
                     this.file = (File) o;
                     return;
                 }
                 throw new IllegalArgumentException("Argument must instance of File");
             }
-            @Override
-            public File get(){
+            @Override public File get(){
                 return file;
             }
         };
@@ -90,8 +89,7 @@ public abstract class AbsResponseHandler {
             this.mResponder = mResponder;
         }
 
-        @Override
-        public void handleMessage(Message msg) {
+        @Override public void handleMessage(Message msg) {
             mResponder.handleMessage(msg);
         }
     }
@@ -139,8 +137,11 @@ public abstract class AbsResponseHandler {
         this.responseCharset = charset;
     }
 
-    final protected String getCharset() {
-        return this.responseCharset.isEmpty() ? DEFAULT_CHARSET : this.responseCharset;
+    /**
+     * subclass can override this method to change charset.
+     */
+    protected String getCharset() {
+        return TextUtils.isEmpty(responseCharset) ? DEFAULT_CHARSET : responseCharset;
     }
 
     final public AbsResponseHandler setResponseDataType(@NonNull ResponseDataType type){
@@ -152,8 +153,7 @@ public abstract class AbsResponseHandler {
         Log.d(AbsResponseHandler.class.getSimpleName(), message);
     }
 
-    @Nullable
-    final protected String byteArrayToString(byte[] bytes){
+    @Nullable final protected String byteArrayToString(byte[] bytes){
         try {
             return bytes == null ? null : new String(bytes, getCharset());
         } catch (UnsupportedEncodingException e) {
@@ -165,13 +165,18 @@ public abstract class AbsResponseHandler {
         return responseDataType;
     }
 
-    @NonNull
-    final public HttpRequest getRequest(){
+    /**
+     * @return response accept
+     */
+    protected String accept(){
+        return responseDataType.accept();
+    }
+
+    @NonNull final public HttpRequest getRequest(){
         return this.request;
     }
 
-    @NonNull
-    final public HttpResponse getResponse(){
+    @NonNull final public HttpResponse getResponse(){
         return this.response;
     }
 
