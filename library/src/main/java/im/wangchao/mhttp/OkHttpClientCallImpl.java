@@ -15,8 +15,6 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 import com.squareup.okhttp.internal.Util;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -39,7 +37,6 @@ import timber.log.Timber;
  */
 /*package*/ class OkHttpClientCallImpl implements IHttpCall {
     final private static MediaType MEDIA_TYPE_STREAM = MediaType.parse(RequestParams.APPLICATION_OCTET_STREAM);
-    final private static int BUFFER_SIZE = 4096;
 
     private AbsResponseHandler responseHandler;
     private String url;
@@ -195,8 +192,8 @@ import timber.log.Timber;
 
                 if (response.isSuccessful()) {
                     if (responseHandler != null) {
-                        if (FileResponseHandler.class.isInstance(responseHandler)){
-                            writeFile(responseHandler, response, ((FileResponseHandler)responseHandler).getFile());
+                        if (FileResponseHandler.class.isInstance(responseHandler)) {
+                            responseHandler.writeFile(response, ((FileResponseHandler) responseHandler).getFile());
                         }
 
                         Headers headers = parseOkHeader(response.headers());
@@ -235,34 +232,6 @@ import timber.log.Timber;
                 .body(body)
                 .message(codeMessage);
         return builder.build();
-    }
-
-    /**
-     * write file , send progress message
-     */
-    private void writeFile(AbsResponseHandler handler, Response response, File file) throws IOException {
-        if (file == null){
-            throw new IllegalArgumentException("File == null");
-        }
-        InputStream instream = response.body().byteStream();
-        long contentLength = response.body().contentLength();
-        FileOutputStream buffer = new FileOutputStream(file);
-        if (instream != null) {
-            try {
-                byte[] tmp = new byte[BUFFER_SIZE];
-                int l, count = 0;
-                while ((l = instream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
-                    count += l;
-                    buffer.write(tmp, 0, l);
-
-                    handler.sendProgressMessage(count, (int) contentLength);
-                }
-            } finally {
-                Util.closeQuietly(instream);
-                buffer.flush();
-                Util.closeQuietly(buffer);
-            }
-        }
     }
 
     /**

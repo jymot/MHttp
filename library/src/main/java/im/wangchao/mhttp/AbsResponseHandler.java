@@ -9,6 +9,13 @@ import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.squareup.okhttp.Response;
+import com.squareup.okhttp.internal.Util;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -37,6 +44,8 @@ public abstract class AbsResponseHandler {
 
     final public static int     IO_EXCEPTION_CODE   = -1;
     final public static String  DEFAULT_CHARSET     = "UTF-8";
+
+    final private static int BUFFER_SIZE = 4096;
 
     private static final int SUCCESS_MESSAGE    = 0;
     private static final int FAILURE_MESSAGE    = 1;
@@ -139,6 +148,34 @@ public abstract class AbsResponseHandler {
 
     final protected void print(String message){
         Log.d(AbsResponseHandler.class.getSimpleName(), message);
+    }
+
+    /**
+     * write file , send progress message
+     */
+    protected void writeFile(Response response, File file) throws IOException {
+        if (file == null){
+            throw new IllegalArgumentException("File == null");
+        }
+        InputStream instream = response.body().byteStream();
+        long contentLength = response.body().contentLength();
+        FileOutputStream buffer = new FileOutputStream(file);
+        if (instream != null) {
+            try {
+                byte[] tmp = new byte[BUFFER_SIZE];
+                int l, count = 0;
+                while ((l = instream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
+                    count += l;
+                    buffer.write(tmp, 0, l);
+
+                    sendProgressMessage(count, (int) contentLength);
+                }
+            } finally {
+                Util.closeQuietly(instream);
+                buffer.flush();
+                Util.closeQuietly(buffer);
+            }
+        }
     }
 
     @Nullable final protected String byteArrayToString(byte[] bytes){
