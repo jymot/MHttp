@@ -195,9 +195,10 @@ import timber.log.Timber;
 
                 if (response.isSuccessful()) {
                     if (responseHandler != null) {
-                        if (responseHandler.getResponseDataType() == AbsResponseHandler.ResponseDataType.FILE) {
-                            writeFile(responseHandler, response, (File) responseHandler.getResponseDataType().get());
+                        if (FileResponseHandler.class.isInstance(responseHandler)){
+                            writeFile(responseHandler, response, ((FileResponseHandler)responseHandler).getFile());
                         }
+
                         Headers headers = parseOkHeader(response.headers());
                         responseHandler.sendSuccessMessage(responseWrapper(httpRequest, response.code(), response.message(), headers, response.body().bytes()));
                     }

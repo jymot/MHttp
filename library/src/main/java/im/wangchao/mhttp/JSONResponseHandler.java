@@ -39,8 +39,8 @@ public class JSONResponseHandler extends AbsResponseHandler{
 
     }
 
-    @Override public ResponseDataType getResponseDataType() {
-        return ResponseDataType.JSON;
+    @Override protected String accept() {
+        return $Accept.ACCEPT_JSON;
     }
 
     public void onSuccess(JSONObject jsonObject, HttpResponse response){

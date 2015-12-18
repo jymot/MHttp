@@ -5,11 +5,13 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 /**
  * <p>Description  : AbsResponseHandler.</p>
@@ -19,39 +21,18 @@ import java.io.UnsupportedEncodingException;
  * <p>Time         : 下午5:56.</p>
  */
 public abstract class AbsResponseHandler {
-    public enum ResponseDataType{
-        JSON("application/json;charset=utf-8"),
-        TEXT("text/html;charset=utf-8"),
-        DATA("application/octet-stream"),
-        IMAGE("image/png,image/jpeg,image/*"),
-        FILE("application/octet-stream"){
-            private File file;
-            @Override public void set(Object o){
-                if (o instanceof File){
-                    this.file = (File) o;
-                    return;
-                }
-                throw new IllegalArgumentException("Argument must instance of File");
-            }
-            @Override public File get(){
-                return file;
-            }
-        };
 
-        private Object o;
-        private String accept;
-        ResponseDataType(String accept){
-            this.accept = accept;
-        }
-        public String accept(){
-            return accept;
-        }
-        public void set(Object o){
-            this.o = o;
-        }
-        public Object get(){
-            return o;
-        }
+    @Retention(RetentionPolicy.SOURCE)
+    @StringDef({
+            $Accept.ACCEPT_JSON, $Accept.ACCEPT_TEXT, $Accept.ACCEPT_DATA, $Accept.ACCEPT_IMAGE, $Accept.ACCEPT_FILE
+    })
+    public @interface Accept{}
+    public interface $Accept{
+        String ACCEPT_JSON  = "application/json;charset=utf-8";
+        String ACCEPT_TEXT  = "text/html;charset=utf-8";
+        String ACCEPT_DATA  = "application/octet-stream";
+        String ACCEPT_IMAGE = "image/png,image/jpeg,image/*";
+        String ACCEPT_FILE = "application/octet-stream";
     }
 
     final public static int     IO_EXCEPTION_CODE   = -1;
@@ -67,7 +48,7 @@ public abstract class AbsResponseHandler {
     private HttpRequest request;
     private HttpResponse response;
     private ResponseHandlerHook handlerHook;
-    private ResponseDataType responseDataType = ResponseDataType.JSON;
+    private String responseAccept = $Accept.ACCEPT_JSON;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
@@ -140,12 +121,19 @@ public abstract class AbsResponseHandler {
     /**
      * subclass can override this method to change charset.
      */
-    protected String getCharset() {
+    protected String charset() {
         return TextUtils.isEmpty(responseCharset) ? DEFAULT_CHARSET : responseCharset;
     }
 
-    final public AbsResponseHandler setResponseDataType(@NonNull ResponseDataType type){
-        responseDataType = type;
+    /**
+     * @return response accept
+     */
+    protected String accept(){
+        return responseAccept;
+    }
+
+    final public AbsResponseHandler setResponseAccept(@NonNull @Accept String accept){
+        this.responseAccept = accept;
         return this;
     }
 
@@ -155,21 +143,10 @@ public abstract class AbsResponseHandler {
 
     @Nullable final protected String byteArrayToString(byte[] bytes){
         try {
-            return bytes == null ? null : new String(bytes, getCharset());
+            return bytes == null ? null : new String(bytes, charset());
         } catch (UnsupportedEncodingException e) {
             return null;
         }
-    }
-
-    public ResponseDataType getResponseDataType(){
-        return responseDataType;
-    }
-
-    /**
-     * @return response accept
-     */
-    protected String accept(){
-        return responseDataType.accept();
     }
 
     @NonNull final public HttpRequest getRequest(){

@@ -19,8 +19,8 @@ public class TextResponseHandler extends AbsResponseHandler{
 
     }
 
-    @Override public ResponseDataType getResponseDataType() {
-        return ResponseDataType.TEXT;
+    @Override protected String accept() {
+        return $Accept.ACCEPT_TEXT;
     }
 
     public void onSuccess(String text, HttpResponse response){

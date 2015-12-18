@@ -24,6 +24,10 @@ public class FileResponseHandler extends AbsResponseHandler {
         this.file = file;
     }
 
+    protected File getFile(){
+        return file;
+    }
+
     @Override final protected void onSuccess(HttpResponse response) {
         onSuccess(file, response);
     }
@@ -32,10 +36,8 @@ public class FileResponseHandler extends AbsResponseHandler {
 
     }
 
-    @Override public ResponseDataType getResponseDataType() {
-        ResponseDataType dataType = ResponseDataType.FILE;
-        dataType.set(file);
-        return ResponseDataType.FILE;
+    @Override protected String accept() {
+        return $Accept.ACCEPT_FILE;
     }
 
     public void onSuccess(File file, HttpResponse response){

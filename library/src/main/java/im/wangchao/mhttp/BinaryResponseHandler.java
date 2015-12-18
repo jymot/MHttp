@@ -18,8 +18,8 @@ public class BinaryResponseHandler extends AbsResponseHandler{
 
     }
 
-    @Override public ResponseDataType getResponseDataType() {
-        return ResponseDataType.DATA;
+    @Override protected String accept() {
+        return $Accept.ACCEPT_DATA;
     }
 
     public void onSuccess(byte[] bytes, HttpResponse response){

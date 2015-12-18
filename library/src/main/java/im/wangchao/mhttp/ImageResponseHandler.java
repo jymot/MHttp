@@ -18,9 +18,8 @@ public class ImageResponseHandler extends AbsResponseHandler{
 
     }
 
-    @Override
-    public ResponseDataType getResponseDataType() {
-        return ResponseDataType.IMAGE;
+    @Override protected String accept() {
+        return $Accept.ACCEPT_IMAGE;
     }
 
     public void onSuccess(byte[] bytes, HttpResponse response){
