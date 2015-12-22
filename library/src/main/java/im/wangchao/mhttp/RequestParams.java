@@ -89,7 +89,7 @@ public class RequestParams {
     }
 
     /**
-     * 判断请求参数类型是否为 JSON
+     * 判断请求 Content-Type 是否为 JSON
      */
     public boolean isJSON(){
         return contentType.equals(APPLICATION_JSON) && streamParams.size() == 0
@@ -97,7 +97,7 @@ public class RequestParams {
     }
 
     /**
-     * 判断请求参数类型是否为 Form
+     * 判断请求 Content-Type 是否为 Form
      */
     public boolean isForm(){
         return contentType.equals(APPLICATION_FORM) && streamParams.size() == 0
@@ -105,7 +105,7 @@ public class RequestParams {
     }
 
     /**
-     * 判断请求参数类型是否为混合类型
+     * 判断请求 Content-Type 是否为混合类型
      */
     public boolean isMultipart(){
         return !isJSON() && !isForm();

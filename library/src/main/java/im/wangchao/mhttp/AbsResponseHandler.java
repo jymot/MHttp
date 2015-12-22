@@ -240,13 +240,13 @@ public abstract class AbsResponseHandler {
                 }
                 break;
             case START_MESSAGE:
-                if (handlerHook == null || !handlerHook.doStart()){
+                if (handlerHook == null || !handlerHook.doStart(request)){
                     onStart();
                 }
                 break;
             case FINISH_MESSAGE:
                 this.isFinished = true;
-                if (handlerHook == null || !handlerHook.doFinish()) {
+                if (handlerHook == null || !handlerHook.doFinish(response)) {
                     onFinish();
                 }
                 break;
@@ -264,7 +264,7 @@ public abstract class AbsResponseHandler {
                 break;
             case CANCEL_MESSAGE:
                 this.isCanceled = true;
-                if (handlerHook == null || !handlerHook.doCancel()){
+                if (handlerHook == null || !handlerHook.doCancel(request)){
                     onCancel();
                 }
                 break;

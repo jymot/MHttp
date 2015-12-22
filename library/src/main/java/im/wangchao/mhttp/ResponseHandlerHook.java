@@ -11,7 +11,7 @@ public interface ResponseHandlerHook {
     /**
      * @return false 继续执行真实的 onStart，反之不执行
      */
-    boolean doStart();
+    boolean doStart(HttpRequest request);
 
     /**
      * @return false 继续执行真实的 doSuccess，反之不执行
@@ -31,10 +31,10 @@ public interface ResponseHandlerHook {
     /**
      * @return false 继续执行真实的 doCancel，反之不执行
      */
-    boolean doCancel();
+    boolean doCancel(HttpRequest request);
 
     /**
      * @return false 继续执行真实的 doFinish，反之不执行
      */
-    boolean doFinish();
+    boolean doFinish(HttpResponse response);
 }

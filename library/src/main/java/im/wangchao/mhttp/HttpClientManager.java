@@ -78,7 +78,7 @@ public class HttpClientManager {
         return this.responseHandlerHook;
     }
 
-    @Nullable public <T> T getHttpClient(){
+    @Nullable @SuppressWarnings("unchecked")public <T> T getHttpClient(){
         try {
             //获取 HttpClient，为第三方Client，如OkHttpClient
             return (T)this.httpClient.getHttpClient();

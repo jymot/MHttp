@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements ResponseHandlerHo
     ProgressDialog progressDialog;
 
     @Override
-    public boolean doStart() {
+    public boolean doStart(HttpRequest request) {
         progressDialog = ProgressDialog.show(this, "Title", "Message");
         return false;
     }
@@ -92,12 +92,12 @@ public class MainActivity extends AppCompatActivity implements ResponseHandlerHo
     }
 
     @Override
-    public boolean doCancel() {
+    public boolean doCancel(HttpRequest request) {
         return false;
     }
 
     @Override
-    public boolean doFinish() {
+    public boolean doFinish(HttpResponse response) {
         if (progressDialog != null){
             progressDialog.dismiss();
         }

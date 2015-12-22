@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class Cookie {
     private volatile static CookieManager cookieManager;
+    private Cookie(){}
 
     public static CookieManager instanceManager(){
         if (cookieManager == null){
