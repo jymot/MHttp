@@ -4,6 +4,18 @@
 ```gradle
   compile 'im.wangchao:mhttpadapter:0.3.5'
 ```
+###PROGUARD
+```java
+    -keep class im.wangchao.** { *; }
+    -dontwarn im.wangchao.**
+    -keep class **$$HttpInjector { *; }
+    -keepclasseswithmembernames class * {
+        @im.wangchao.* <fields>;
+    }
+    -keepclasseswithmembernames class * {
+        @im.wangchao.* <methods>;
+    }
+```
 ###How to use
 #####simple
 ```java
