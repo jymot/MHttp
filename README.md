@@ -2,7 +2,7 @@
 任意第三方网络请求库的适配性封装
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttpadapter:0.3.1'
+  compile 'im.wangchao:mhttpadapter:0.3.5'
 ```
 ###How to use
 #####simple
