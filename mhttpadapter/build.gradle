@@ -44,4 +44,4 @@ dependencies {
     compile 'com.jakewharton.timber:timber:3.1.0'
 }
 
-apply from: '../bintray.gradle'
+apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray.gradle'
