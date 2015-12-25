@@ -60,6 +60,9 @@ public interface IHttpClient<T> {
      */
     void setSslSocketFactoryHook(SocketFactory factory);
 
+    /**
+     * @return getHttpClient cast to T
+     */
     T getHttpClient();
 
 }
