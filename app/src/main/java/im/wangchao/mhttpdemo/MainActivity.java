@@ -1,23 +1,19 @@
 package im.wangchao.mhttpdemo;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 
-import im.wangchao.mhttp.HttpClientManager;
+import java.io.File;
+
+import im.wangchao.mhttp.FileResponseHandler;
 import im.wangchao.mhttp.HttpRequest;
 import im.wangchao.mhttp.HttpResponse;
-import im.wangchao.mhttp.ResponseHandlerHook;
 import im.wangchao.mhttp.TextResponseHandler;
 
-public class MainActivity extends AppCompatActivity implements ResponseHandlerHook{
+public class MainActivity extends AppCompatActivity {
     final static String TAG = MainActivity.class.getSimpleName();
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -25,82 +21,60 @@ public class MainActivity extends AppCompatActivity implements ResponseHandlerHo
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.getFile).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onClick(View v) {
+                new HttpRequest.Builder()
+                        .get()
+                        .url("http://www.cninfo.com.cn/finalpage/2014-12-13/1200461869.PDF")
+                        .responseHandler(new FileResponseHandler(MainActivity.this) {
+                            @Override
+                            public void onSuccess(File file, HttpResponse response) {
+                                super.onSuccess(file, response);
+                                log("file len: " + file.length() + ", file exists: " + file.exists() + " , path:" + file.getPath());
+                            }
+
+                            @Override
+                            protected void onFinish() {
+                                super.onFinish();
+                                Log.e("wcwcwc", "onFinish");
+                            }
+
+                            @Override
+                            protected void onProgress(int bytesWritten, int bytesTotal) {
+                                super.onProgress(bytesWritten, bytesTotal);
+                                log("onProgress : " + bytesWritten + " -- " + bytesTotal);
+                            }
+                        }).build().execute();
             }
         });
 
-        HttpClientManager.getSingleInstance().setResponseHandlerHook(this);
 
-    }
+        findViewById(R.id.getBaiduText).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SampleApi api = SampleApi.instance();
+                if (api == null){
+                    log("api == null");
+                    return;
+                }
+                api.baidu(new TextResponseHandler(){
+                    @Override public void onSuccess(String text, HttpResponse response) {
+                        super.onSuccess(text, response);
+                        log("onSuccess: " + text);
+                    }
 
-    @Override public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        HttpRequest.Builder builder = new HttpRequest.Builder();
-        builder.url("http://www.baidu.com");
-        builder.method(HttpRequest.Method.GET);
-        builder.responseHandler(new TextResponseHandler() {
-            @Override public void onSuccess(String text, HttpResponse response) {
-                Log.e(TAG, text);
+                    @Override protected void onFinish() {
+                        super.onFinish();
+                        log("onFinish");
+                    }
+                });
             }
         });
-        builder.build().execute();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
-    ProgressDialog progressDialog;
-
-    @Override
-    public boolean doStart(HttpRequest request) {
-        progressDialog = ProgressDialog.show(this, "Title", "Message");
-        return false;
-    }
-
-    @Override
-    public boolean doSuccess(HttpResponse response) {
-        return false;
-    }
-
-    @Override
-    public boolean doFailure(HttpResponse response) {
-        return false;
-    }
-
-    @Override
-    public boolean doProgress(int bytesWritten, int bytesTotal) {
-        return false;
-    }
-
-    @Override
-    public boolean doCancel(HttpRequest request) {
-        return false;
-    }
-
-    @Override
-    public boolean doFinish(HttpResponse response) {
-        if (progressDialog != null){
-            progressDialog.dismiss();
-        }
-        return false;
+    private void log(String msg){
+        Log.e(TAG, msg);
     }
 }

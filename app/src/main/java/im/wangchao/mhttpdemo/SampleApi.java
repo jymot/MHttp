@@ -2,6 +2,7 @@ package im.wangchao.mhttpdemo;
 
 import im.wangchao.http.Callback;
 import im.wangchao.http.Get;
+import im.wangchao.mhttp.HttpManager;
 import im.wangchao.mhttp.HttpRequest;
 import im.wangchao.mhttp.TextResponseHandler;
 
@@ -14,12 +15,11 @@ import im.wangchao.mhttp.TextResponseHandler;
  */
 public abstract class SampleApi extends SampleDefaultApi{
     public static SampleApi instance() {
-        return HttpRequest.inject(SampleApi.class);
+        return HttpManager.bind(SampleApi.class);
     }
 
-    @Get(url = "s")
-    public abstract void autoSearch(String wd,
-                                    @Callback TextResponseHandler callback);
+    @Get(url = "https://www.baidu.com/")
+    public abstract void baidu(@Callback TextResponseHandler callback);
 
     @Get(url = "s")
     public abstract HttpRequest search(String wd,

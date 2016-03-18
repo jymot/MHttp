@@ -38,7 +38,7 @@ import static javax.tools.Diagnostic.Kind.ERROR;
  * <p>Time         : 下午4:24.</p>
  */
 public class HttpProcessor extends AbstractProcessor{
-    public static final String SUFFIX = "$$HttpInjector";
+    public static final String SUFFIX = "$$HttpBinder";
     private static final List<Class<? extends Annotation>> METHOD_ANNOTATION = Arrays.asList(
             Post.class,
             Get.class
@@ -74,11 +74,11 @@ public class HttpProcessor extends AbstractProcessor{
     }
 
     @Override public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Map<TypeElement, InjectClass> targetClassMap = findAndParseTargets(roundEnv);
+        Map<TypeElement, BindClass> targetClassMap = findAndParseTargets(roundEnv);
 
-        for (Map.Entry<TypeElement, InjectClass> entry : targetClassMap.entrySet()) {
+        for (Map.Entry<TypeElement, BindClass> entry : targetClassMap.entrySet()) {
             TypeElement typeElement = entry.getKey();
-            InjectClass bindingClass = entry.getValue();
+            BindClass bindingClass = entry.getValue();
 
             try {
                 JavaFileObject jfo = filer.createSourceFile(bindingClass.getFqcn(), typeElement);
@@ -98,8 +98,8 @@ public class HttpProcessor extends AbstractProcessor{
         return SourceVersion.latestSupported();
     }
 
-    private Map<TypeElement, InjectClass> findAndParseTargets(RoundEnvironment env){
-        Map<TypeElement, InjectClass> targetClassMap = new LinkedHashMap<>();
+    private Map<TypeElement, BindClass> findAndParseTargets(RoundEnvironment env){
+        Map<TypeElement, BindClass> targetClassMap = new LinkedHashMap<>();
 
 
         for (Class<? extends Annotation> method : METHOD_ANNOTATION){
@@ -110,7 +110,7 @@ public class HttpProcessor extends AbstractProcessor{
     }
 
     //解析默认值
-    private void parseOther(RoundEnvironment env, InjectClass injectClass){
+    private void parseOther(RoundEnvironment env, BindClass injectClass){
         // @RootURL element.
         for (Element element : env.getElementsAnnotatedWith(RootURL.class)) {
             try {
@@ -185,7 +185,7 @@ public class HttpProcessor extends AbstractProcessor{
 
     private void findAndParseMethod(RoundEnvironment env,
                                     Class<? extends Annotation> annotationClass,
-                                    Map<TypeElement, InjectClass> targetClassMap){
+                                    Map<TypeElement, BindClass> targetClassMap){
         for (Element element : env.getElementsAnnotatedWith(annotationClass)) {
             try {
                 parseMethodAnnotation(annotationClass, env, element, targetClassMap);
@@ -201,7 +201,7 @@ public class HttpProcessor extends AbstractProcessor{
     private void parseMethodAnnotation(Class<? extends Annotation> annotationClass,
                                        RoundEnvironment roundEnvironment,
                                        Element element,
-                                       Map<TypeElement, InjectClass> targetClassMap) throws Exception{
+                                       Map<TypeElement, BindClass> targetClassMap) throws Exception{
         if (!(element instanceof ExecutableElement) || element.getKind() != METHOD) {
             throw new IllegalStateException(
                     String.format("@%s annotation must be on a method.", annotationClass.getSimpleName()));
@@ -210,15 +210,15 @@ public class HttpProcessor extends AbstractProcessor{
         ExecutableElement executableElement = (ExecutableElement) element;
         TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
         //BindingClass
-        InjectClass injector = getOrCreateTargetClass(targetClassMap, enclosingElement);
+        BindClass injector = getOrCreateTargetClass(targetClassMap, enclosingElement);
         parseOther(roundEnvironment, injector);
 
-        InjectMethod methodInjector = new InjectMethod(injector, executableElement);
+        BindMethod methodInjector = new BindMethod(injector, executableElement);
         injector.addMethod(methodInjector);
     }
 
-    private InjectClass getOrCreateTargetClass(Map<TypeElement, InjectClass> targetClassMap, TypeElement enclosingElement) {
-        InjectClass injector = targetClassMap.get(enclosingElement);
+    private BindClass getOrCreateTargetClass(Map<TypeElement, BindClass> targetClassMap, TypeElement enclosingElement) {
+        BindClass injector = targetClassMap.get(enclosingElement);
         if (injector == null) {
             String targetType = enclosingElement.getQualifiedName().toString();
             String classPackage = getPackageName(enclosingElement);
@@ -227,7 +227,7 @@ public class HttpProcessor extends AbstractProcessor{
             TypeMirror elementType = enclosingElement.asType();
             boolean isInterface = isInterface(elementType);
 
-            injector = new InjectClass(classPackage, className, targetType, isInterface);
+            injector = new BindClass(classPackage, className, targetType, isInterface);
             targetClassMap.put(enclosingElement, injector);
         }
         return injector;

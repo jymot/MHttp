@@ -1,8 +1,8 @@
-# MHttpAdapter
-任意第三方网络请求库的适配性封装
+# MHttp
+okhttp wrapper
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttpadapter:0.3.5'
+  compile 'im.wangchao:mhttp:0.4.0'
 ```
 ###PROGUARD
 ```java
@@ -14,6 +14,15 @@
     }
     -keepclasseswithmembernames class * {
         @im.wangchao.* <methods>;
+    }
+    -keepclassmembers class * implements java.io.Serializable {  
+        static final long serialVersionUID;  
+        private static final java.io.ObjectStreamField[] serialPersistentFields;  
+        !static !transient <fields>;  
+        private void writeObject(java.io.ObjectOutputStream);  
+        private void readObject(java.io.ObjectInputStream);  
+        java.lang.Object writeReplace();  
+        java.lang.Object readResolve();  
     }
 ```
 ###How to use
