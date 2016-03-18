@@ -2,7 +2,7 @@
 
 ./gradlew :processor:build
 
-cp ./processor/build/libs/processor.jar ./library/libs/processor.jar
+cp ./processor/build/libs/processor.jar ./mhttp/libs/processor.jar
 
 ./gradlew compileDebugJava
 
