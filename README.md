@@ -28,41 +28,47 @@ okhttp wrapper
 ###How to use
 #####simple
 ```java
-  public abstract class SimpleApi{
-  
-    public static SimpleApi instance() {
-      return HttpRequest.inject(SimpleApi.class);
+
+    public abstract class SampleApi {
+        public static SampleApi instance() {
+            return HttpManager.bind(SampleApi.class);
+        }
+
+        @Get(url = "https://www.baidu.com/")
+        public abstract void baidu(@Callback TextResponseHandler callback);
+
+        @Post(url = "s")
+        public abstract HttpRequest search(String wd,
+                                           @Callback TextResponseHandler callback);
     }
-  
-    @Post(url="http://test.com", timeout=40, tag="tag", heads = {"key", "value"})
-    public abstract void testApi(String key0,
-                                 String key1,
-                                 @Callback JSONResponseHandler callback);
-                                 
-    @GET(url="https://www.baidu.com")
-    public abstract HttpRequest testApi2(@Callback JSONResponseHandler callback);
     
-  }
 ```
 ```java
+
   public class TestActivity extends Activity{
       
       private void invokeTestApi(){
-        SimpleApi.instance().testApi("value0", "value1", new JSONResponseHandler(){
-        
-              public void onSuccess(JSONObject jsonObject, HttpResponse response){
-              }
-              
-        });
         //auto execute
+        SampleApi.instance().baidu(new TextResponseHandler() {
+                            @Override
+                            public void onSuccess(String text, HttpResponse response) {
+                                super.onSuccess(text, response);
+                                log("onSuccess: " + text);
+                            }
+        
+                            @Override
+                            protected void onFinish() {
+                                super.onFinish();
+                                log("onFinish");
+                            }
+                        });
       }
       
       private void invokeTestApi2(){
-        HttpRequest request = SimpleApi.instance().testApi2(new JSONResponseHandler(){
-        
-            public void onSuccess(JSONObject jsonObject, HttpResponse response){
+        HttpRequest request = SimpleApi.instance().search(new TextResponseHandler(){
+            @Override
+            public void onSuccess(String text, HttpResponse response){
             }
-            
         });
         
         //execute
@@ -70,31 +76,69 @@ okhttp wrapper
       }
     
   }
+  
 ```
 
 #####common settings
 ```java
-  public abstract class BaseApi{
-  
-    @RootURL("http://root.com/") String baseURL;
-    @Timeout(40) String timeout;
-    @RequestContentType(RequestParams.APPLICATION_FORM) String Content_Type;
-    @Header("Android") String User_Agent;
-        
-    @CommonParamsMethod
-    public Map<String, String> getCommonParams() {
-      Map<String, String> params = new HashMap<>();
-      params.put("key", "value");
-      return params;
+
+    public abstract class SampleDefaultApi {
+
+        @RootURL("https://www.baidu.com/") String baseURL;
+        @Timeout(40) String timeout;
+        @RequestContentType(RequestParams.APPLICATION_JSON) String Content_Type;
+        @Header("Android") String User_Agent;
+
+        @CommonParamsMethod
+        public Map<String, String> getCommonParams() {
+            Map<String, String> params = new HashMap<>();
+            // TODO: 15/12/4 Common params
+            return params;
+        }
+    } 
+    
+
+    public abstract class SampleApi extends SampleDefaultApi{
+        public static SampleApi instance() {
+            return HttpManager.bind(SampleApi.class);
+        }
+
+        @Get(url = "https://www.baidu.com/")
+        public abstract void baidu(@Callback TextResponseHandler callback);
+
+        @Post(url = "s")
+        public abstract HttpRequest search(String wd,
+                                           @Callback TextResponseHandler callback);
     }
-  }
   
-  public abstract class SimpleApi extends BaseApi{
-  
-      @Post(url="test")
-      public abstract void testApi(@Callback TextResponseHandler callback);
-      
-  }
 ```
+
+#####normal
+```java
+    HttpRequest.builder()
+                .get()
+                .url("http://www.cninfo.com.cn/finalpage/2014-12-13/1200461869.PDF")
+                .responseHandler(new FileResponseHandler(MainActivity.this) {
+                    @Override
+                    public void onSuccess(File file, HttpResponse response) {
+                        super.onSuccess(file, response);
+                        log("file len: " + file.length() + ", file exists: " + file.exists() + " , path:" + file.getPath());
+                    }
+
+                    @Override
+                    protected void onFinish() {
+                        super.onFinish();
+                        log("onFinish");
+                    }
+
+                    @Override
+                    protected void onProgress(int bytesWritten, int bytesTotal) {
+                        super.onProgress(bytesWritten, bytesTotal);
+                        log("onProgress : " + bytesWritten + " -- " + bytesTotal);
+                    }
+                }).build().execute();
+
+```
+
 ###
 link [网络请求适配性封装](http://wangchao.im/2015/11/22/mhttpadapter-post.html)

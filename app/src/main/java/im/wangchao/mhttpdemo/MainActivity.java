@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.getFile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new HttpRequest.Builder()
+               HttpRequest.builder()
                         .get()
                         .url("http://www.cninfo.com.cn/finalpage/2014-12-13/1200461869.PDF")
                         .responseHandler(new FileResponseHandler(MainActivity.this) {
