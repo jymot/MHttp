@@ -2,13 +2,13 @@
 okhttp wrapper
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:0.4.0'
+  compile 'im.wangchao:mhttp:0.4.1'
 ```
 ###PROGUARD
 ```java
     -keep class im.wangchao.** { *; }
     -dontwarn im.wangchao.**
-    -keep class **$$HttpInjector { *; }
+    -keep class **$$HttpBinder { *; }
     -keepclasseswithmembernames class * {
         @im.wangchao.* <fields>;
     }
