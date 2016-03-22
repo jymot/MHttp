@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             protected void onFinish() {
                                 super.onFinish();
-                                Log.e("wcwcwc", "onFinish");
+                                log("onFinish");
                             }
 
                             @Override
@@ -53,18 +53,15 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.getBaiduText).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SampleApi api = SampleApi.instance();
-                if (api == null){
-                    log("api == null");
-                    return;
-                }
-                api.baidu(new TextResponseHandler(){
-                    @Override public void onSuccess(String text, HttpResponse response) {
+                SampleApi.instance().baidu(new TextResponseHandler() {
+                    @Override
+                    public void onSuccess(String text, HttpResponse response) {
                         super.onSuccess(text, response);
                         log("onSuccess: " + text);
                     }
 
-                    @Override protected void onFinish() {
+                    @Override
+                    protected void onFinish() {
                         super.onFinish();
                         log("onFinish");
                     }

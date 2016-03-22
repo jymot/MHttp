@@ -102,6 +102,14 @@ final public class HttpRequest {
         return this;
     }
 
+    /**
+     * @return Simple new default Builder
+     */
+    public static Builder builder(){
+        return new Builder();
+    }
+
+    /** HttpRequest to okhttp3.Request */
     /*package*/ Request map(){
         final Request.Builder builder = new Request.Builder();
 

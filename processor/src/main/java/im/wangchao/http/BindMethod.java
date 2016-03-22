@@ -65,6 +65,8 @@ public class BindMethod {
         //build return type
         TypeKind returnTypeKind = returnType.getKind();
 
+        //tag object
+        String tagObj = null;
         String responseListenerName = null;
         Map<String, String> parameterNameMap = new LinkedHashMap<>();
 
@@ -83,6 +85,7 @@ public class BindMethod {
         sb.append(methodName + "(");
         boolean isFirst = true;
 
+
         for (VariableElement variableElement : arguments) {
 //            DeclaredType type = (DeclaredType)variableElement.asType();
 //            String typeName = type.asElement().toString();
@@ -90,11 +93,16 @@ public class BindMethod {
             String variableName = variableElement.getSimpleName().toString();
 
             Callback callback = variableElement.getAnnotation(Callback.class);
+            Tag t = variableElement.getAnnotation(Tag.class);
+
             if (callback != null){
                 responseListenerName = variableName;
+            } else if (t != null){
+                tagObj = variableName;
             } else {
                 parameterNameMap.put(variableName, variableName);
             }
+
 
             if (!isFirst) {
                 sb.append(", ");
@@ -109,13 +117,20 @@ public class BindMethod {
         }
 
         sb.append(") {\n");
-        sb.append(buildFunctionBody(parameterNameMap, responseListenerName, returnTypeKind));
+        sb.append(buildFunctionBody(parameterNameMap, responseListenerName, returnTypeKind, tagObj));
         sb.append("}\n");
 
         return sb.toString();
     }
 
-    private String buildFunctionBody(Map<String, String> parameters, String responseListenerName, TypeKind returnTypeKind) {
+    /**
+     * make func body
+     * @param parameters            request parameters
+     * @param responseListenerName  callback name
+     * @param returnTypeKind        return type
+     * @param tagObj                tag name
+     */
+    private String buildFunctionBody(Map<String, String> parameters, String responseListenerName, TypeKind returnTypeKind, String tagObj) {
         StringBuilder sb = new StringBuilder();
         for (Map.Entry<String, String> parameter: parameters.entrySet()) {
             String name = parameter.getKey();
@@ -172,7 +187,9 @@ public class BindMethod {
             sb.append("HttpManager.instance().timeout(" + this.injectClass.getDefaultTimeout() + ");\n");
         }
 
-        if (this.tag != null){
+        if (tagObj != null){
+            sb.append("builder.tag(" + tagObj + ");\n");
+        } else if (this.tag != null){
             sb.append("builder.tag(\"" + this.tag + "\");\n");
         }
 

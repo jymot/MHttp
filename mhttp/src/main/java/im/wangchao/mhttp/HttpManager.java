@@ -28,7 +28,7 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 import im.wangchao.http.BindApi;
-import im.wangchao.mhttp.internal.cookie.MemeryCookieJar;
+import im.wangchao.mhttp.internal.cookie.MemoryCookieJar;
 import im.wangchao.mhttp.internal.cookie.cache.SetCookieCache;
 import okhttp3.Cache;
 import okhttp3.Call;
@@ -58,8 +58,8 @@ public final class HttpManager {
 
     private HttpManager(OkHttpClient okHttpClient){
         okBuilder = okHttpClient.newBuilder();
-        //default Memery Cookie
-        okBuilder.cookieJar(new MemeryCookieJar(new SetCookieCache()));
+        //default Memory Cookie
+        okBuilder.cookieJar(new MemoryCookieJar(new SetCookieCache()));
     }
 
     public static HttpManager replace(@NonNull OkHttpClient okHttpClient) {
@@ -84,6 +84,9 @@ public final class HttpManager {
         modified = true;
     }
 
+    /**
+     * Bind annotation api
+     */
     public static <T> T bind(Class<T> api){
         return BindApi.bind(api);
     }

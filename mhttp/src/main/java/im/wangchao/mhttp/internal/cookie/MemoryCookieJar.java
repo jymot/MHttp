@@ -15,11 +15,11 @@ import okhttp3.HttpUrl;
  * <p>Date         : 16/3/18.</p>
  * <p>Time         : 下午2:20.</p>
  */
-public class MemeryCookieJar implements ClearableCookieJar {
+public class MemoryCookieJar implements ClearableCookieJar {
 
     private CookieCache cache;
 
-    public MemeryCookieJar(CookieCache cache) {
+    public MemoryCookieJar(CookieCache cache) {
         this.cache = cache;
     }
 
@@ -30,14 +30,12 @@ public class MemeryCookieJar implements ClearableCookieJar {
 
     @Override
     synchronized public List<Cookie> loadForRequest(HttpUrl url) {
-        List<Cookie> removedCookies = new ArrayList<>();
         List<Cookie> validCookies = new ArrayList<>();
 
         for (Iterator<Cookie> it = cache.iterator(); it.hasNext(); ) {
             Cookie currentCookie = it.next();
 
             if (isCookieExpired(currentCookie)) {
-                removedCookies.add(currentCookie);
                 it.remove();
 
             } else if (currentCookie.matches(url)) {
