@@ -76,7 +76,6 @@ public abstract class AbsResponseHandler implements Callback{
     protected void onFinish(){}
 
     @Override final public void onFailure(Call call, IOException e) {
-        Log.e("wcwcwc", "onFailure" + e.getMessage() , e);
         sendFinishMessage();
         sendFailureMessage(responseWrapper(request, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), new byte[0], null), e);
     }
