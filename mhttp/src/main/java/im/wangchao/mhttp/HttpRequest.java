@@ -7,11 +7,12 @@ import android.text.TextUtils;
 import java.lang.ref.WeakReference;
 import java.text.MessageFormat;
 
+import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Request;
 
 /**
- * <p>Description  : HttpRequest.</p>
+ * <p>Description  : HttpRequest.扩展 OkHttp Request</p>
  * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/8/17.</p>
@@ -26,6 +27,7 @@ final public class HttpRequest {
     final Object                tag;
 
     /*package*/WeakReference<Call> _weakCall;
+    private volatile CacheControl cacheControl; // Lazily initialized.
 
     public HttpRequest(Builder builder){
         this.url                = builder.url;
@@ -69,6 +71,15 @@ final public class HttpRequest {
     /** new HttpRequest.Builder*/
     public Builder newBuilder(){
         return new Builder(this);
+    }
+
+    /**
+     * Returns the cache control directives for this response. This is never null, even if this
+     * response contains no {@code Cache-Control} header.
+     */
+    public CacheControl cacheControl() {
+        CacheControl result = cacheControl;
+        return result != null ? result : (cacheControl = CacheControl.parse(okhttp3.Headers.of(headers.namesAndValues())));
     }
 
     /** cancel this current request */
@@ -200,6 +211,11 @@ final public class HttpRequest {
             return this;
         }
 
+        public Builder removeHeader(String name) {
+            this.headers.removeAll(name);
+            return this;
+        }
+
         public Builder headers(Headers headers){
             if (headers != null){
                 this.headers = headers.newBuilder();
@@ -227,9 +243,20 @@ final public class HttpRequest {
 
         public Builder tag(Object tag){
             if (tag != null ){
+                this.tag = tag;
             }
-            this.tag = tag;
             return this;
+        }
+
+        /**
+         * Sets this request's {@code Cache-Control} header, replacing any cache control headers already
+         * present. If {@code cacheControl} doesn't define any directives, this clears this request's
+         * cache-control headers.
+         */
+        public Builder cacheControl(CacheControl cacheControl) {
+            String value = cacheControl.toString();
+            if (value.isEmpty()) return removeHeader("Cache-Control");
+            return header("Cache-Control", value);
         }
 
         public HttpRequest build(){

@@ -33,6 +33,7 @@ import im.wangchao.mhttp.internal.cookie.cache.SetCookieCache;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.CookieJar;
+import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.OkHttpClient.Builder;
 import timber.log.Timber;
@@ -104,6 +105,37 @@ public final class HttpManager {
     public HttpManager cookieJar(CookieJar cookieJar){
         modified();
         okBuilder.cookieJar(cookieJar);
+        return this;
+    }
+
+
+    /**
+     * Returns a modifiable list of interceptors that observe the full span of each call: from
+     * before the connection is established (if any) until after the response source is selected
+     * (either the origin server, cache, or both).
+     */
+    public List<Interceptor> interceptors() {
+        return okBuilder.interceptors();
+    }
+
+    public HttpManager addInterceptor(Interceptor interceptor) {
+        modified();
+        okBuilder.addInterceptor(interceptor);
+        return this;
+    }
+
+    /**
+     * Returns a modifiable list of interceptors that observe a single network request and response.
+     * These interceptors must call {@link Interceptor.Chain#proceed} exactly once: it is an error
+     * for a network interceptor to short-circuit or repeat a network request.
+     */
+    public List<Interceptor> networkInterceptors() {
+        return okBuilder.networkInterceptors();
+    }
+
+    public HttpManager addNetworkInterceptor(Interceptor interceptor) {
+        modified();
+        okBuilder.addNetworkInterceptor(interceptor);
         return this;
     }
 
