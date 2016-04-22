@@ -63,6 +63,7 @@ publishing {
                 root.appendNode('description', PROJ_DESCRIPTION)
                 root.children().last() + pomConfig
 
+                //添加依赖的 pom node
                 def dependenciesNode = root.appendNode('dependencies')
                 configurations.compile.allDependencies.each {
                     if (it.group && it.name && it.version) {
