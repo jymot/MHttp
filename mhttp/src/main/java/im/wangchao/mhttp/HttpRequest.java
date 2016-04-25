@@ -9,6 +9,7 @@ import java.text.MessageFormat;
 
 import okhttp3.CacheControl;
 import okhttp3.Call;
+import okhttp3.Headers;
 import okhttp3.Request;
 
 /**
@@ -25,6 +26,7 @@ final public class HttpRequest {
     final String                method;
     final AbsResponseHandler    responseHandler;
     final Object                tag;
+    Request okRequest;
 
     /*package*/WeakReference<Call> _weakCall;
     private volatile CacheControl cacheControl; // Lazily initialized.
@@ -68,6 +70,11 @@ final public class HttpRequest {
         return tag;
     }
 
+    /** okhttp request */
+    public Request okRequest() {
+        return okRequest;
+    }
+
     /** new HttpRequest.Builder*/
     public Builder newBuilder(){
         return new Builder(this);
@@ -79,7 +86,7 @@ final public class HttpRequest {
      */
     public CacheControl cacheControl() {
         CacheControl result = cacheControl;
-        return result != null ? result : (cacheControl = CacheControl.parse(okhttp3.Headers.of(headers.namesAndValues())));
+        return result != null ? result : (cacheControl = CacheControl.parse(headers));
     }
 
     /** cancel this current request */
@@ -123,9 +130,10 @@ final public class HttpRequest {
     /** HttpRequest to okhttp3.Request */
     /*package*/ Request map(){
         final Request.Builder builder = new Request.Builder();
-
-        builder.headers(okhttp3.Headers.of(headers.namesAndValues()));
-        builder.addHeader("Accept", responseHandler.accept());
+        builder.headers(headers);
+        if (!TextUtils.equals(responseHandler.accept(), Accept.ACCEPT_DEFAULT)){
+            builder.addHeader("Accept", responseHandler.accept());
+        }
 
         if (method.equals(Method.GET)){
             builder.get().url(url.concat("?").concat(requestParams.formatURLParams()));
@@ -136,7 +144,7 @@ final public class HttpRequest {
 
         builder.tag(tag);
 
-        return builder.build();
+        return okRequest = builder.build();
     }
 
     @Override public boolean equals(Object o) {
@@ -246,6 +254,16 @@ final public class HttpRequest {
                 this.tag = tag;
             }
             return this;
+        }
+
+        /**
+         * Set this request's accept header
+         */
+        public Builder accept(String accept){
+            if (TextUtils.isEmpty(accept)) {
+                return this;
+            }
+            return addHeader("Accept", accept);
         }
 
         /**

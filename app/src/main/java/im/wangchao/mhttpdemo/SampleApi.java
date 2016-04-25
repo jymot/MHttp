@@ -1,7 +1,7 @@
 package im.wangchao.mhttpdemo;
 
-import im.wangchao.http.Callback;
-import im.wangchao.http.Get;
+import im.wangchao.http.annotations.Callback;
+import im.wangchao.http.annotations.Get;
 import im.wangchao.mhttp.HttpManager;
 import im.wangchao.mhttp.HttpRequest;
 import im.wangchao.mhttp.TextResponseHandler;

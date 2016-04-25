@@ -27,7 +27,6 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import im.wangchao.http.BindApi;
 import im.wangchao.mhttp.internal.cookie.MemoryCookieJar;
 import im.wangchao.mhttp.internal.cookie.cache.SetCookieCache;
 import okhttp3.Cache;

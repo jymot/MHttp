@@ -2,6 +2,9 @@ package im.wangchao.mhttp;
 
 import java.io.File;
 
+import okhttp3.Headers;
+import okhttp3.Response;
+
 /**
  * <p>Description  : HttpResponse.</p>
  * <p/>
@@ -11,9 +14,10 @@ import java.io.File;
  */
 public class HttpResponse {
     final private HttpRequest   request;
+    final private Response      okResponse;
     final private int           code;
     final private Headers       headers;
-    final private byte[]        body;
+    final private byte[]        bodyBytes;
     final private File          bodyFile;
     final private String        message;
 
@@ -21,7 +25,8 @@ public class HttpResponse {
         this.request        = builder.request;
         this.code           = builder.code;
         this.headers        = builder.headers;
-        this.body           = builder.body;
+        this.okResponse     = builder.okResponse;
+        this.bodyBytes      = builder.bodyBytes;
         this.message        = builder.message;
         this.bodyFile       = builder.bodyFile;
     }
@@ -34,8 +39,8 @@ public class HttpResponse {
         return headers;
     }
 
-    final public byte[] body() {
-        return body;
+    final public byte[] bodyBytes() {
+        return bodyBytes;
     }
 
     final public File bodyFile() {
@@ -56,10 +61,11 @@ public class HttpResponse {
 
     public static class Builder{
         private HttpRequest request;
+        private Response    okResponse;
         private int         code;
         private Headers     headers;
-        private byte[]      body;
         private String      message;
+        private byte[]      bodyBytes;
         private File        bodyFile;
 
         public Builder(){
@@ -70,13 +76,19 @@ public class HttpResponse {
             this.request        = response.request;
             this.code           = response.code;
             this.headers        = response.headers;
-            this.body           = response.body;
+            this.okResponse     = response.okResponse;
             this.message        = response.message;
             this.bodyFile       = response.bodyFile;
+            this.bodyBytes      = response.bodyBytes;
         }
 
         public Builder bodyFile(File file){
             this.bodyFile = file;
+            return this;
+        }
+
+        public Builder bodyBytes(byte[] bodyBytes){
+            this.bodyBytes = bodyBytes;
             return this;
         }
 
@@ -95,8 +107,8 @@ public class HttpResponse {
             return this;
         }
 
-        public Builder body(byte[] body){
-            this.body = body;
+        public Builder response(Response okResponse){
+            this.okResponse = okResponse;
             return this;
         }
 

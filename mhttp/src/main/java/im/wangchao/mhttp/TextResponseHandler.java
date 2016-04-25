@@ -11,7 +11,7 @@ import android.support.annotation.Nullable;
  */
 public class TextResponseHandler extends AbsResponseHandler{
     @Override final protected void onSuccess(HttpResponse response) {
-        String text = byteArrayToString(response.body());
+        String text = byteArrayToString(response.bodyBytes());
         onSuccess(text, response);
     }
 
@@ -20,7 +20,7 @@ public class TextResponseHandler extends AbsResponseHandler{
     }
 
     @Override protected String accept() {
-        return $Accept.ACCEPT_TEXT;
+        return Accept.ACCEPT_TEXT;
     }
 
     public void onSuccess(String text, HttpResponse response){

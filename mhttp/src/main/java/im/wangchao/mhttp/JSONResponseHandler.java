@@ -16,7 +16,7 @@ import org.json.JSONObject;
 public class JSONResponseHandler extends AbsResponseHandler{
 
     @Override final protected void onSuccess(HttpResponse response) {
-        final byte[] body = response.body();
+        final byte[] body = response.bodyBytes();
         final String bodyString = byteArrayToString(body);
         if (bodyString != null){
             try {
@@ -40,7 +40,7 @@ public class JSONResponseHandler extends AbsResponseHandler{
     }
 
     @Override protected String accept() {
-        return $Accept.ACCEPT_JSON;
+        return Accept.ACCEPT_JSON;
     }
 
     public void onSuccess(JSONObject jsonObject, HttpResponse response){

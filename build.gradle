@@ -6,7 +6,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.0.0'
-
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -34,8 +34,8 @@ ext {
 ext.deps = [
         // Android
         android           : 'com.google.android:android:2.1.2',
-        appcompatv7       : 'com.android.support:appcompat-v7:23.1.1',
-        supportAnnotations: 'com.android.support:support-annotations:23.0.1',
+        appcompatv7       : 'com.android.support:appcompat-v7:23.3.0',
+        supportAnnotations: 'com.android.support:support-annotations:23.3.0',
 
         // Square
         javapoet          : 'com.squareup:javapoet:1.4.0',
@@ -44,4 +44,7 @@ ext.deps = [
 
         // Test dependencies
         junit             : 'junit:junit:4.12',
+
+        autoservice       : 'com.google.auto.service:auto-service:1.0-rc2',
+        autocommon        : 'com.google.auto:auto-common:0.6'
 ]

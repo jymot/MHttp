@@ -3,11 +3,11 @@ package im.wangchao.mhttpdemo;
 import java.util.HashMap;
 import java.util.Map;
 
-import im.wangchao.http.CommonParamsMethod;
-import im.wangchao.http.Header;
-import im.wangchao.http.RequestContentType;
-import im.wangchao.http.RootURL;
-import im.wangchao.http.Timeout;
+import im.wangchao.http.annotations.CommonParamsMethod;
+import im.wangchao.http.annotations.Header;
+import im.wangchao.http.annotations.RequestContentType;
+import im.wangchao.http.annotations.RootURL;
+import im.wangchao.http.annotations.Timeout;
 import im.wangchao.mhttp.RequestParams;
 
 /**

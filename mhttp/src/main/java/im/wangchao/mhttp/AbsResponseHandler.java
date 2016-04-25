@@ -5,7 +5,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.StringDef;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -14,13 +13,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.Call;
 import okhttp3.Callback;
+import okhttp3.Headers;
 import okhttp3.Response;
 import okhttp3.internal.Util;
 
@@ -33,23 +29,12 @@ import okhttp3.internal.Util;
  */
 public abstract class AbsResponseHandler implements Callback{
 
-    @Retention(RetentionPolicy.SOURCE)
-    @StringDef({
-            $Accept.ACCEPT_JSON, $Accept.ACCEPT_TEXT, $Accept.ACCEPT_DATA, $Accept.ACCEPT_IMAGE, $Accept.ACCEPT_FILE
-    })
-    public @interface Accept{}
-    public interface $Accept{
-        String ACCEPT_JSON  = "application/json;charset=utf-8";
-        String ACCEPT_TEXT  = "text/html;charset=utf-8";
-        String ACCEPT_DATA  = "application/octet-stream";
-        String ACCEPT_IMAGE = "image/png,image/jpeg,image/*";
-        String ACCEPT_FILE = "application/octet-stream";
-    }
 
     final public static int     IO_EXCEPTION_CODE   = -1;
     final public static String  DEFAULT_CHARSET     = "UTF-8";
 
     final private static int BUFFER_SIZE = 4096;
+    final private static byte[] EMPTY_BYTES = new byte[0];
 
     private static final int SUCCESS_MESSAGE    = 0;
     private static final int FAILURE_MESSAGE    = 1;
@@ -60,7 +45,7 @@ public abstract class AbsResponseHandler implements Callback{
 
     private HttpRequest request;
     private HttpResponse response;
-    private String responseAccept = $Accept.ACCEPT_JSON;
+    private String requestAccept = Accept.ACCEPT_DEFAULT;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
@@ -77,25 +62,22 @@ public abstract class AbsResponseHandler implements Callback{
 
     @Override final public void onFailure(Call call, IOException e) {
         sendFinishMessage();
-        sendFailureMessage(responseWrapper(request, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), new byte[0], null), e);
+        sendFailureMessage(responseWrapper(request, new Response.Builder().build(), AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), EMPTY_BYTES, null), e);
     }
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
         sendFinishMessage();
 
         if (response.isSuccessful()) {
-            Headers headers = parseOkHeader(response.headers());
             if (FileResponseHandler.class.isInstance(this)) {
                 File file = ((FileResponseHandler) this).getFile();
                 writeFile(response, file);
-                sendSuccessMessage(responseWrapper(request, response.code(), response.message(), headers, new byte[0], file));
+                sendSuccessMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), EMPTY_BYTES, file));
             } else {
-                sendSuccessMessage(responseWrapper(request, response.code(), response.message(), headers, response.body().bytes(), null));
+                sendSuccessMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), response.body().bytes(), null));
             }
         } else {
-            okhttp3.Headers okHeaders = response.headers();
-            Headers headers = parseOkHeader(okHeaders);
-            sendFailureMessage(responseWrapper(request, response.code(), response.message(), headers, response.body().bytes(), null), null);
+            sendFailureMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), response.body().bytes(), null), null);
         }
     }
 
@@ -152,15 +134,10 @@ public abstract class AbsResponseHandler implements Callback{
     }
 
     /**
-     * @return response accept
+     * @return request accept
      */
     protected String accept(){
-        return responseAccept;
-    }
-
-    final public AbsResponseHandler setResponseAccept(@NonNull String accept){
-        this.responseAccept = accept;
-        return this;
+        return requestAccept;
     }
 
     final protected void print(String message){
@@ -196,38 +173,20 @@ public abstract class AbsResponseHandler implements Callback{
     }
 
     private HttpResponse responseWrapper(HttpRequest request,
+                                         Response response,
                                          int code,
                                          String codeMessage,
                                          Headers headers,
-                                         byte[] body,
+                                         byte[] bodyBytes,
                                          File file){
         HttpResponse.Builder builder = new HttpResponse.Builder();
         builder.request(request)
                 .code(code)
                 .header(headers)
-                .body(body)
+                .response(response)
                 .message(codeMessage)
+                .bodyBytes(bodyBytes)
                 .bodyFile(file);
-        return builder.build();
-    }
-
-    /**
-     * parse OkHeader to Headers {@link Headers}
-     */
-    private Headers parseOkHeader(@NonNull okhttp3.Headers okHeaders){
-        Headers.Builder builder = new Headers.Builder();
-
-        Map<String, List<String>> okHeadersMap = okHeaders.toMultimap();
-        List<String> values;
-        for (Map.Entry<String, List<String>> head : okHeadersMap.entrySet()) {
-            values = head.getValue();
-            if (values.isEmpty()) {
-                continue;
-            }
-            for (int i = 0; i < values.size(); i++) {
-                builder.add(head.getKey(), values.get(i));
-            }
-        }
         return builder.build();
     }
 

@@ -37,7 +37,7 @@ public class FileResponseHandler extends AbsResponseHandler {
     }
 
     @Override protected String accept() {
-        return $Accept.ACCEPT_FILE;
+        return Accept.ACCEPT_FILE;
     }
 
     public void onSuccess(File file, HttpResponse response){
