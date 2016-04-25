@@ -1,8 +1,12 @@
 #!/bin/bash
 
-./gradlew :processor:build
+./gradlew :mhttp-compiler:build
 
-cp ./processor/build/libs/processor.jar ./mhttp/libs/processor.jar
+cp ./mhttp-compiler/build/libs/mhttp-compiler.jar ./mhttp/libs/mhttp-compiler.jar
+
+./gradlew :mhttp-annotations:build
+
+cp ./mhttp-annotations/build/libs/mhttp-annotations.jar ./mhttp/libs/mhttp-annotations.jar
 
 ./gradlew compileDebugJava
 

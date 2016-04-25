@@ -1,6 +1,9 @@
 package im.wangchao.mhttp;
 
+import android.support.annotation.Nullable;
+
 import java.io.File;
+import java.io.InputStream;
 
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -17,18 +20,16 @@ public class HttpResponse {
     final private Response      okResponse;
     final private int           code;
     final private Headers       headers;
-    final private byte[]        bodyBytes;
-    final private File          bodyFile;
     final private String        message;
+    final private HttpResponseBody body;
 
     public HttpResponse(Builder builder){
         this.request        = builder.request;
         this.code           = builder.code;
         this.headers        = builder.headers;
         this.okResponse     = builder.okResponse;
-        this.bodyBytes      = builder.bodyBytes;
         this.message        = builder.message;
-        this.bodyFile       = builder.bodyFile;
+        this.body           = builder.body;
     }
 
     final public int code() {
@@ -40,11 +41,15 @@ public class HttpResponse {
     }
 
     final public byte[] bodyBytes() {
-        return bodyBytes;
+        return body.bytesBody();
     }
 
     final public File bodyFile() {
-        return bodyFile;
+        return body.file();
+    }
+
+    final public InputStream byteStream(){
+        return body.byteStream();
     }
 
     final public String message() {
@@ -55,18 +60,24 @@ public class HttpResponse {
         return this.request;
     }
 
+    /**
+     * return null, when throw IOException.
+     */
+    @Nullable  final public Response okResponse() {
+        return this.okResponse;
+    }
+
     final public Builder newBuilder(){
         return new Builder(this);
     }
 
     public static class Builder{
-        private HttpRequest request;
-        private Response    okResponse;
-        private int         code;
-        private Headers     headers;
-        private String      message;
-        private byte[]      bodyBytes;
-        private File        bodyFile;
+        private HttpRequest         request;
+        private Response            okResponse;
+        private int                 code;
+        private Headers             headers;
+        private String              message;
+        private HttpResponseBody    body;
 
         public Builder(){
 
@@ -78,17 +89,11 @@ public class HttpResponse {
             this.headers        = response.headers;
             this.okResponse     = response.okResponse;
             this.message        = response.message;
-            this.bodyFile       = response.bodyFile;
-            this.bodyBytes      = response.bodyBytes;
+            this.body           = response.body;
         }
 
-        public Builder bodyFile(File file){
-            this.bodyFile = file;
-            return this;
-        }
-
-        public Builder bodyBytes(byte[] bodyBytes){
-            this.bodyBytes = bodyBytes;
+        public Builder body(HttpResponseBody body){
+            this.body = body;
             return this;
         }
 

@@ -14,10 +14,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 
+import im.wangchao.mhttp.internal.exception.ResponseFailException;
 import okhttp3.Call;
 import okhttp3.Callback;
-import okhttp3.Headers;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.internal.Util;
 
 /**
@@ -45,7 +46,6 @@ public abstract class AbsResponseHandler implements Callback{
 
     private HttpRequest request;
     private HttpResponse response;
-    private String requestAccept = Accept.ACCEPT_DEFAULT;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
@@ -62,7 +62,7 @@ public abstract class AbsResponseHandler implements Callback{
 
     @Override final public void onFailure(Call call, IOException e) {
         sendFinishMessage();
-        sendFailureMessage(responseWrapper(request, new Response.Builder().build(), AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage(), new Headers.Builder().build(), EMPTY_BYTES, null), e);
+        sendFailureMessage(onFailureResponseWrapper(request, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage()), e);
     }
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
@@ -72,12 +72,12 @@ public abstract class AbsResponseHandler implements Callback{
             if (FileResponseHandler.class.isInstance(this)) {
                 File file = ((FileResponseHandler) this).getFile();
                 writeFile(response, file);
-                sendSuccessMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), EMPTY_BYTES, file));
+                sendSuccessMessage(responseWrapper(request, response, file));
             } else {
-                sendSuccessMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), response.body().bytes(), null));
+                sendSuccessMessage(responseWrapper(request, response));
             }
         } else {
-            sendFailureMessage(responseWrapper(request, response, response.code(), response.message(), response.headers(), response.body().bytes(), null), null);
+            sendFailureMessage(responseWrapper(request, response), new ResponseFailException());
         }
     }
 
@@ -137,7 +137,7 @@ public abstract class AbsResponseHandler implements Callback{
      * @return request accept
      */
     protected String accept(){
-        return requestAccept;
+        return Accept.ACCEPT_DEFAULT;
     }
 
     final protected void print(String message){
@@ -172,21 +172,41 @@ public abstract class AbsResponseHandler implements Callback{
         }
     }
 
+    private HttpResponse responseWrapper(HttpRequest request, Response response) throws IOException {
+        return responseWrapper(request, response, null);
+    }
+
+    private HttpResponse responseWrapper(HttpRequest request, Response response, File file) throws IOException {
+        return responseWrapper(request, response, response.code(), response.message(), file);
+    }
+
     private HttpResponse responseWrapper(HttpRequest request,
                                          Response response,
                                          int code,
                                          String codeMessage,
-                                         Headers headers,
-                                         byte[] bodyBytes,
-                                         File file){
+                                         File file) throws IOException {
+        HttpResponse.Builder builder = new HttpResponse.Builder();
+        final ResponseBody responseBody = response.body();
+        //response non null and file is not empty, invoke responseBody.bytes()
+        final byte[] bytes = responseBody != null && file == null ? responseBody.bytes() : null;
+        builder.request(request)
+                .code(code)
+                .header(response.headers())
+                .response(response)
+                .message(codeMessage)
+                .body(new HttpResponseBody(responseBody, bytes,file));
+        return builder.build();
+    }
+
+    private HttpResponse onFailureResponseWrapper(HttpRequest request,
+                                                  int code,
+                                                  String codeMessage){
         HttpResponse.Builder builder = new HttpResponse.Builder();
         builder.request(request)
                 .code(code)
-                .header(headers)
-                .response(response)
+                .header(response.headers())
                 .message(codeMessage)
-                .bodyBytes(bodyBytes)
-                .bodyFile(file);
+                .body(new HttpResponseBody(null, new byte[0], null));
         return builder.build();
     }
 
