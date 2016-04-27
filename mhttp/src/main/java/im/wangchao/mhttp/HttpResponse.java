@@ -2,7 +2,7 @@ package im.wangchao.mhttp;
 
 import android.support.annotation.Nullable;
 
-import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
 import okhttp3.Headers;
@@ -21,7 +21,6 @@ public class HttpResponse {
     final private int           code;
     final private Headers       headers;
     final private String        message;
-    final private HttpResponseBody body;
 
     public HttpResponse(Builder builder){
         this.request        = builder.request;
@@ -29,7 +28,6 @@ public class HttpResponse {
         this.headers        = builder.headers;
         this.okResponse     = builder.okResponse;
         this.message        = builder.message;
-        this.body           = builder.body;
     }
 
     final public int code() {
@@ -40,16 +38,12 @@ public class HttpResponse {
         return headers;
     }
 
-    final public byte[] bodyBytes() {
-        return body.bytesBody();
-    }
-
-    final public File bodyFile() {
-        return body.file();
+    final public byte[] bodyBytes() throws IOException{
+        return okResponse.body().bytes();
     }
 
     final public InputStream byteStream(){
-        return body.byteStream();
+        return okResponse.body().byteStream();
     }
 
     final public String message() {
@@ -63,7 +57,7 @@ public class HttpResponse {
     /**
      * return null, when throw IOException.
      */
-    @Nullable  final public Response okResponse() {
+    @Nullable final public Response okResponse() {
         return this.okResponse;
     }
 
@@ -77,10 +71,9 @@ public class HttpResponse {
         private int                 code;
         private Headers             headers;
         private String              message;
-        private HttpResponseBody    body;
 
         public Builder(){
-
+            this.headers    = new Headers.Builder().build();
         }
 
         public Builder(HttpResponse response){
@@ -89,12 +82,6 @@ public class HttpResponse {
             this.headers        = response.headers;
             this.okResponse     = response.okResponse;
             this.message        = response.message;
-            this.body           = response.body;
-        }
-
-        public Builder body(HttpResponseBody body){
-            this.body = body;
-            return this;
         }
 
         public Builder request(HttpRequest request){

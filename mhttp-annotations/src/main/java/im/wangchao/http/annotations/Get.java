@@ -17,6 +17,6 @@ import java.lang.annotation.Target;
 public @interface Get {
     String url();
     String tag() default "";
-    int timeout() default 30;
+    int timeout() default 0;
     String[] heads() default {};
 }

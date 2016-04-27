@@ -1,10 +1,14 @@
 package im.wangchao.mhttp;
 
 import android.content.Context;
-import android.support.annotation.Nullable;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+
+import okhttp3.Response;
+import okhttp3.internal.Util;
 
 /**
  * <p>Description  : FileResponseHandler.</p>
@@ -13,8 +17,9 @@ import java.io.IOException;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:39.</p>
  */
-public class FileResponseHandler extends AbsResponseHandler {
+public class FileResponseHandler extends AbsResponseHandler<File> {
     final private File file;
+    final private static int BUFFER_SIZE = 4096;
 
     public FileResponseHandler(Context context){
         this.file = getTempFile(context);
@@ -28,20 +33,21 @@ public class FileResponseHandler extends AbsResponseHandler {
         return file;
     }
 
-    @Override final protected void onSuccess(HttpResponse response) {
-        onSuccess(file, response);
+    @Override protected void onSuccess(File file, HttpResponse response){
+
     }
 
-    @Override protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+    @Override protected void onFailure(HttpResponse response, Throwable throwable) {
 
+    }
+
+    @Override protected File backgroundParser(HttpResponse response) throws IOException{
+        writeFile(response.okResponse(), file);
+        return file;
     }
 
     @Override protected String accept() {
         return Accept.ACCEPT_FILE;
-    }
-
-    public void onSuccess(File file, HttpResponse response){
-
     }
 
     private File getTempFile(Context context){
@@ -49,6 +55,34 @@ public class FileResponseHandler extends AbsResponseHandler {
             return File.createTempFile("temp", "_handled", context.getCacheDir());
         } catch (IOException e) {
             return null;
+        }
+    }
+
+    /**
+     * write file , send progress message
+     */
+    protected void writeFile(Response response, File file) throws IOException {
+        if (file == null){
+            throw new IllegalArgumentException("File == null");
+        }
+        InputStream instream = response.body().byteStream();
+        long contentLength = response.body().contentLength();
+        FileOutputStream buffer = new FileOutputStream(file);
+        if (instream != null) {
+            try {
+                byte[] tmp = new byte[BUFFER_SIZE];
+                int l, count = 0;
+                while ((l = instream.read(tmp)) != -1 && !Thread.currentThread().isInterrupted()) {
+                    count += l;
+                    buffer.write(tmp, 0, l);
+
+                    sendProgressMessage(count, (int) contentLength);
+                }
+            } finally {
+                Util.closeQuietly(instream);
+                buffer.flush();
+                Util.closeQuietly(buffer);
+            }
         }
     }
 }

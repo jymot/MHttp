@@ -1,7 +1,5 @@
 package im.wangchao.mhttp;
 
-import android.support.annotation.Nullable;
-
 /**
  * <p>Description  : BinaryResponseHandler.</p>
  * <p/>
@@ -9,20 +7,19 @@ import android.support.annotation.Nullable;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:49.</p>
  */
-public class BinaryResponseHandler extends AbsResponseHandler{
-    @Override final protected void onSuccess(HttpResponse response) {
-        onSuccess(response.bodyBytes(), response);
+public class BinaryResponseHandler extends AbsResponseHandler<byte[]>{
+    @Override protected void onSuccess(byte[] data, HttpResponse response) {
     }
 
-    @Override protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+    @Override protected void onFailure(HttpResponse response, Throwable throwable) {
 
+    }
+
+    @Override protected byte[] backgroundParser(HttpResponse response) throws Exception{
+        return response.bodyBytes();
     }
 
     @Override protected String accept() {
         return Accept.ACCEPT_DATA;
-    }
-
-    public void onSuccess(byte[] bytes, HttpResponse response){
-
     }
 }

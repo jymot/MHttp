@@ -1,7 +1,5 @@
 package im.wangchao.mhttp;
 
-import android.support.annotation.Nullable;
-
 /**
  * <p>Description  : SilentResponseHandler.</p>
  * <p/>
@@ -10,11 +8,15 @@ import android.support.annotation.Nullable;
  * <p>Time         : 下午9:36.</p>
  */
 /*package*/ class SilentResponseHandler extends AbsResponseHandler {
-    @Override
-    protected void onSuccess(HttpResponse response) {
+
+    @Override protected void onSuccess(Object data, HttpResponse response) {
+
     }
 
-    @Override
-    protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+    @Override protected void onFailure(HttpResponse response, Throwable throwable) {
+    }
+
+    @Override protected Object backgroundParser(HttpResponse response) {
+        return null;
     }
 }

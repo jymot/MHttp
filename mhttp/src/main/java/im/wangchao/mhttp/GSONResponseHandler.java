@@ -1,7 +1,6 @@
 package im.wangchao.mhttp;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
+import android.support.annotation.Nullable;
 
 /**
  * <p>Description  : GSONResponseHandler.</p>
@@ -12,14 +11,20 @@ import org.json.JSONObject;
  */
 public abstract class GSONResponseHandler<T> extends JSONResponseHandler{
 
-    @Override final public void onSuccess(JSONArray jsonArray, HttpResponse response) {
-        super.onSuccess(jsonArray, response);
-        onSuccess(parser(jsonArray.toString()));
+    @Override final protected void onSuccess(JSON data, HttpResponse response) {
+        if (data.jsonArray != null) {
+            onSuccess(parser(data.jsonArray.toString()));
+        }
+        else if (data.jsonObject != null) {
+            onSuccess(parser(data.jsonObject.toString()));
+        }
     }
 
-    @Override final public void onSuccess(JSONObject jsonObject, HttpResponse response) {
-        super.onSuccess(jsonObject, response);
-        onSuccess(parser(jsonObject.toString()));
+    @Override protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+
+    }
+    @Override protected JSON backgroundParser(HttpResponse response) throws Exception {
+        return super.backgroundParser(response);
     }
 
     /** parser Json to T */

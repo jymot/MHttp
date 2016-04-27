@@ -28,7 +28,7 @@ public @interface Post {
     /**
      * timeout
      */
-    int timeout() default 30;
+    int timeout() default 0;
 
     /**
      * request heads
