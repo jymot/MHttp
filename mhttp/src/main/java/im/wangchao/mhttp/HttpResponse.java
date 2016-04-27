@@ -39,11 +39,11 @@ public class HttpResponse {
     }
 
     final public byte[] bodyBytes() throws IOException{
-        return okResponse.body().bytes();
+        return okResponse == null ? new byte[0] : okResponse.body().bytes();
     }
 
     final public InputStream byteStream(){
-        return okResponse.body().byteStream();
+        return okResponse == null ? null : okResponse.body().byteStream();
     }
 
     final public String message() {
