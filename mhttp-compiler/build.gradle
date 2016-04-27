@@ -1,7 +1,10 @@
 apply plugin: 'java'
 
 dependencies {
-    compile project(':mhttp-annotations')
+    compile 'im.wangchao:mhttp-annotations:0.1.1'
+//    compile project(':mhttp-annotations')
     compile deps.autoservice
     compile deps.autocommon
 }
+
+apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray-java.gradle'

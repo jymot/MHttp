@@ -2,7 +2,7 @@
 okhttp wrapper
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:0.5.0'
+  compile 'im.wangchao:mhttp:0.6.0'
 ```
 ###PROGUARD
 ```java
