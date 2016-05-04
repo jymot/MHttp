@@ -22,7 +22,7 @@ public class BindClass {
     //公共参数
     private Map<String, String> commonParams = new HashMap<>();
     //默认 timeout
-    private int         defaultTimeout = 0;
+    private int         defaultTimeout = 30;
     //
     private String      rootURL = "";
     //

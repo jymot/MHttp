@@ -28,7 +28,7 @@ android {
 
 dependencies {
 //    compile project(':mhttp-compiler')
-    compile 'im.wangchao:mhttp-compiler:0.1.2'
+    compile 'im.wangchao:mhttp-compiler:0.1.3'
     testCompile deps.junit
     compile deps.appcompatv7
     compile deps.okhttp
