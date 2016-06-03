@@ -17,15 +17,15 @@ import okhttp3.internal.Util;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:39.</p>
  */
-public class FileResponseHandler extends AbsResponseHandler<File> {
+public class FileCallbackHandler extends AbsCallbackHandler<File> {
     final private File file;
     final private static int BUFFER_SIZE = 4096;
 
-    public FileResponseHandler(Context context){
+    public FileCallbackHandler(Context context){
         this.file = getTempFile(context);
     }
 
-    public FileResponseHandler(File file){
+    public FileCallbackHandler(File file){
         this.file = file;
     }
 
@@ -33,20 +33,20 @@ public class FileResponseHandler extends AbsResponseHandler<File> {
         return file;
     }
 
-    @Override protected void onSuccess(File file, HttpResponse response){
+    @Override protected void onSuccess(File file, OkResponse response){
 
     }
 
-    @Override protected void onFailure(HttpResponse response, Throwable throwable) {
+    @Override protected void onFailure(OkResponse response, Throwable throwable) {
 
     }
 
-    @Override protected File backgroundParser(HttpResponse response) throws IOException{
-        writeFile(response.okResponse(), file);
+    @Override protected File backgroundParser(OkResponse response) throws IOException{
+        writeFile(response.response(), file);
         return file;
     }
 
-    @Override protected String accept() {
+    @Override public String accept() {
         return Accept.ACCEPT_FILE;
     }
 

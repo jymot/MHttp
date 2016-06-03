@@ -21,7 +21,7 @@
 
     <Button
         android:id="@+id/getFile"
-        android:text="get baidu text"
+        android:text="get file"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

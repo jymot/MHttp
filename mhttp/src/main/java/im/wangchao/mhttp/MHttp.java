@@ -3,7 +3,6 @@ package im.wangchao.mhttp;
 import android.content.Context;
 import android.os.Build;
 import android.os.StatFs;
-import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,9 +14,6 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.KeyManager;
@@ -27,209 +23,129 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import im.wangchao.mhttp.internal.cookie.MemoryCookieJar;
-import im.wangchao.mhttp.internal.cookie.cache.SetCookieCache;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.CookieJar;
-import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-import okhttp3.OkHttpClient.Builder;
 import timber.log.Timber;
 
 /**
- * <p>Description  : OkHttpClientManager.</p>
+ * <p>Description  : MHttp.</p>
  * <p/>
  * <p>Author       : wangchao.</p>
- * <p>Date         : 16/3/8.</p>
- * <p>Time         : 下午1:29.</p>
+ * <p>Date         : 16/6/2.</p>
+ * <p>Time         : 上午8:40.</p>
  */
-public final class HttpManager {
-    private final Builder okBuilder;
-    private OkHttpClient okHttpClient;
-    private boolean modified;
-    private static volatile HttpManager instance;
+public final class MHttp {
+    private static volatile MHttp instance;
 
-    private final ConcurrentHashMap<Object, List<HttpRequest>> requestList = new ConcurrentHashMap<>();
-
-    private HttpManager(){
-        this(new OkHttpClient());
-    }
-
-    private HttpManager(OkHttpClient okHttpClient){
-        okBuilder = okHttpClient.newBuilder();
-        //default Memory Cookie
-        okBuilder.cookieJar(new MemoryCookieJar(new SetCookieCache()));
-    }
-
-    public static HttpManager replace(@NonNull OkHttpClient okHttpClient) {
-        synchronized (HttpManager.class) {
-            instance = new HttpManager(okHttpClient);
-        }
-        return instance;
-    }
-
-    public static HttpManager instance(){
-        if (instance == null){
-            synchronized (HttpManager.class){
-                if (instance == null){
-                    instance = new HttpManager();
-                }
+    public static MHttp instance(){
+        if (instance == null) {
+            synchronized (MHttp.class){
+                instance = new MHttp();
             }
         }
-        return instance;
-    }
 
-    private void modified(){
-        modified = true;
+        return instance;
     }
 
     /**
-     * Bind annotation api
+     * Create annotation api
      */
-    public static <T> T bind(Class<T> api){
+    public static <T> T create(Class<T> api){
         return BindApi.bind(api);
     }
 
+
+    private OkHttpClient mOkHttpClient;
+
+    public MHttp replace(OkHttpClient replace){
+        mOkHttpClient = replace;
+        return this;
+    }
+
     public OkHttpClient okHttpClient(){
-        if (okHttpClient == null || modified){
-            modified = false;
-            okHttpClient = okBuilder.build();
-            return okHttpClient;
-        }
-
-        return okHttpClient;
+        return mOkHttpClient;
     }
 
-    public HttpManager cookieJar(CookieJar cookieJar){
-        modified();
-        okBuilder.cookieJar(cookieJar);
-        return this;
-    }
-
-
-    /**
-     * Returns a modifiable list of interceptors that observe the full span of each call: from
-     * before the connection is established (if any) until after the response source is selected
-     * (either the origin server, cache, or both).
-     */
-    public List<Interceptor> interceptors() {
-        return okBuilder.interceptors();
-    }
-
-    public HttpManager addInterceptor(Interceptor interceptor) {
-        modified();
-        okBuilder.addInterceptor(interceptor);
-        return this;
+    public OkHttpClient.Builder newBuilder() {
+        return mOkHttpClient.newBuilder();
     }
 
     /**
-     * Returns a modifiable list of interceptors that observe a single network request and response.
-     * These interceptors must call {@link Interceptor.Chain#proceed} exactly once: it is an error
-     * for a network interceptor to short-circuit or repeat a network request.
+     * Set connect, read and write time with {@link TimeUnit#SECONDS}
      */
-    public List<Interceptor> networkInterceptors() {
-        return okBuilder.networkInterceptors();
-    }
-
-    public HttpManager addNetworkInterceptor(Interceptor interceptor) {
-        modified();
-        okBuilder.addNetworkInterceptor(interceptor);
-        return this;
-    }
-
-    public HttpManager timeout(int timeout){
+    public MHttp timeout(int timeout){
         connectTimeout(timeout, TimeUnit.SECONDS);
         readTimeout(timeout, TimeUnit.SECONDS);
         writeTimeout(timeout, TimeUnit.SECONDS);
         return this;
     }
 
-    public HttpManager connectTimeout(long timeout, TimeUnit unit){
-        modified();
-        okBuilder.connectTimeout(timeout, unit);
+    public MHttp connectTimeout(long timeout, TimeUnit unit){
+        mOkHttpClient = mOkHttpClient.newBuilder().connectTimeout(timeout, unit).build();
         return this;
     }
 
-    public HttpManager readTimeout(long timeout, TimeUnit unit){
-        modified();
-        okBuilder.connectTimeout(timeout, unit);
+    public MHttp readTimeout(long timeout, TimeUnit unit){
+        mOkHttpClient = mOkHttpClient.newBuilder().readTimeout(timeout, unit).build();
         return this;
     }
 
-    public HttpManager writeTimeout(long timeout, TimeUnit unit){
-        modified();
-        okBuilder.connectTimeout(timeout, unit);
+    public MHttp writeTimeout(long timeout, TimeUnit unit){
+        mOkHttpClient = mOkHttpClient.newBuilder().writeTimeout(timeout, unit).build();
         return this;
     }
 
-    public HttpManager cancel(@NonNull Object tag){
-        if (!requestList.containsKey(tag)){
-            return this;
-        }
-
-        final List<HttpRequest> list = requestList.get(tag);
-
-        if (list == null){
-            return this;
-        }
-
-        for (HttpRequest request: list){
-            request.cancel();
-        }
-
+    /**
+     * Set {@link CookieJar}
+     */
+    public MHttp cookieJar(CookieJar cookieJar){
+        mOkHttpClient = mOkHttpClient.newBuilder().cookieJar(cookieJar).build();
         return this;
     }
 
-    public HttpManager enqueue(HttpRequest ...requestArray){
-        if (requestArray == null || requestArray.length == 0){
-            return this;
-        }
-
-        for (HttpRequest httpRequest: requestArray){
-            Call call = enqueue(httpRequest);
-            httpRequest.responseHandler.setRequest(httpRequest);
-            httpRequest.responseHandler.sendStartMessage();
-            call.enqueue(httpRequest.responseHandler);
-        }
-
+    /**
+     * Cancel all request.
+     */
+    public MHttp cancelAll(){
+        mOkHttpClient.dispatcher().cancelAll();
         return this;
     }
 
-    HttpManager dequeue(@NonNull HttpRequest request){
-        if (!requestList.containsKey(request.tag)){
-            return this;
+    /**
+     * Cancel request with {@code tag}
+     */
+    public MHttp cancel(Object tag){
+        for (Call call : mOkHttpClient.dispatcher().queuedCalls()) {
+            if (tag.equals(call.request().tag())) {
+                call.cancel();
+            }
         }
-        final List<HttpRequest> list = requestList.get(request.tag);
-        if (list == null){
-            return this;
+        for (Call call : mOkHttpClient.dispatcher().runningCalls()) {
+            if (tag.equals(call.request().tag())) {
+                call.cancel();
+            }
         }
-
-        list.remove(request);
-        if (list.size() == 0){
-            requestList.remove(request.tag);
-        } else {
-            requestList.replace(request.tag, list);
-        }
-
         return this;
     }
 
-    private Call enqueue(HttpRequest httpRequest){
-        final Object tag = httpRequest.tag;
-        if (requestList.containsKey(tag)){
-            List<HttpRequest> list = requestList.get(tag);
-            list.add(httpRequest);
-            requestList.replace(tag, list);
-        } else {
-            List<HttpRequest> list = new ArrayList<>();
-            list.add(httpRequest);
-            requestList.put(tag, list);
-        }
-        return okHttpClient().newCall(httpRequest.map());
+    /**
+     * Async request
+     */
+    public MHttp enqueue(OkRequest request){
+        Call call = mOkHttpClient.newCall(request.request());
+        OkCallback callback = request.callback();
+        callback.setRequest(request);
+        callback.sendStartMessage();
+        call.enqueue(callback);
+        return this;
     }
 
-    public HttpManager cache(Context context, String dirName) {
+    /**
+     * Set cache Dir
+     */
+    public MHttp cache(Context context, String dirName) {
         File cache = new File(context.getApplicationContext().getCacheDir(), dirName);
         if (!cache.exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -253,8 +169,8 @@ public final class HttpManager {
         }
         // Bound inside min/max size for disk cache.
         size = Math.max(Math.min(size, size * 10), size);
-        modified();
-        okBuilder.cache(new Cache(cache, size));
+
+        mOkHttpClient = mOkHttpClient.newBuilder().cache(new Cache(cache, size)).build();
         return this;
     }
 
@@ -275,8 +191,8 @@ public final class HttpManager {
             SSLContext sslContext = SSLContext.getInstance("TLS");
 
             sslContext.init(keyManagers, new TrustManager[]{new MyTrustManager(chooseTrustManager(trustManagers))}, new SecureRandom());
-            modified();
-            okBuilder.sslSocketFactory(sslContext.getSocketFactory());
+            mOkHttpClient = mOkHttpClient.newBuilder()
+                    .sslSocketFactory(sslContext.getSocketFactory()).build();
         } catch (Exception ignore) {
             Timber.e(ignore, ignore.getMessage());
         }
@@ -352,27 +268,32 @@ public final class HttpManager {
         }
 
 
-        @Override
-        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-
+        @Override public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+//            try {
+//                defaultTrustManager.checkClientTrusted(chain, authType);
+//            } catch (CertificateException e) {
+//                localTrustManager.checkClientTrusted(chain, authType);
+//            }
         }
 
-        @Override
-        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+        @Override public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
             try {
                 defaultTrustManager.checkServerTrusted(chain, authType);
-            } catch (CertificateException ce) {
+            } catch (CertificateException e) {
                 localTrustManager.checkServerTrusted(chain, authType);
             }
         }
 
 
-        @Override
-        public X509Certificate[] getAcceptedIssuers() {
+        @Override public X509Certificate[] getAcceptedIssuers() {
             return new X509Certificate[0];
         }
     }
 
-
+    //@private
+    private MHttp(){
+        //default instance
+        mOkHttpClient = new OkHttpClient();
+    }
 
 }

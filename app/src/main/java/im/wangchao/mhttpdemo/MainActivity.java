@@ -9,11 +9,11 @@ import android.view.View;
 import java.io.File;
 import java.io.IOException;
 
-import im.wangchao.mhttp.FileResponseHandler;
-import im.wangchao.mhttp.HttpManager;
-import im.wangchao.mhttp.HttpRequest;
-import im.wangchao.mhttp.HttpResponse;
-import im.wangchao.mhttp.TextResponseHandler;
+import im.wangchao.mhttp.FileCallbackHandler;
+import im.wangchao.mhttp.MHttp;
+import im.wangchao.mhttp.MRequest;
+import im.wangchao.mhttp.OkResponse;
+import im.wangchao.mhttp.TextCallbackHandler;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -26,8 +26,8 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        HttpManager.instance().cache(this, "tempcache");
-        HttpManager.instance().addNetworkInterceptor(new Interceptor() {
+        MHttp.instance().cache(this, "tempcache");
+        MHttp.instance().replace(MHttp.instance().newBuilder().addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 log("addNetworkInterceptor!");
@@ -47,8 +47,7 @@ public class MainActivity extends AppCompatActivity {
                         .removeHeader("Pragma")
                         .build();
             }
-        });
-        HttpManager.instance().addInterceptor(new Interceptor() {
+        }).addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
@@ -61,16 +60,17 @@ public class MainActivity extends AppCompatActivity {
                         .removeHeader("Pragma")
                         .build();
             }
-        });
+        }).build());
+
         findViewById(R.id.getFile).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               HttpRequest.builder()
+               MRequest.builder()
                         .get()
                         .url("http://www.cninfo.com.cn/finalpage/2014-12-13/1200461869.PDF")
-                        .responseHandler(new FileResponseHandler(MainActivity.this) {
+                        .callback(new FileCallbackHandler(MainActivity.this) {
                             @Override
-                            public void onSuccess(File file, HttpResponse response) {
+                            public void onSuccess(File file, OkResponse response) {
                                 super.onSuccess(file, response);
                                 log("file len: " + file.length() + ", file exists: " + file.exists() + " , path:" + file.getPath());
                             }
@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                                 super.onProgress(bytesWritten, bytesTotal);
                                 log("onProgress : " + bytesWritten + " -- " + bytesTotal);
                             }
-                        }).build().execute();
+                        }).build().send();
             }
         });
 
@@ -94,9 +94,9 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.getBaiduText).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SampleApi.instance().baidu(new TextResponseHandler() {
+                SampleApi.instance().baidu(new TextCallbackHandler() {
                     @Override
-                    public void onSuccess(String text, HttpResponse response) {
+                    public void onSuccess(String text, OkResponse response) {
                         super.onSuccess(text, response);
                         log("onSuccess: " + text);
                     }

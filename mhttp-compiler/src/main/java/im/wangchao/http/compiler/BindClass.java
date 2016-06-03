@@ -99,9 +99,9 @@ public class BindClass {
     public String brewJava() throws Exception{
         StringBuilder builder = new StringBuilder("package " + this.classPackage + ";\n");
         builder.append("\n");
-        builder.append("import im.wangchao.mhttp.HttpManager;\n");
-        builder.append("import im.wangchao.mhttp.AbsResponseHandler;\n");
-        builder.append("import im.wangchao.mhttp.HttpRequest;\n");
+        builder.append("import im.wangchao.mhttp.MHttp;\n");
+        builder.append("import im.wangchao.mhttp.OkCallback;\n");
+        builder.append("import im.wangchao.mhttp.MRequest;\n");
         builder.append("import im.wangchao.mhttp.RequestParams;\n");
         builder.append("import okhttp3.Headers;\n");
         builder.append("\n");

@@ -1,7 +1,5 @@
 package im.wangchao.mhttp;
 
-import android.support.annotation.Nullable;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -13,18 +11,18 @@ import org.json.JSONObject;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:25.</p>
  */
-public class JSONResponseHandler extends AbsResponseHandler<JSONResponseHandler.JSON>{
+public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.JSON> {
 
-    @Override protected void onSuccess(JSON data, HttpResponse response) {
-
-    }
-
-    @Override protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+    @Override protected void onSuccess(JSON data, OkResponse response) {
 
     }
 
-    @Override protected JSON backgroundParser(HttpResponse response) throws Exception {
-        final byte[] body = response.bodyBytes();
+    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+
+    }
+
+    @Override protected JSON backgroundParser(OkResponse response) throws Exception {
+        final byte[] body = response.response().body().bytes();
         final String bodyString = byteArrayToString(body);
         final JSON json = new JSON();
 
@@ -38,7 +36,7 @@ public class JSONResponseHandler extends AbsResponseHandler<JSONResponseHandler.
         return json;
     }
 
-    @Override protected String accept() {
+    @Override public String accept() {
         return Accept.ACCEPT_JSON;
     }
 

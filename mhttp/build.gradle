@@ -28,11 +28,11 @@ android {
 
 dependencies {
 //    compile project(':mhttp-compiler')
-    compile 'im.wangchao:mhttp-compiler:0.1.3'
+    compile 'im.wangchao:mhttp-compiler:0.2.0'
     testCompile deps.junit
     compile deps.appcompatv7
     compile deps.okhttp
     compile deps.timber
 }
 
-apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
+//apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'

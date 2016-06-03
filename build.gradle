@@ -46,7 +46,7 @@ ext.deps = [
         // Square
         javapoet          : 'com.squareup:javapoet:1.4.0',
         timber            : 'com.jakewharton.timber:timber:3.1.0',
-        okhttp            : 'com.squareup.okhttp3:okhttp:3.2.0',
+        okhttp            : 'com.squareup.okhttp3:okhttp:3.3.1',
 
         // Test dependencies
         junit             : 'junit:junit:4.12',

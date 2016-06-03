@@ -75,7 +75,7 @@ public class BindMethod {
 
         switch (returnTypeKind) {
             case DECLARED: {
-                sb.append("HttpRequest ");
+                sb.append("MRequest ");
             } break;
             case VOID: {
                 sb.append("void ");
@@ -175,8 +175,8 @@ public class BindMethod {
         }
 
         //请求 builder
-        sb.append("HttpRequest.Builder builder = new HttpRequest.Builder();\n");
-        sb.append("builder.params(params);\n");
+        sb.append("MRequest.Builder builder = new MRequest.Builder();\n");
+        sb.append("builder.requestParams(params);\n");
 
         if (this.url.contains("://")){
             sb.append("builder.url(\"" + this.url + "\");\n");
@@ -185,14 +185,14 @@ public class BindMethod {
         }
 
         if (this.timeout != 0){
-            sb.append("HttpManager.instance().timeout(" + this.timeout + ");\n");
+            sb.append("MHttp.instance().timeout(" + this.timeout + ");\n");
         } else {
-            sb.append("HttpManager.instance().timeout(" + this.injectClass.getDefaultTimeout() + ");\n");
+            sb.append("MHttp.instance().timeout(" + this.injectClass.getDefaultTimeout() + ");\n");
         }
 
         if (tagObj != null){
             sb.append("builder.tag(" + tagObj + ");\n");
-        } else if (this.tag != null){
+        } else if (this.tag != null && this.tag.toString().length() != 0){
             sb.append("builder.tag(\"" + this.tag + "\");\n");
         }
 
@@ -228,7 +228,7 @@ public class BindMethod {
         }
 
         if (responseListenerName != null) {
-            sb.append("builder.responseHandler(" + responseListenerName + ");\n");
+            sb.append("builder.callback(" + responseListenerName + ");\n");
         }
 
         switch (returnTypeKind){
@@ -236,7 +236,7 @@ public class BindMethod {
                 sb.append("return builder.build();\n");
             } break;
             case VOID:{
-                sb.append("builder.build().execute();\n");
+                sb.append("builder.build().send();\n");
             } break;
         }
 

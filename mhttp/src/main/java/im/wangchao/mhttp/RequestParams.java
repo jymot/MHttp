@@ -20,7 +20,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import okhttp3.*;
+import okhttp3.FormBody;
+import okhttp3.HttpUrl;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 /**
  * <p>Description  : RequestParams.</p>
@@ -29,7 +32,7 @@ import okhttp3.*;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午2:16.</p>
  */
-public class RequestParams {
+public class RequestParams implements OkRequestParams{
     final public static String  UTF_8_STR   = "utf-8";
     final public static Charset UTF_8       = Charset.forName(UTF_8_STR);
 
@@ -90,7 +93,11 @@ public class RequestParams {
         this.contentType = params.getContentType();
     }
 
-    protected RequestBody requestBody(){
+    @Override public RequestBody requestBody(){
+        if (isEmpty()){
+            return null;
+        }
+
         if (isJSON()){
             return new JSONBody(parseJSON(), contentEncoding);
         }
@@ -188,7 +195,7 @@ public class RequestParams {
         }
     }
 
-    public void put(String key, Object value) {
+    @Override public void put(String key, Object value) {
         if (!TextUtils.isEmpty(key) && (value != null)) {
             urlParams.put(key, String.valueOf(value));
         }
@@ -204,7 +211,7 @@ public class RequestParams {
         put(key, stream, name, null);
     }
 
-    public void put(String key, InputStream stream, String name, String contentType){
+    @Override public void put(String key, InputStream stream, String name, String contentType){
         if (!TextUtils.isEmpty(key) && stream != null){
             streamParams.put(key, StreamWrapper.newInstance(stream, name, contentType));
         }
@@ -222,7 +229,7 @@ public class RequestParams {
         put(key, file, null);
     }
 
-    public void put(String key, File file, String contentType) throws FileNotFoundException {
+    @Override public void put(String key, File file, String contentType) throws FileNotFoundException {
         if (file == null || !file.exists()){
             throw new FileNotFoundException();
         }
@@ -231,14 +238,18 @@ public class RequestParams {
         }
     }
 
-    public void remove(String key){
+    @Override public void remove(String key){
         urlParams.remove(key);
         streamParams.remove(key);
         fileParams.remove(key);
     }
 
-    public boolean has(String key){
+    @Override public boolean has(String key){
         return (urlParams.containsKey(key) || streamParams.containsKey(key) || fileParams.containsKey(key));
+    }
+
+    public boolean isEmpty(){
+        return urlParams.isEmpty() && streamParams.isEmpty() && fileParams.isEmpty();
     }
 
     public String parseJSON(){
@@ -285,6 +296,21 @@ public class RequestParams {
 
     public ConcurrentHashMap<String, String> getUrlParams() {
         return urlParams;
+    }
+
+    @Override public HttpUrl formatURLParams(HttpUrl url) {
+        HttpUrl.Builder builder = url.newBuilder();
+        if (urlParams.size() != 0) {
+            for (Map.Entry<String, String> entry : urlParams.entrySet()) {
+                try {
+                    builder.addEncodedQueryParameter(URLEncoder.encode(entry.getKey(), contentEncoding),
+                            URLEncoder.encode(entry.getValue(), contentEncoding));
+                } catch (UnsupportedEncodingException e) {
+                    //Silent
+                }
+            }
+        }
+        return builder.build();
     }
 
     /**

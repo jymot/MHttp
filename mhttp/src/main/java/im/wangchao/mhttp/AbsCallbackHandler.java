@@ -10,11 +10,11 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 
 import im.wangchao.mhttp.internal.exception.ParserException;
 import im.wangchao.mhttp.internal.exception.ResponseFailException;
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 /**
@@ -24,8 +24,7 @@ import okhttp3.Response;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午5:56.</p>
  */
-public abstract class AbsResponseHandler<Parser_Type> implements Callback{
-
+public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
     final public static int     IO_EXCEPTION_CODE   = -1;
     final public static String  DEFAULT_CHARSET     = "UTF-8";
@@ -37,8 +36,8 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
     private static final int PROGRESS_MESSAGE   = 4;
     private static final int CANCEL_MESSAGE     = 5;
 
-    private HttpRequest request;
-    private HttpResponse response;
+    private WeakReference<OkRequest> request;
+    private WeakReference<OkResponse> response;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
@@ -46,11 +45,11 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
     final private Handler handler;
 
     /** Work on UI Thread */
-    abstract protected void onSuccess(Parser_Type data, HttpResponse response);
+    abstract protected void onSuccess(Parser_Type data, OkResponse response);
     /** Work on UI Thread */
-    abstract protected void onFailure(HttpResponse response, Throwable throwable);
+    abstract protected void onFailure(OkResponse response, Throwable throwable);
     /** Work on Work Thread */
-    abstract protected Parser_Type backgroundParser(HttpResponse response) throws Exception;
+    abstract protected Parser_Type backgroundParser(OkResponse response) throws Exception;
 
     /** Work on UI Thread */
     protected void onStart(){}
@@ -62,30 +61,45 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
     protected void onFinish(){}
 
     @Override final public void onFailure(Call call, IOException e) {
+        if (call.isCanceled()){
+            sendCancelMessage();
+            return;
+        }
         sendFinishMessage();
-        sendFailureMessage(onFailureResponseWrapper(request, AbsResponseHandler.IO_EXCEPTION_CODE, e.getMessage()), e);
+
+        OkRequest requestRef = request == null ? null : request.get();
+        OkResponse okResponse = MResponse.builder()
+                .response(new Response.Builder().code(AbsCallbackHandler.IO_EXCEPTION_CODE).message(e.getMessage()).build())
+                .request(requestRef)
+                .builder();
+        sendFailureMessage(okResponse, e);
     }
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
+        if (call.isCanceled()){
+            sendCancelMessage();
+            return;
+        }
         sendFinishMessage();
 
+        OkRequest requestRef = request == null ? null : request.get();
         if (response.isSuccessful()) {
             try {
-                HttpResponse httpResponse = responseWrapper(request, response);
-                Parser_Type data = backgroundParser(httpResponse);
-                sendSuccessMessage(data, httpResponse);
+                OkResponse okResponse = MResponse.builder().response(response).request(requestRef).builder();
+                Parser_Type data = backgroundParser(okResponse);
+                sendSuccessMessage(data, okResponse);
             } catch (Exception e) {
-                sendFailureMessage(responseWrapper(request, response), new ParserException());
+                sendFailureMessage(MResponse.builder().response(response).request(requestRef).builder(), new ParserException());
             }
         } else {
-            sendFailureMessage(responseWrapper(request, response), new ResponseFailException());
+            sendFailureMessage(MResponse.builder().response(response).request(requestRef).builder(), new ResponseFailException());
         }
     }
 
     private static class ResponderHandler extends Handler {
-        private final AbsResponseHandler mResponder;
+        private final AbsCallbackHandler mResponder;
 
-        ResponderHandler(AbsResponseHandler mResponder) {
+        ResponderHandler(AbsCallbackHandler mResponder) {
             this.mResponder = mResponder;
         }
 
@@ -94,11 +108,11 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
         }
     }
 
-    public AbsResponseHandler(){
+    public AbsCallbackHandler(){
         this(true);
     }
 
-    public AbsResponseHandler(boolean useHandler){
+    public AbsCallbackHandler(boolean useHandler){
         isCanceled = false;
         isFinished = false;
         if (useHandler){
@@ -111,9 +125,8 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
         }
     }
 
-    final public AbsResponseHandler setRequest(@NonNull HttpRequest request){
-        this.request = request;
-        return this;
+    @Override final public void setRequest(OkRequest request) {
+        this.request = new WeakReference<>(request);
     }
 
     final public boolean isFinished(){
@@ -137,39 +150,12 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
     /**
      * @return request accept
      */
-    protected String accept(){
-        return Accept.ACCEPT_DEFAULT;
+    @Override public String accept(){
+        return Accept.EMPTY;
     }
 
     final protected void print(String message){
-        Log.d(AbsResponseHandler.class.getSimpleName(), message);
-    }
-
-    private HttpResponse responseWrapper(HttpRequest request, Response response) {
-        return responseWrapper(request, response, response.code(), response.message());
-    }
-
-    private HttpResponse responseWrapper(HttpRequest request,
-                                         Response response,
-                                         int code,
-                                         String codeMessage){
-        HttpResponse.Builder builder = new HttpResponse.Builder();
-        builder.request(request)
-                .code(code)
-                .header(response.headers())
-                .response(response)
-                .message(codeMessage);
-        return builder.build();
-    }
-
-    private HttpResponse onFailureResponseWrapper(HttpRequest request,
-                                                  int code,
-                                                  String codeMessage){
-        HttpResponse.Builder builder = new HttpResponse.Builder();
-        builder.request(request)
-                .code(code)
-                .message(codeMessage);
-        return builder.build();
+        Log.d(AbsCallbackHandler.class.getSimpleName(), message);
     }
 
     @Nullable final protected String byteArrayToString(byte[] bytes){
@@ -180,27 +166,27 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
         }
     }
 
-    @NonNull final public HttpRequest getRequest(){
-        return this.request;
+    @Nullable final public OkRequest getRequest(){
+        return this.request.get();
     }
 
-    @NonNull final public HttpResponse getResponse(){
-        return this.response;
+    @Nullable final public OkResponse getResponse(){
+        return this.response.get();
     }
 
     /*package*/ final void sendProgressMessage(int bytesWritten, int bytesTotal) {
         sendMessage(obtainMessage(PROGRESS_MESSAGE, new Object[]{bytesWritten, bytesTotal}));
     }
 
-    /*package*/ final void sendSuccessMessage(Parser_Type data, HttpResponse response) {
+    /*package*/ final void sendSuccessMessage(Parser_Type data, OkResponse response) {
         sendMessage(obtainMessage(SUCCESS_MESSAGE, new Object[]{data, response}));
     }
 
-    /*package*/ final void sendFailureMessage(HttpResponse response, @Nullable Throwable throwable) {
+    /*package*/ final void sendFailureMessage(OkResponse response, @Nullable Throwable throwable) {
         sendMessage(obtainMessage(FAILURE_MESSAGE, new Object[]{response, throwable}));
     }
 
-    /*package*/ final void sendStartMessage() {
+    @Override public final void sendStartMessage() {
         sendMessage(obtainMessage(START_MESSAGE, null));
     }
 
@@ -218,15 +204,15 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
             case SUCCESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length != 0 && !isCanceled){
-                    this.response = (HttpResponse) responseObject[1];
-                    onSuccess((Parser_Type) responseObject[0], (HttpResponse) responseObject[1]);
+                    this.response = new WeakReference<>((OkResponse) responseObject[1]);
+                    onSuccess((Parser_Type) responseObject[0], (OkResponse) responseObject[1]);
                 }
                 break;
             case FAILURE_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length == 2 && !isCanceled) {
-                    this.response = (HttpResponse) responseObject[0];
-                    onFailure((HttpResponse) responseObject[0], (Throwable) responseObject[1]);
+                    this.response = new WeakReference<>((OkResponse) responseObject[0]);
+                    onFailure((OkResponse) responseObject[0], (Throwable) responseObject[1]);
                 }
                 break;
             case START_MESSAGE:
@@ -234,9 +220,6 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
                 break;
             case FINISH_MESSAGE:
                 this.isFinished = true;
-                if (request != null){
-                    HttpManager.instance().dequeue(request);
-                }
                 onFinish();
                 break;
             case PROGRESS_MESSAGE:
@@ -251,9 +234,6 @@ public abstract class AbsResponseHandler<Parser_Type> implements Callback{
                 break;
             case CANCEL_MESSAGE:
                 this.isCanceled = true;
-                if (request != null){
-                    HttpManager.instance().dequeue(request);
-                }
                 onCancel();
                 break;
         }

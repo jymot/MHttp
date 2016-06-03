@@ -2,9 +2,10 @@ package im.wangchao.mhttpdemo;
 
 import im.wangchao.http.annotations.Callback;
 import im.wangchao.http.annotations.Get;
-import im.wangchao.mhttp.HttpManager;
-import im.wangchao.mhttp.HttpRequest;
-import im.wangchao.mhttp.TextResponseHandler;
+import im.wangchao.http.annotations.Tag;
+import im.wangchao.mhttp.MHttp;
+import im.wangchao.mhttp.MRequest;
+import im.wangchao.mhttp.TextCallbackHandler;
 
 /**
  * <p>Description  : SampleApi.</p>
@@ -15,13 +16,15 @@ import im.wangchao.mhttp.TextResponseHandler;
  */
 public abstract class SampleApi extends SampleDefaultApi{
     public static SampleApi instance() {
-        return HttpManager.bind(SampleApi.class);
+        return MHttp.create(SampleApi.class);
     }
 
     @Get(url = "https://www.baidu.com/")
-    public abstract void baidu(@Callback TextResponseHandler callback);
+    public abstract void baidu(@Callback TextCallbackHandler callback);
 
-    @Get(url = "s")
-    public abstract HttpRequest search(String wd,
-                                       @Callback TextResponseHandler callback);
+    @Get(url = "s", tag = "aaa")
+    public abstract MRequest search(String wd, @Callback TextCallbackHandler callback);
+
+    @Get(url = "s", tag = "aaa")
+    public abstract MRequest search1(String wd, @Callback TextCallbackHandler callback, @Tag Object a);
 }

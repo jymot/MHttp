@@ -1,7 +1,5 @@
 package im.wangchao.mhttp;
 
-import android.support.annotation.Nullable;
-
 /**
  * <p>Description  : GSONResponseHandler.</p>
  * <p/>
@@ -9,9 +7,9 @@ import android.support.annotation.Nullable;
  * <p>Date         : 16/3/20.</p>
  * <p>Time         : 上午9:06.</p>
  */
-public abstract class GSONResponseHandler<T> extends JSONResponseHandler{
+public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
 
-    @Override final protected void onSuccess(JSON data, HttpResponse response) {
+    @Override final protected void onSuccess(JSON data, OkResponse response) {
         if (data.jsonArray != null) {
             onSuccess(parser(data.jsonArray.toString()));
         }
@@ -20,11 +18,8 @@ public abstract class GSONResponseHandler<T> extends JSONResponseHandler{
         }
     }
 
-    @Override protected void onFailure(HttpResponse response, @Nullable Throwable throwable) {
+    @Override protected void onFailure(OkResponse response, Throwable throwable) {
 
-    }
-    @Override protected JSON backgroundParser(HttpResponse response) throws Exception {
-        return super.backgroundParser(response);
     }
 
     /** parser Json to T */

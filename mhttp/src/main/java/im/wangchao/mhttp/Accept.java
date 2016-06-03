@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Time         : 上午11:06.</p>
  */
 public interface Accept {
-    String ACCEPT_DEFAULT = "";
+    String EMPTY = "";
     String ACCEPT_JSON = "application/json;charset=utf-8";
     String ACCEPT_TEXT = "text/html;charset=utf-8";
     String ACCEPT_DATA = "application/octet-stream";
@@ -22,7 +22,7 @@ public interface Accept {
 
     @Retention(RetentionPolicy.SOURCE)
     @StringDef({
-            Accept.ACCEPT_DEFAULT,
+            Accept.EMPTY,
             Accept.ACCEPT_JSON,
             Accept.ACCEPT_TEXT,
             Accept.ACCEPT_DATA,

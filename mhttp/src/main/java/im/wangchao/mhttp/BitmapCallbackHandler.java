@@ -9,15 +9,15 @@ import android.graphics.Bitmap;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:49.</p>
  */
-public abstract class BitmapResponseHandler extends AbsResponseHandler<Bitmap>{
-    @Override protected void onSuccess(Bitmap bitmap, HttpResponse response) {
+public abstract class BitmapCallbackHandler extends AbsCallbackHandler<Bitmap> {
+    @Override protected void onSuccess(Bitmap bitmap, OkResponse response) {
     }
 
-    @Override protected void onFailure(HttpResponse response, Throwable throwable) {
+    @Override protected void onFailure(OkResponse response, Throwable throwable) {
 
     }
 
-    @Override protected String accept() {
+    @Override public String accept() {
         return Accept.ACCEPT_IMAGE;
     }
 
