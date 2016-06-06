@@ -200,7 +200,7 @@ public abstract class SampleApi extends SampleDefaultApi{
 ```
 
 ###Contact Me
-- Github: github.com/motcwang
+- GitHub: https://github.com/motcwang
 - Email:  magician.of.technique@aliyun.com
 
 ### License
