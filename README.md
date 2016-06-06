@@ -2,7 +2,7 @@
 okhttp wrapper
 ###Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.0.0'
+  compile 'im.wangchao:mhttp:1.1.0'
 ```
 ###PROGUARD
 ```java
@@ -200,7 +200,6 @@ public abstract class SampleApi extends SampleDefaultApi{
 ```
 
 ###Contact Me
-- GitHub: https://github.com/motcwang
 - Email:  magician.of.technique@aliyun.com
 
 ### License
