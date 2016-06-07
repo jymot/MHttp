@@ -198,6 +198,18 @@ public abstract class SampleApi extends SampleDefaultApi{
 }
 
 ```
+####4.Callback
+Several common methods are provided. as follows:
+```
+JSONCallbackHandler
+TextCallbackHandler
+BinaryCallbackHandler
+BitmapCallbackHandler
+FileCallbackHandler
+GSONCallbackHandler
+```
+If you want to customize the Callback Method, you can inherit AbsCallbackHandler like the method above.
+
 
 ###Contact Me
 - Email:  magician.of.technique@aliyun.com
