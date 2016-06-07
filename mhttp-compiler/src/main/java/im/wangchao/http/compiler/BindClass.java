@@ -14,7 +14,7 @@ import java.util.Set;
  */
 public class BindClass {
     private final String classPackage;
-    private final String className;
+    public final String className;
     private final String targetClass;
     private final boolean isInterface;
     private final Set<BindMethod> methods;

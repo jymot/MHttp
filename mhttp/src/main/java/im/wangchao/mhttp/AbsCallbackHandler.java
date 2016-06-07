@@ -198,7 +198,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         sendMessage(obtainMessage(CANCEL_MESSAGE, null));
     }
 
-    private void handleMessage(Message message){
+    @SuppressWarnings("unchecked") private void handleMessage(Message message){
         Object[] responseObject;
         switch (message.what){
             case SUCCESS_MESSAGE:

@@ -20,8 +20,8 @@
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/getFile"
-        android:text="get file"
+        android:id="@+id/get"
+        android:text="get"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

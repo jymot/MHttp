@@ -41,6 +41,7 @@ import im.wangchao.http.annotations.Timeout;
 import static javax.lang.model.element.ElementKind.INTERFACE;
 import static javax.lang.model.element.ElementKind.METHOD;
 import static javax.tools.Diagnostic.Kind.ERROR;
+import static javax.tools.Diagnostic.Kind.NOTE;
 
 /**
  * <p>Description  : HttpProcessor.</p>
@@ -55,6 +56,15 @@ public class HttpProcessor extends AbstractProcessor{
     private static final List<Class<? extends Annotation>> METHOD_ANNOTATION = Arrays.asList(
             Post.class,
             Get.class
+    );
+
+    private static final List<Class<? extends Annotation>> COMMON_ANNOTATION = Arrays.asList(
+            RootURL.class,
+            Timeout.class,
+            RequestContentType.class,
+            CommonParams.class,
+            Header.class,
+            CommonParamsMethod.class
     );
 
     private Filer       filer;
@@ -76,12 +86,9 @@ public class HttpProcessor extends AbstractProcessor{
             supportTypes.add(method.getCanonicalName());
         }
 
-        supportTypes.add(RootURL.class.getCanonicalName());
-        supportTypes.add(Timeout.class.getCanonicalName());
-        supportTypes.add(RequestContentType.class.getCanonicalName());
-        supportTypes.add(CommonParams.class.getCanonicalName());
-        supportTypes.add(Header.class.getCanonicalName());
-        supportTypes.add(CommonParamsMethod.class.getCanonicalName());
+        for (Class<? extends Annotation> method : COMMON_ANNOTATION){
+            supportTypes.add(method.getCanonicalName());
+        }
 
         return supportTypes;
     }
@@ -115,48 +122,61 @@ public class HttpProcessor extends AbstractProcessor{
         Map<TypeElement, BindClass> targetClassMap = new LinkedHashMap<>();
 
 
+        //method list
         for (Class<? extends Annotation> method : METHOD_ANNOTATION){
             findAndParseMethod(env, method, targetClassMap);
         }
 
+        //add common
+        for (TypeElement cls : targetClassMap.keySet()){
+            //遍历该类的所有成员
+            for (Element member :  elementUtils.getAllMembers(cls)){
+                findAndParseCommon(env, targetClassMap.get(cls), member);
+            }
+        }
+
+
         return targetClassMap;
     }
 
-    //解析默认值
-    private void parseOther(RoundEnvironment env, BindClass injectClass){
+    /**
+     * 解析公共配置 Annotation
+     */
+    private void findAndParseCommon(RoundEnvironment env, BindClass injectClass, Element member){
+
         // @RootURL element.
-        for (Element element : env.getElementsAnnotatedWith(RootURL.class)) {
+        if (env.getElementsAnnotatedWith(RootURL.class).contains(member)) {
             try {
-                String url = element.getAnnotation(RootURL.class).value();
+                String url = member.getAnnotation(RootURL.class).value();
                 injectClass.setRootURL(url);
             } catch (Exception e) {
-                logParsingError(element, RootURL.class, e);
+                logParsingError(member, RootURL.class, e);
             }
         }
         // @Timeout element.
-        for (Element element : env.getElementsAnnotatedWith(Timeout.class)) {
+        else if (env.getElementsAnnotatedWith(Timeout.class).contains(member)) {
             try {
-                int timeout = element.getAnnotation(Timeout.class).value();
+                int timeout = member.getAnnotation(Timeout.class).value();
                 injectClass.setDefaultTimeout(timeout);
             } catch (Exception e) {
-                logParsingError(element, Timeout.class, e);
+                logParsingError(member, Timeout.class, e);
             }
         }
         // @CommonParams element.
-        for (Element element : env.getElementsAnnotatedWith(CommonParams.class)) {
+        else if (env.getElementsAnnotatedWith(CommonParams.class).contains(member)) {
             try {
-                String params = element.getAnnotation(CommonParams.class).value();
-                String key = element.getSimpleName().toString();
+                String params = member.getAnnotation(CommonParams.class).value();
+                String key = member.getSimpleName().toString();
                 injectClass.addParams(key, params);
             } catch (Exception e) {
-                logParsingError(element, CommonParams.class, e);
+                logParsingError(member, CommonParams.class, e);
             }
         }
         // @Header element.
-        for (Element element : env.getElementsAnnotatedWith(Header.class)) {
+        else if (env.getElementsAnnotatedWith(Header.class).contains(member)) {
             try {
-                String[] header = element.getAnnotation(Header.class).value();
-                String key = element.getSimpleName().toString();
+                String[] header = member.getAnnotation(Header.class).value();
+                String key = member.getSimpleName().toString();
 
                 Set<String> values = new HashSet<>();
                 for (int i = 0; i < header.length; i++){
@@ -167,41 +187,44 @@ public class HttpProcessor extends AbstractProcessor{
 
                 injectClass.addHeader(key, values);
             } catch (Exception e) {
-                logParsingError(element, Header.class, e);
+                logParsingError(member, Header.class, e);
             }
         }
         // @RequestContentType element.
-        for (Element element : env.getElementsAnnotatedWith(RequestContentType.class)) {
+        else if (env.getElementsAnnotatedWith(RequestContentType.class).contains(member)) {
             try {
-                String contentType = element.getAnnotation(RequestContentType.class).value();
+                String contentType = member.getAnnotation(RequestContentType.class).value();
                 injectClass.setContentType(contentType);
             } catch (Exception e) {
-                logParsingError(element, RequestContentType.class, e);
+                logParsingError(member, RequestContentType.class, e);
             }
         }
         // @RequestParams element.
-        for (Element element : env.getElementsAnnotatedWith(CommonParamsMethod.class)) {
+        else if (env.getElementsAnnotatedWith(CommonParamsMethod.class).contains(member)) {
             try {
-                if (!(element instanceof ExecutableElement) || element.getKind() != METHOD) {
+                if (!(member instanceof ExecutableElement) || member.getKind() != METHOD) {
                     throw new IllegalStateException(
                             String.format("@%s annotation must be on a method.", CommonParamsMethod.class.getSimpleName()));
                 }
 
-                ExecutableElement executableElement = (ExecutableElement) element;
+                ExecutableElement executableElement = (ExecutableElement) member;
                 injectClass.setParamMethod(executableElement.getSimpleName().toString());
             } catch (Exception e) {
-                logParsingError(element, CommonParamsMethod.class, e);
+                logParsingError(member, CommonParamsMethod.class, e);
             }
         }
 
     }
 
+    /**
+     * 解析 Method {@link #METHOD_ANNOTATION}
+     */
     private void findAndParseMethod(RoundEnvironment env,
                                     Class<? extends Annotation> annotationClass,
                                     Map<TypeElement, BindClass> targetClassMap){
         for (Element element : env.getElementsAnnotatedWith(annotationClass)) {
             try {
-                parseMethodAnnotation(annotationClass, env, element, targetClassMap);
+                parseMethodAnnotation(annotationClass, element, targetClassMap);
             } catch (Exception e) {
                 StringWriter stackTrace = new StringWriter();
                 e.printStackTrace(new PrintWriter(stackTrace));
@@ -211,8 +234,10 @@ public class HttpProcessor extends AbstractProcessor{
         }
     }
 
+    /**
+     * 解析请求方法注解,并生成对应的方法
+     */
     private void parseMethodAnnotation(Class<? extends Annotation> annotationClass,
-                                       RoundEnvironment roundEnvironment,
                                        Element element,
                                        Map<TypeElement, BindClass> targetClassMap) throws Exception{
         if (!(element instanceof ExecutableElement) || element.getKind() != METHOD) {
@@ -224,12 +249,14 @@ public class HttpProcessor extends AbstractProcessor{
         TypeElement enclosingElement = (TypeElement) element.getEnclosingElement();
         //BindingClass
         BindClass injector = getOrCreateTargetClass(targetClassMap, enclosingElement);
-        parseOther(roundEnvironment, injector);
 
         BindMethod methodInjector = new BindMethod(injector, executableElement);
         injector.addMethod(methodInjector);
     }
 
+    /**
+     * 获取BindClass
+     */
     private BindClass getOrCreateTargetClass(Map<TypeElement, BindClass> targetClassMap, TypeElement enclosingElement) {
         BindClass injector = targetClassMap.get(enclosingElement);
         if (injector == null) {
@@ -277,5 +304,9 @@ public class HttpProcessor extends AbstractProcessor{
         StringWriter stackTrace = new StringWriter();
         e.printStackTrace(new PrintWriter(stackTrace));
         error(element, "Unable to parse @%s binding.\n\n%s", annotation.getSimpleName(), stackTrace);
+    }
+
+    private void logMessage(String msg){
+        processingEnv.getMessager().printMessage(NOTE, msg);
     }
 }
