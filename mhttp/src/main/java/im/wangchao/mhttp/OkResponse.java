@@ -12,7 +12,7 @@ import okhttp3.Response;
 public interface OkResponse {
 
     /**
-     * Return {@link OkRequest}, maybe null.
+     * Return {@link OkRequest}.
      */
     OkRequest request();
 

@@ -10,7 +10,6 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.lang.ref.WeakReference;
 
 import im.wangchao.mhttp.internal.exception.ParserException;
 import im.wangchao.mhttp.internal.exception.ResponseFailException;
@@ -36,8 +35,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     private static final int PROGRESS_MESSAGE   = 4;
     private static final int CANCEL_MESSAGE     = 5;
 
-    private WeakReference<OkRequest> request;
-    private WeakReference<OkResponse> response;
+    private OkRequest request;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
@@ -67,7 +65,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         }
         sendFinishMessage();
 
-        OkRequest requestRef = request == null ? null : request.get();
+        OkRequest requestRef = request;
         OkResponse okResponse = MResponse.builder()
                 .response(new Response.Builder().code(AbsCallbackHandler.IO_EXCEPTION_CODE).message(e.getMessage()).build())
                 .request(requestRef)
@@ -82,7 +80,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         }
         sendFinishMessage();
 
-        OkRequest requestRef = request == null ? null : request.get();
+        OkRequest requestRef = request;
         if (response.isSuccessful()) {
             try {
                 OkResponse okResponse = MResponse.builder().response(response).request(requestRef).builder();
@@ -126,7 +124,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     }
 
     @Override final public void setRequest(OkRequest request) {
-        this.request = new WeakReference<>(request);
+        this.request = request;
     }
 
     final public boolean isFinished(){
@@ -166,12 +164,8 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         }
     }
 
-    @Nullable final public OkRequest getRequest(){
-        return this.request.get();
-    }
-
-    @Nullable final public OkResponse getResponse(){
-        return this.response.get();
+    final protected OkRequest getRequest(){
+        return this.request;
     }
 
     /*package*/ final void sendProgressMessage(int bytesWritten, int bytesTotal) {
@@ -204,14 +198,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
             case SUCCESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length != 0 && !isCanceled){
-                    this.response = new WeakReference<>((OkResponse) responseObject[1]);
                     onSuccess((Parser_Type) responseObject[0], (OkResponse) responseObject[1]);
                 }
                 break;
             case FAILURE_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length == 2 && !isCanceled) {
-                    this.response = new WeakReference<>((OkResponse) responseObject[0]);
                     onFailure((OkResponse) responseObject[0], (Throwable) responseObject[1]);
                 }
                 break;

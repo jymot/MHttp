@@ -106,6 +106,13 @@ public final class MHttp {
     }
 
     /**
+     * @return {@link CookieJar}
+     */
+    public CookieJar cookieJar(){
+        return mOkHttpClient.cookieJar();
+    }
+
+    /**
      * Cancel all request.
      */
     public MHttp cancelAll(){
@@ -134,6 +141,8 @@ public final class MHttp {
      * Async request
      */
     public MHttp enqueue(OkRequest request){
+        timeout(request.timeout());
+
         Call call = mOkHttpClient.newCall(request.request());
         OkCallback callback = request.callback();
         callback.setRequest(request);

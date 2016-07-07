@@ -59,4 +59,5 @@ public interface OkRequest<T, R> {
 
     boolean isHttps();
 
+    int timeout();
 }

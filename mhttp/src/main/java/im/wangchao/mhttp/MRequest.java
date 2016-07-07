@@ -30,11 +30,13 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
     final Request okRequest;
     final OkRequestParams mRequestParams;
     final OkCallback mCallback;
+    final int timeout;
 
     private MRequest(Builder builder){
         okRequest = builder.okRequest;
         mRequestParams = builder.mRequestParams;
         mCallback = builder.mCallback;
+        timeout = builder.timeout;
     }
 
     @Override public Request request() {
@@ -90,6 +92,10 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
         return okRequest.isHttps();
     }
 
+    @Override public int timeout() {
+        return timeout;
+    }
+
     @Override public OkRequestParams requestParams(){
         return mRequestParams;
     }
@@ -121,6 +127,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
         Request.Builder okBuilder;
         OkRequestParams mRequestParams;
         OkCallback mCallback;
+        int timeout;
         private String method;
 
         public Builder() {
@@ -128,6 +135,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             method = Method.GET;
             okBuilder = new Request.Builder();
             mRequestParams = new RequestParams();
+            timeout = 30;
         }
 
         private Builder(MRequest request) {
@@ -135,6 +143,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             method = request.method();
             mRequestParams = request.mRequestParams;
             okBuilder = request.okRequest.newBuilder();
+            timeout = request.timeout;
         }
 
         @Override public Builder url(HttpUrl url) {
