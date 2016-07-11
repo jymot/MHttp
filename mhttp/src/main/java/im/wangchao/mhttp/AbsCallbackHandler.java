@@ -98,6 +98,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         private final AbsCallbackHandler mResponder;
 
         ResponderHandler(AbsCallbackHandler mResponder) {
+            super(Looper.getMainLooper());
             this.mResponder = mResponder;
         }
 
@@ -107,20 +108,9 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     }
 
     public AbsCallbackHandler(){
-        this(true);
-    }
-
-    public AbsCallbackHandler(boolean useHandler){
         isCanceled = false;
         isFinished = false;
-        if (useHandler){
-            handler = new ResponderHandler(this);
-        } else {
-            if (Looper.myLooper() == null){
-                throw new RuntimeException("Can't create handler inside thread that has not called Looper.prepare()");
-            }
-            handler = null;
-        }
+        handler = new ResponderHandler(this);
     }
 
     @Override final public void setRequest(OkRequest request) {
@@ -232,25 +222,13 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     }
 
     private void sendMessage(Message msg) {
-        if (handler == null) {
-            handleMessage(msg);
-        } else if (!Thread.currentThread().isInterrupted()) {
+        if (!Thread.currentThread().isInterrupted()) {
             handler.sendMessage(msg);
         }
     }
 
     private Message obtainMessage(int responseMessageId, Object responseMessageData) {
-        Message msg;
-        if (handler == null) {
-            msg = Message.obtain();
-            if (msg != null) {
-                msg.what = responseMessageId;
-                msg.obj = responseMessageData;
-            }
-        } else {
-            msg = Message.obtain(handler, responseMessageId, responseMessageData);
-        }
-        return msg;
+        return Message.obtain(handler, responseMessageId, responseMessageData);
     }
 
 }
