@@ -2,9 +2,10 @@
 okhttp wrapper
 ###Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.2.0'
+  compile 'im.wangchao:mhttp:1.2.1'
 ```
 ###PROGUARD
+ProGuard rules now ship inside of the library and are included automatically.
 ```java
     -keep class im.wangchao.** { *; }
     -dontwarn im.wangchao.**

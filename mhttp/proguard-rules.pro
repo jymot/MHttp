@@ -15,6 +15,15 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-keep class im.wangchao.** { *; }
+-dontwarn im.wangchao.**
+-keep class **$$HttpBinder { *; }
+-keepclasseswithmembernames class * {
+    @im.wangchao.* <fields>;
+}
+-keepclasseswithmembernames class * {
+    @im.wangchao.* <methods>;
+}
 -keepclassmembers class * implements java.io.Serializable {
     static final long serialVersionUID;
     private static final java.io.ObjectStreamField[] serialPersistentFields;
