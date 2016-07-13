@@ -46,11 +46,13 @@ ext.deps = [
         // Square
         javapoet          : 'com.squareup:javapoet:1.4.0',
         timber            : 'com.jakewharton.timber:timber:3.1.0',
-        okhttp            : 'com.squareup.okhttp3:okhttp:3.3.1',
+        okhttp            : 'com.squareup.okhttp3:okhttp:3.4.1',
 
         // Test dependencies
         junit             : 'junit:junit:4.12',
 
         autoservice       : 'com.google.auto.service:auto-service:1.0-rc2',
-        autocommon        : 'com.google.auto:auto-common:0.6'
+        autocommon        : 'com.google.auto:auto-common:0.6',
+
+        mhttpcompiler     : 'im.wangchao:mhttp-compiler:0.3.0'
 ]
