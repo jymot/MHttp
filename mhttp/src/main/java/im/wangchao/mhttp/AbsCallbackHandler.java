@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import im.wangchao.mhttp.internal.exception.ParserException;
 import im.wangchao.mhttp.internal.exception.ResponseFailException;
 import okhttp3.Call;
+import okhttp3.Protocol;
 import okhttp3.Response;
 
 /**
@@ -67,7 +68,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
         OkRequest requestRef = request;
         OkResponse okResponse = MResponse.builder()
-                .response(new Response.Builder().code(AbsCallbackHandler.IO_EXCEPTION_CODE).message(e.getMessage()).build())
+                .response(new Response.Builder()
+                        .request(requestRef.request())
+                        .protocol(Protocol.HTTP_1_1)
+                        .code(AbsCallbackHandler.IO_EXCEPTION_CODE)
+                        .message(e.getMessage())
+                        .build())
                 .request(requestRef)
                 .builder();
         sendFailureMessage(okResponse, e);
