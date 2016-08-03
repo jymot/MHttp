@@ -1,5 +1,5 @@
 # MHttp
-okhttp wrapper
+okhttp wrapper for Android Http.
 ###Gradle:
 ```gradle
   compile 'im.wangchao:mhttp:1.3.0'
