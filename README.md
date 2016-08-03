@@ -211,6 +211,8 @@ GSONCallbackHandler
 ```
 If you want to customize the Callback Method, you can inherit AbsCallbackHandler like the method above.
 
+####5.TODO
+Thread Mode?
 
 ###Contact Me
 - Email:  magician.of.technique@aliyun.com
