@@ -31,12 +31,14 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
     final OkRequestParams mRequestParams;
     final OkCallback mCallback;
     final int timeout;
+    final ThreadMode mThreadMode;
 
     private MRequest(Builder builder){
         okRequest = builder.okRequest;
         mRequestParams = builder.mRequestParams;
         mCallback = builder.mCallback;
         timeout = builder.timeout;
+        mThreadMode = builder.mThreadMode;
     }
 
     @Override public Request request() {
@@ -96,6 +98,13 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
         return timeout;
     }
 
+    /**
+     * @return {@link OkCallback} in which thread work.
+     */
+    @Override public ThreadMode callbackThreadMode() {
+        return mThreadMode;
+    }
+
     @Override public OkRequestParams requestParams(){
         return mRequestParams;
     }
@@ -129,6 +138,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
         OkCallback mCallback;
         int timeout;
         private String method;
+        ThreadMode mThreadMode;
 
         public Builder() {
             mCallback = OkCallback.EMPTY;
@@ -136,6 +146,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             okBuilder = new Request.Builder();
             mRequestParams = new RequestParams();
             timeout = 30;
+            mThreadMode = ThreadMode.MAIN;
         }
 
         private Builder(MRequest request) {
@@ -144,6 +155,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             mRequestParams = request.mRequestParams;
             okBuilder = request.okRequest.newBuilder();
             timeout = request.timeout;
+            mThreadMode = request.mThreadMode;
         }
 
         @Override public Builder url(HttpUrl url) {
@@ -257,6 +269,11 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
 
         @Override public Builder callback(@NonNull OkCallback callback){
             mCallback = callback;
+            return this;
+        }
+
+        public Builder callbackThreadMode(ThreadMode mode){
+            mThreadMode = mode;
             return this;
         }
 

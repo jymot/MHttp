@@ -24,7 +24,7 @@ public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.
     @Override protected JSON backgroundParser(OkResponse response) throws Exception {
         final byte[] body = response.response().body().bytes();
         final String bodyString = byteArrayToString(body);
-        final JSON json = new JSON();
+        JSON json = new JSON();
 
         if (bodyString != null){
             try {

@@ -10,21 +10,50 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import im.wangchao.mhttp.internal.exception.ParserException;
 import im.wangchao.mhttp.internal.exception.ResponseFailException;
 import okhttp3.Call;
 import okhttp3.Protocol;
 import okhttp3.Response;
+import okhttp3.internal.Util;
 
 /**
- * <p>Description  : AbsResponseHandler.</p>
+ * <p>Description  : AbsResponseHandler.
+ *                   Callback lifecycle as follow:
+ *                                              onStart()
+ *                         -------------------------------------------------------
+ *                              |
+ *                              |
+ *                         <is canceled> --- Y ---> onCancel()
+ *                              |
+ *                              N
+ *                              |
+ *                          onFinish()
+ *                              |
+ *                              |
+ *                        <is successful> --- N ---> onFailure() ------------------
+ *                              |                                                 |
+ *                              Y                                                 |
+ *                              |                                                 |
+ *                        backgroundParser() --<is download>--> onProgress()      |
+ *                              |                                     |           |
+ *                              |                                     |           |
+ *                          onSuccess()                           onSuccess()     |
+ *                              |                                     |           |
+ *                              |                                     |           |
+ *                        ---------------------------------------------------------
+ *                                             onFinally()
+ *                          </p>
  * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午5:56.</p>
  */
 public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
+    final private static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
 
     final public static int     IO_EXCEPTION_CODE   = -1;
     final public static String  DEFAULT_CHARSET     = "UTF-8";
@@ -35,29 +64,34 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     private static final int FINISH_MESSAGE     = 3;
     private static final int PROGRESS_MESSAGE   = 4;
     private static final int CANCEL_MESSAGE     = 5;
+    private static final int FINALLY_MESSAGE    = 6;
 
     private OkRequest request;
     private String responseCharset = DEFAULT_CHARSET;
     private boolean isCanceled;
     private boolean isFinished;
 
-    final private Handler handler;
+    private ThreadMode mThreadMode = ThreadMode.MAIN;
+    private Handler mainThreadPoster;
 
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     abstract protected void onSuccess(Parser_Type data, OkResponse response);
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     abstract protected void onFailure(OkResponse response, Throwable throwable);
-    /** Work on Work Thread */
+    /** Work on the request thread, that is okhttp thread. */
     abstract protected Parser_Type backgroundParser(OkResponse response) throws Exception;
 
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     protected void onStart(){}
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     protected void onCancel(){}
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     protected void onProgress(int bytesWritten, int bytesTotal){}
-    /** Work on UI Thread */
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
     protected void onFinish(){}
+    /** Working thread depends on {@link #mThreadMode}, default UI. */
+    protected void onFinally(){}
+
 
     @Override final public void onFailure(Call call, IOException e) {
         if (call.isCanceled()){
@@ -77,6 +111,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
                 .request(requestRef)
                 .builder();
         sendFailureMessage(okResponse, e);
+        sendFinallyMessage();
     }
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
@@ -98,6 +133,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         } else {
             sendFailureMessage(MResponse.builder().response(response).request(requestRef).builder(), new ResponseFailException());
         }
+        sendFinallyMessage();
     }
 
     private static class ResponderHandler extends Handler {
@@ -116,11 +152,11 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     public AbsCallbackHandler(){
         isCanceled = false;
         isFinished = false;
-        handler = new ResponderHandler(this);
     }
 
     @Override final public void setRequest(OkRequest request) {
         this.request = request;
+        mThreadMode = request.callbackThreadMode();
     }
 
     final public boolean isFinished(){
@@ -184,6 +220,10 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         sendMessage(obtainMessage(FINISH_MESSAGE, null));
     }
 
+    /*package*/ final void sendFinallyMessage() {
+        sendMessage(obtainMessage(FINALLY_MESSAGE, null));
+    }
+
     /*package*/ final void sendCancelMessage() {
         sendMessage(obtainMessage(CANCEL_MESSAGE, null));
     }
@@ -210,6 +250,9 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
                 this.isFinished = true;
                 onFinish();
                 break;
+            case FINALLY_MESSAGE:
+                onFinally();
+                break;
             case PROGRESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
                 if (responseObject != null && responseObject.length == 2) {
@@ -227,14 +270,47 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         }
     }
 
-    private void sendMessage(Message msg) {
-        if (!Thread.currentThread().isInterrupted()) {
-            handler.sendMessage(msg);
+    private Handler mainThreadPoster(){
+        if (mainThreadPoster == null){
+            mainThreadPoster = new ResponderHandler(this);
+        }
+
+        return mainThreadPoster;
+    }
+
+    private void sendMessage(final Message msg) {
+        if (msg == null || Thread.currentThread().isInterrupted()) {
+            return;
+        }
+        switch (mThreadMode){
+            case MAIN:
+                mainThreadPoster().sendMessage(msg);
+                break;
+            case BACKGROUND:
+                if (msg.what == START_MESSAGE){
+                    DEFAULT_EXECUTOR_SERVICE.execute(new Runnable() {
+                        @Override public void run() {
+                            handleMessage(msg);
+                        }
+                    });
+                    return;
+                }
+                handleMessage(msg);
+                break;
         }
     }
 
     private Message obtainMessage(int responseMessageId, Object responseMessageData) {
-        return Message.obtain(handler, responseMessageId, responseMessageData);
+        switch (mThreadMode){
+            case MAIN:
+                return Message.obtain(mainThreadPoster(), responseMessageId, responseMessageData);
+            case BACKGROUND:
+                Message background = new Message();
+                background.what = responseMessageId;
+                background.obj = responseMessageData;
+                return background;
+        }
+        return null;
     }
 
 }

@@ -2,7 +2,7 @@
 okhttp wrapper
 ###Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.2.3'
+  compile 'im.wangchao:mhttp:1.3.0'
 ```
 ###PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
@@ -211,8 +211,9 @@ GSONCallbackHandler
 ```
 If you want to customize the Callback Method, you can inherit AbsCallbackHandler like the method above.
 
-####5.TODO
-Thread Mode?
+####5.ThreadMode
+ * MAIN -- Callback will be called in Android's main thread (UI thread).
+ * BACKGROUND -- Callback will be called in a background thread. That is, work on the request thread(okhttp thread).
 
 ###Contact Me
 - Email:  magician.of.technique@aliyun.com
