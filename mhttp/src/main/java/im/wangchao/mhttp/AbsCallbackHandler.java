@@ -73,6 +73,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
     private ThreadMode mThreadMode = ThreadMode.MAIN;
     private Handler mainThreadPoster;
+    private Handler sendingThreadPoster;
 
     /** Working thread depends on {@link #mThreadMode}, default UI. */
     abstract protected void onSuccess(Parser_Type data, OkResponse response);
@@ -144,6 +145,11 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
             this.mResponder = mResponder;
         }
 
+        ResponderHandler(AbsCallbackHandler mResponder, Looper looper) {
+            super(looper);
+            this.mResponder = mResponder;
+        }
+
         @Override public void handleMessage(Message msg) {
             mResponder.handleMessage(msg);
         }
@@ -157,6 +163,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     @Override final public void setRequest(OkRequest request) {
         this.request = request;
         mThreadMode = request.callbackThreadMode();
+        if (mThreadMode == ThreadMode.SENDING){
+            if (Looper.myLooper() == null){
+                throw new RuntimeException("The Looper of the current thread is null, please call Looper.prepare() on your thread.");
+            }
+            sendingThreadPoster = new ResponderHandler(this, Looper.myLooper());
+        }
     }
 
     final public boolean isFinished(){
@@ -283,6 +295,9 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
             return;
         }
         switch (mThreadMode){
+            case SENDING:
+                sendingThreadPoster.sendMessage(msg);
+                break;
             case MAIN:
                 mainThreadPoster().sendMessage(msg);
                 break;
@@ -302,10 +317,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
     private Message obtainMessage(int responseMessageId, Object responseMessageData) {
         switch (mThreadMode){
+            case SENDING:
+                return Message.obtain(sendingThreadPoster, responseMessageId, responseMessageData);
             case MAIN:
                 return Message.obtain(mainThreadPoster(), responseMessageId, responseMessageData);
             case BACKGROUND:
-                Message background = new Message();
+                Message background = Message.obtain();
                 background.what = responseMessageId;
                 background.obj = responseMessageData;
                 return background;

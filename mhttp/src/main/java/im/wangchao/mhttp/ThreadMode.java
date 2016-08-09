@@ -9,6 +9,10 @@ package im.wangchao.mhttp;
  */
 public enum ThreadMode {
     /**
+     * Callback will be called in the same thread, which is sending the request.
+     */
+    SENDING,
+    /**
      * Callback will be called in Android's main thread (UI thread).
      */
     MAIN,
