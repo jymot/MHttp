@@ -272,6 +272,11 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             return this;
         }
 
+        public Builder timeout(int timeout){
+            this.timeout = timeout;
+            return this;
+        }
+
         public Builder callbackThreadMode(ThreadMode mode){
             mThreadMode = mode;
             return this;
@@ -279,6 +284,8 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
 
         @Override public MRequest build() {
             boolean isGet = Method.GET.equals(method);
+
+            MHttp.instance().timeout(timeout);
 
             if (!Accept.EMPTY.equals(mCallback.accept())) {
                 addHeader("Accept", mCallback.accept());
