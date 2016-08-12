@@ -91,7 +91,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     /** Working thread depends on {@link #mThreadMode}, default UI. */
     protected void onFinish(){}
     /** Working thread depends on {@link #mThreadMode}, default UI. */
-    protected void onFinally(){}
+    protected void onFinally(OkResponse response){}
 
 
     @Override final public void onFailure(Call call, IOException e) {
@@ -112,7 +112,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
                 .request(requestRef)
                 .builder();
         sendFailureMessage(okResponse, e);
-        sendFinallyMessage();
+        sendFinallyMessage(okResponse);
     }
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
@@ -123,18 +123,19 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         sendFinishMessage();
 
         OkRequest requestRef = request;
+        OkResponse okResponse;
         if (response.isSuccessful()) {
             try {
-                OkResponse okResponse = MResponse.builder().response(response).request(requestRef).builder();
+                okResponse = MResponse.builder().response(response).request(requestRef).builder();
                 Parser_Type data = backgroundParser(okResponse);
                 sendSuccessMessage(data, okResponse);
             } catch (Exception e) {
-                sendFailureMessage(MResponse.builder().response(response).request(requestRef).builder(), new ParserException());
+                sendFailureMessage(okResponse = MResponse.builder().response(response).request(requestRef).builder(), new ParserException());
             }
         } else {
-            sendFailureMessage(MResponse.builder().response(response).request(requestRef).builder(), new ResponseFailException());
+            sendFailureMessage(okResponse = MResponse.builder().response(response).request(requestRef).builder(), new ResponseFailException());
         }
-        sendFinallyMessage();
+        sendFinallyMessage(okResponse);
     }
 
     private static class ResponderHandler extends Handler {
@@ -232,8 +233,8 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         sendMessage(obtainMessage(FINISH_MESSAGE, null));
     }
 
-    /*package*/ final void sendFinallyMessage() {
-        sendMessage(obtainMessage(FINALLY_MESSAGE, null));
+    /*package*/ final void sendFinallyMessage(OkResponse response) {
+        sendMessage(obtainMessage(FINALLY_MESSAGE, response));
     }
 
     /*package*/ final void sendCancelMessage() {
@@ -263,7 +264,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
                 onFinish();
                 break;
             case FINALLY_MESSAGE:
-                onFinally();
+                onFinally((OkResponse) message.obj);
                 break;
             case PROGRESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
