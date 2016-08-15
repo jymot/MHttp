@@ -55,7 +55,7 @@ import okhttp3.internal.Util;
 public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     final private static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
 
-    final public static int     IO_EXCEPTION_CODE   = -1;
+    final public static int     IO_EXCEPTION_CODE   = 1000;
     final public static String  DEFAULT_CHARSET     = "UTF-8";
 
     private static final int SUCCESS_MESSAGE    = 0;
