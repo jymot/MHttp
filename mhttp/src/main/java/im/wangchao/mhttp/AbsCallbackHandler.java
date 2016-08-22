@@ -156,7 +156,6 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     }
 
     public AbsCallbackHandler(){
-        initialize();
     }
 
     @Override public void initialize(){

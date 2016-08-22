@@ -145,8 +145,8 @@ public final class MHttp {
 
         Call call = mOkHttpClient.newCall(request.request());
         OkCallback callback = request.callback();
-        callback.setRequest(request);
         callback.initialize();
+        callback.setRequest(request);
         callback.sendStartMessage();
         call.enqueue(callback);
         return this;
