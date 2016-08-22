@@ -18,11 +18,16 @@ import im.wangchao.mhttp.TextCallbackHandler;
  */
 public class GetExample {
 
-    public static void doNormalRequest(){
-        MRequest.builder().url("http://wangchao.im")
+    public static MRequest doNormalRequest(){
+        return MRequest.builder().url("http://wangchao.im")
                 .callback(new TextCallbackHandler(){
                     @Override protected void onSuccess(String data, OkResponse response) {
                         Log.e(MainActivity.TAG, "normal : " + data);
+                    }
+
+                    @Override
+                    protected void onCancel() {
+                        Log.e(MainActivity.TAG, "onCancel");
                     }
                 })
                 .build()

@@ -68,7 +68,6 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
     private OkRequest request;
     private String responseCharset = DEFAULT_CHARSET;
-    private boolean isCanceled;
     private boolean isFinished;
 
     private ThreadMode mThreadMode = ThreadMode.MAIN;
@@ -157,7 +156,10 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
     }
 
     public AbsCallbackHandler(){
-        isCanceled = false;
+        initialize();
+    }
+
+    @Override public void initialize(){
         isFinished = false;
     }
 
@@ -246,13 +248,13 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
         switch (message.what){
             case SUCCESS_MESSAGE:
                 responseObject = (Object[]) message.obj;
-                if (responseObject != null && responseObject.length != 0 && !isCanceled){
+                if (responseObject != null && responseObject.length != 0){
                     onSuccess((Parser_Type) responseObject[0], (OkResponse) responseObject[1]);
                 }
                 break;
             case FAILURE_MESSAGE:
                 responseObject = (Object[]) message.obj;
-                if (responseObject != null && responseObject.length == 2 && !isCanceled) {
+                if (responseObject != null && responseObject.length == 2) {
                     onFailure((OkResponse) responseObject[0], (Throwable) responseObject[1]);
                 }
                 break;
@@ -277,7 +279,6 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
                 }
                 break;
             case CANCEL_MESSAGE:
-                this.isCanceled = true;
                 onCancel();
                 break;
         }

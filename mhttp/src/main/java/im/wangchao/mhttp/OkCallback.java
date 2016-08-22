@@ -15,11 +15,13 @@ import okhttp3.Response;
  */
 public interface OkCallback extends Callback {
     OkCallback EMPTY = new OkCallback() {
+        @Override public void initialize() {
+        }
+
         @Override public void sendStartMessage() {
         }
 
         @Override public void setRequest(OkRequest request) {
-
         }
 
         @Override public String accept() {
@@ -32,6 +34,11 @@ public interface OkCallback extends Callback {
         @Override public void onResponse(Call call, Response response) throws IOException {
         }
     };
+
+    /**
+     * Initialize the callback.
+     */
+    void initialize();
 
     /**
      * Send message when the request starts to send
