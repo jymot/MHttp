@@ -3,6 +3,7 @@ package im.wangchao.mhttp;
 import android.content.Context;
 import android.os.Build;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,6 +24,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
+import im.wangchao.mhttp.internal.MBridgeInterceptors;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.CookieJar;
@@ -58,10 +60,10 @@ public final class MHttp {
 
 
     private OkHttpClient mOkHttpClient;
+    private MBridgeInterceptors mBridgeInterceptors = new MBridgeInterceptors();
 
-    public MHttp replace(OkHttpClient replace){
-        mOkHttpClient = replace;
-        return this;
+    public MHttp replace(@NonNull OkHttpClient replace){
+        return build(replace.newBuilder());
     }
 
     public OkHttpClient okHttpClient(){
@@ -70,6 +72,14 @@ public final class MHttp {
 
     public OkHttpClient.Builder newBuilder() {
         return mOkHttpClient.newBuilder();
+    }
+
+    public MHttp build(OkHttpClient.Builder builder){
+        if (!builder.interceptors().contains(mBridgeInterceptors)){
+            builder.addInterceptor(mBridgeInterceptors);
+        }
+        mOkHttpClient = builder.build();
+        return this;
     }
 
     /**
@@ -303,7 +313,9 @@ public final class MHttp {
     //@private
     private MHttp(){
         //default instance
-        mOkHttpClient = new OkHttpClient();
+        mOkHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(mBridgeInterceptors)
+                .build();
     }
 
 }
