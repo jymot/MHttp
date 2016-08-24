@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
 
+import im.wangchao.mhttp.internal.Version;
 import okhttp3.CacheControl;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -147,6 +148,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             mRequestParams = new RequestParams();
             timeout = 30;
             mThreadMode = ThreadMode.MAIN;
+            okBuilder.header("User-Agent", Version.userAgent());
         }
 
         private Builder(MRequest request) {
@@ -279,6 +281,11 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
 
         public Builder callbackThreadMode(ThreadMode mode){
             mThreadMode = mode;
+            return this;
+        }
+
+        public Builder userAgent(String ua){
+            header("User-Agent", ua);
             return this;
         }
 
