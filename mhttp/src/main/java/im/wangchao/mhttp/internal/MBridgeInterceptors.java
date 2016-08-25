@@ -14,6 +14,13 @@ import okhttp3.Response;
  * <p>Time         : 下午4:32.</p>
  */
 public final class MBridgeInterceptors implements Interceptor {
+    private MBridgeInterceptors(){}
+
+    public static Singleton<MBridgeInterceptors> instance = new Singleton<MBridgeInterceptors>() {
+        @Override protected MBridgeInterceptors create() {
+            return new MBridgeInterceptors();
+        }
+    };
 
     @Override public Response intercept(Chain chain) throws IOException {
         Request request = chain.request();

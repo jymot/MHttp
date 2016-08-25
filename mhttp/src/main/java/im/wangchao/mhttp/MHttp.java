@@ -60,7 +60,6 @@ public final class MHttp {
 
 
     private OkHttpClient mOkHttpClient;
-    private MBridgeInterceptors mBridgeInterceptors = new MBridgeInterceptors();
 
     public MHttp replace(@NonNull OkHttpClient replace){
         return build(replace.newBuilder());
@@ -75,8 +74,8 @@ public final class MHttp {
     }
 
     public MHttp build(OkHttpClient.Builder builder){
-        if (!builder.interceptors().contains(mBridgeInterceptors)){
-            builder.addInterceptor(mBridgeInterceptors);
+        if (!builder.interceptors().contains(MBridgeInterceptors.instance.get())){
+            builder.addInterceptor(MBridgeInterceptors.instance.get());
         }
         mOkHttpClient = builder.build();
         return this;
@@ -314,7 +313,7 @@ public final class MHttp {
     private MHttp(){
         //default instance
         mOkHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(mBridgeInterceptors)
+                .addInterceptor(MBridgeInterceptors.instance.get())
                 .build();
     }
 
