@@ -24,7 +24,7 @@ import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
-import im.wangchao.mhttp.internal.MBridgeInterceptors;
+import im.wangchao.mhttp.internal.MBridgeInterceptor;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.CookieJar;
@@ -74,8 +74,8 @@ public final class MHttp {
     }
 
     public MHttp build(OkHttpClient.Builder builder){
-        if (!builder.interceptors().contains(MBridgeInterceptors.instance.get())){
-            builder.addInterceptor(MBridgeInterceptors.instance.get());
+        if (!builder.interceptors().contains(MBridgeInterceptor.instance.get())){
+            builder.addInterceptor(MBridgeInterceptor.instance.get());
         }
         mOkHttpClient = builder.build();
         return this;
@@ -313,7 +313,7 @@ public final class MHttp {
     private MHttp(){
         //default instance
         mOkHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(MBridgeInterceptors.instance.get())
+                .addInterceptor(MBridgeInterceptor.instance.get())
                 .build();
     }
 

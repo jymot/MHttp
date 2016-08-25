@@ -13,12 +13,12 @@ import okhttp3.Response;
  * <p>Date         : 16/8/24.</p>
  * <p>Time         : 下午4:32.</p>
  */
-public final class MBridgeInterceptors implements Interceptor {
-    private MBridgeInterceptors(){}
+public final class MBridgeInterceptor implements Interceptor {
+    private MBridgeInterceptor(){}
 
-    public static Singleton<MBridgeInterceptors> instance = new Singleton<MBridgeInterceptors>() {
-        @Override protected MBridgeInterceptors create() {
-            return new MBridgeInterceptors();
+    public static Singleton<MBridgeInterceptor> instance = new Singleton<MBridgeInterceptor>() {
+        @Override protected MBridgeInterceptor create() {
+            return new MBridgeInterceptor();
         }
     };
 
