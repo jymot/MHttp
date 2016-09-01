@@ -116,6 +116,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
 
     @Override final public void onResponse(Call call, Response response) throws IOException {
         if (call.isCanceled()){
+            response.close();
             sendCancelMessage();
             return;
         }
@@ -133,6 +134,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements OkCallback{
             }
         } else {
             sendFailureMessage(okResponse = MResponse.builder().response(response).request(requestRef).builder(), new ResponseFailException());
+            response.close();
         }
         sendFinallyMessage(okResponse);
     }
