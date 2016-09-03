@@ -13,16 +13,16 @@ import org.json.JSONObject;
  */
 public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.JSON> {
 
-    @Override protected void onSuccess(JSON data, OkResponse response) {
+    @Override protected void onSuccess(JSON data, Response response) {
 
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected JSON backgroundParser(OkResponse response) throws Exception {
-        final byte[] body = response.response().body().bytes();
+    @Override protected JSON backgroundParser(Response response) throws Exception {
+        final byte[] body = response.raw().body().bytes();
         final String bodyString = byteArrayToString(body);
         JSON json = new JSON();
 

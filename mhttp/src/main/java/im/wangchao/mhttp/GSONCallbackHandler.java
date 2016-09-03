@@ -9,7 +9,7 @@ package im.wangchao.mhttp;
  */
 public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
 
-    @Override final protected void onSuccess(JSON data, OkResponse response) {
+    @Override final protected void onSuccess(JSON data, Response response) {
         if (data.jsonArray != null) {
             onSuccess(parser(data.jsonArray.toString()));
         }
@@ -18,7 +18,7 @@ public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
         }
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
 
     }
 

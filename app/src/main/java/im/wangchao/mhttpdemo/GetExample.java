@@ -6,7 +6,7 @@ import im.wangchao.http.annotations.Callback;
 import im.wangchao.http.annotations.Get;
 import im.wangchao.mhttp.MHttp;
 import im.wangchao.mhttp.Request;
-import im.wangchao.mhttp.OkResponse;
+import im.wangchao.mhttp.Response;
 import im.wangchao.mhttp.TextCallbackHandler;
 
 /**
@@ -21,7 +21,7 @@ public class GetExample {
     public static Request doNormalRequest(){
         return Request.builder().url("http://wangchao.im")
                 .callback(new TextCallbackHandler(){
-                    @Override protected void onSuccess(String data, OkResponse response) {
+                    @Override protected void onSuccess(String data, Response response) {
                         Log.e(MainActivity.TAG, "normal : " + data);
                     }
 
@@ -31,13 +31,13 @@ public class GetExample {
                     }
                 })
                 .build()
-                .send();
+                .enqueue();
     }
 
     public static void doAnnotationRequest(){
         GetBaidu baidu = MHttp.create(GetBaidu.class);
         baidu.baidu(new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, OkResponse response) {
+            @Override protected void onSuccess(String data, Response response) {
                 Log.e(MainActivity.TAG, data);
             }
         });

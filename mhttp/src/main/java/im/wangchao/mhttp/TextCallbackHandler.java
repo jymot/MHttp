@@ -8,14 +8,14 @@ package im.wangchao.mhttp;
  * <p>Time         : 下午2:41.</p>
  */
 public class TextCallbackHandler extends AbsCallbackHandler<String> {
-    @Override protected void onSuccess(String data, OkResponse response) {
+    @Override protected void onSuccess(String data, Response response) {
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
     }
 
-    @Override protected String backgroundParser(OkResponse response) throws Exception {
-        return byteArrayToString(response.response().body().bytes());
+    @Override protected String backgroundParser(Response response) throws Exception {
+        return byteArrayToString(response.raw().body().bytes());
     }
 
     @Override public String accept() {

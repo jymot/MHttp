@@ -7,7 +7,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import okhttp3.Response;
 import okhttp3.internal.Util;
 
 /**
@@ -33,16 +32,16 @@ public class FileCallbackHandler extends AbsCallbackHandler<File> {
         return file;
     }
 
-    @Override protected void onSuccess(File file, OkResponse response){
+    @Override protected void onSuccess(File file, Response response){
 
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected File backgroundParser(OkResponse response) throws IOException{
-        writeFile(response.response(), file);
+    @Override protected File backgroundParser(Response response) throws IOException{
+        writeFile(response.raw(), file);
         return file;
     }
 
@@ -61,7 +60,7 @@ public class FileCallbackHandler extends AbsCallbackHandler<File> {
     /**
      * write file , send progress message
      */
-    protected void writeFile(Response response, File file) throws IOException {
+    protected void writeFile(okhttp3.Response response, File file) throws IOException {
         if (file == null){
             throw new IllegalArgumentException("File == null");
         }

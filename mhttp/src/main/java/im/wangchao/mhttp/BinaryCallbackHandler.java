@@ -9,16 +9,16 @@ package im.wangchao.mhttp;
  */
 public class BinaryCallbackHandler extends AbsCallbackHandler<byte[]> {
 
-    @Override protected void onSuccess(byte[] data, OkResponse response) {
+    @Override protected void onSuccess(byte[] data, Response response) {
 
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected byte[] backgroundParser(OkResponse response) throws Exception {
-        return response.response().body().bytes();
+    @Override protected byte[] backgroundParser(Response response) throws Exception {
+        return response.raw().body().bytes();
     }
 
     @Override public String accept() {

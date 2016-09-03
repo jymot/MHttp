@@ -5,6 +5,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 
+import java.io.IOException;
+
+import im.wangchao.mhttp.Request;
+import im.wangchao.mhttp.Response;
+
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "wcwcwc";
 
@@ -61,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 //        MRequest request = PostExample.getRequest();
 //        request.send();
     }
-
+    Request request;
     private void log(String msg){
         Log.e(TAG, msg);
     }

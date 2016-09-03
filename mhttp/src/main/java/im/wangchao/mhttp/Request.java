@@ -5,15 +5,17 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import java.util.concurrent.Executor;
 
-import im.wangchao.mhttp.internal.Version;
 import okhttp3.CacheControl;
+import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.Request;
+import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 
 /**
@@ -23,63 +25,66 @@ import okhttp3.RequestBody;
  * <p>Date         : 16/6/2.</p>
  * <p>Time         : 下午4:16.</p>
  */
-public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
+public final class Request {
     public static Builder builder(){
         return new Builder();
     }
 
-    final Request okRequest;
-    final OkRequestParams mRequestParams;
-    final OkCallback mCallback;
+    final okhttp3.Request rawRequest;
+    final RequestParams mRequestParams;
+    final Callback mCallback;
     final int timeout;
+    final Executor mExecutor;
     final ThreadMode mThreadMode;
 
-    private MRequest(Builder builder){
-        okRequest = builder.okRequest;
+    private okhttp3.Call rawCall;
+
+    private Request(Builder builder){
+        rawRequest = builder.rawRequest;
         mRequestParams = builder.mRequestParams;
         mCallback = builder.mCallback;
         timeout = builder.timeout;
+        mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
     }
 
-    @Override public Request request() {
-        return okRequest;
+    public okhttp3.Request raw() {
+        return rawRequest;
     }
 
-    @Override public HttpUrl url() {
-        return okRequest.url();
+    public HttpUrl url() {
+        return rawRequest.url();
     }
 
-    @Override public String method() {
-        return okRequest.method();
+    public String method() {
+        return rawRequest.method();
     }
 
-    @Override public Headers headers() {
-        return okRequest.headers();
+    public Headers headers() {
+        return rawRequest.headers();
     }
 
-    @Override public String header(String name) {
-        return okRequest.header(name);
+    public String header(String name) {
+        return rawRequest.header(name);
     }
 
-    @Override public List<String> headers(String name) {
-        return okRequest.headers(name);
+    public List<String> headers(String name) {
+        return rawRequest.headers(name);
     }
 
-    @Override public RequestBody body() {
-        return okRequest.body();
+    public RequestBody body() {
+        return rawRequest.body();
     }
 
-    @Override public Object tag() {
-        return okRequest.tag();
+    public Object tag() {
+        return rawRequest.tag();
     }
 
-    @Override public Builder newBuilder() {
-        okRequest.newBuilder();
+    public Builder newBuilder() {
         return new Builder(this);
     }
 
-    @Override public OkCallback callback() {
+    public Callback callback() {
         return mCallback;
     }
 
@@ -87,116 +92,150 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
      * Returns the cache control directives for this response. This is never null, even if this
      * response contains no {@code Cache-Control} header.
      */
-    @Override public CacheControl cacheControl() {
-        return okRequest.cacheControl();
+    public CacheControl cacheControl() {
+        return rawRequest.cacheControl();
     }
 
-    @Override public boolean isHttps() {
-        return okRequest.isHttps();
+    public boolean isHttps() {
+        return rawRequest.isHttps();
     }
 
-    @Override public int timeout() {
+    public int timeout() {
         return timeout;
     }
 
     /**
-     * @return {@link OkCallback} in which thread work.
+     * The executor used for {@link Callback} methods on which thread work.
      */
-    @Override public ThreadMode callbackThreadMode() {
+    public Executor callbackExecutor() {
+        return mExecutor;
+    }
+
+    /**
+     * {@link Callback} methods on which thread work.
+     */
+    public ThreadMode callbackThreadMode() {
         return mThreadMode;
     }
 
-    @Override public OkRequestParams requestParams(){
+    public RequestParams requestParams(){
         return mRequestParams;
     }
 
     /**
-     * Send this request
+     * Send the async request.
      */
-    @Override public MRequest send(){
-        MHttp.instance().enqueue(this);
+    public Request enqueue(){
+        MHttp.instance().timeout(timeout());
+
+        Callback callback = callback();
+        callback.initialize(this);
+        if (callback instanceof AbsCallbackHandler){
+            ((AbsCallbackHandler) callback).sendStartMessage();
+        }
+        rawCall().enqueue(callback);
         return this;
+    }
+
+    /**
+     * Send the sync request.
+     */
+    public Response execute() throws IOException {
+        MHttp.instance().timeout(timeout());
+        return Response.newResponse(this, rawCall().execute());
     }
 
     /**
      * Cancel this request
      */
-    @Override public MRequest cancel(){
-        MHttp.instance().cancel(okRequest.tag());
+    public Request cancel(){
+        if (rawCall().isCanceled()){
+            return this;
+        }
+        rawCall().cancel();
         return this;
     }
 
-    @Override public String toString() {
-        return okRequest.toString();
+    private Call rawCall(){
+        if (rawCall == null){
+            OkHttpClient client = MHttp.instance().client();
+            rawCall = client.newCall(raw());
+        }
+        return rawCall;
     }
 
-    public static class Builder implements OkBuilder<Builder, MRequest> {
+    @Override public String toString() {
+        return rawRequest.toString();
+    }
+
+    public static class Builder {
         private static final String TAG = Builder.class.getSimpleName();
 
-        Request okRequest;
-        Request.Builder okBuilder;
-        OkRequestParams mRequestParams;
-        OkCallback mCallback;
+        okhttp3.Request rawRequest;
+        okhttp3.Request.Builder rawBuilder;
+        RequestParams mRequestParams;
+        Callback mCallback;
         int timeout;
         private String method;
+        Executor mExecutor;
         ThreadMode mThreadMode;
 
         public Builder() {
-            mCallback = OkCallback.EMPTY;
+            mCallback = Callback.EMPTY;
             method = Method.GET;
-            okBuilder = new Request.Builder();
+            rawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
             timeout = 30;
             mThreadMode = ThreadMode.MAIN;
-            okBuilder.header("User-Agent", Version.userAgent());
         }
 
-        private Builder(MRequest request) {
+        private Builder(Request request) {
             mCallback = request.mCallback;
             method = request.method();
             mRequestParams = request.mRequestParams;
-            okBuilder = request.okRequest.newBuilder();
+            rawBuilder = request.rawRequest.newBuilder();
             timeout = request.timeout;
+            mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
         }
 
-        @Override public Builder url(HttpUrl url) {
-            okBuilder.url(url);
+        public Builder url(HttpUrl url) {
+            rawBuilder.url(url);
             return this;
         }
 
-        @Override public Builder url(String url) {
-            okBuilder.url(url);
+        public Builder url(String url) {
+            rawBuilder.url(url);
             return this;
         }
 
-        @Override public Builder url(URL url) {
-            okBuilder.url(url);
+        public Builder url(URL url) {
+            rawBuilder.url(url);
             return this;
         }
 
-        @Override public Builder header(String name, String value) {
-            okBuilder.header(name, value);
+        public Builder header(String name, String value) {
+            rawBuilder.header(name, value);
             return this;
         }
 
-        @Override public Builder addHeader(String name, String value) {
-            okBuilder.addHeader(name, value);
+        public Builder addHeader(String name, String value) {
+            rawBuilder.addHeader(name, value);
             return this;
         }
 
-        @Override public Builder removeHeader(String name) {
-            okBuilder.removeHeader(name);
+        public Builder removeHeader(String name) {
+            rawBuilder.removeHeader(name);
             return this;
         }
 
-        @Override public Builder headers(Headers headers) {
-            okBuilder.headers(headers);
+        public Builder headers(Headers headers) {
+            rawBuilder.headers(headers);
             return this;
         }
 
-        @Override public Builder cacheControl(CacheControl cacheControl) {
-            okBuilder.cacheControl(cacheControl);
+        public Builder cacheControl(CacheControl cacheControl) {
+            rawBuilder.cacheControl(cacheControl);
             return this;
         }
 
@@ -252,24 +291,24 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             return this;
         }
 
-        @Override public Builder requestParams(OkRequestParams params) {
+        public Builder requestParams(RequestParams params) {
             if (params != null){
                 mRequestParams = params;
             }
             return this;
         }
 
-        @Override public Builder method(@NonNull String method) {
+        public Builder method(@NonNull String method) {
             this.method = method;
             return this;
         }
 
-        @Override public Builder tag(Object tag) {
-            okBuilder.tag(tag);
+        public Builder tag(Object tag) {
+            rawBuilder.tag(tag);
             return this;
         }
 
-        @Override public Builder callback(@NonNull OkCallback callback){
+        public Builder callback(@NonNull Callback callback){
             mCallback = callback;
             return this;
         }
@@ -279,8 +318,13 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             return this;
         }
 
-        public Builder callbackThreadMode(ThreadMode mode){
-            mThreadMode = mode;
+        public Builder callbackExecutor(Executor executor){
+            mExecutor = executor;
+            return this;
+        }
+
+        public Builder callbackThreadMode(ThreadMode threadMode){
+            mThreadMode = threadMode;
             return this;
         }
 
@@ -289,7 +333,7 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
             return this;
         }
 
-        @Override public MRequest build() {
+        public Request build() {
             boolean isGet = Method.GET.equals(method);
 
             MHttp.instance().timeout(timeout);
@@ -298,13 +342,13 @@ public final class MRequest implements OkRequest<MRequest.Builder, MRequest> {
                 addHeader("Accept", mCallback.accept());
             }
 
-            okBuilder.method(method, isGet ? null : mRequestParams.requestBody());
-            okRequest = okBuilder.build();
+            rawBuilder.method(method, isGet ? null : mRequestParams.requestBody());
+            rawRequest = rawBuilder.build();
 
             if (isGet){
-                okRequest = okBuilder.url(mRequestParams.formatURLParams(okRequest.url())).build();
+                rawRequest = rawBuilder.url(mRequestParams.formatURLParams(rawRequest.url())).build();
             }
-            return new MRequest(this);
+            return new Request(this);
         }
     }
 }

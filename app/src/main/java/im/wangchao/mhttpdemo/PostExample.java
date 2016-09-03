@@ -5,7 +5,7 @@ import im.wangchao.http.annotations.Post;
 import im.wangchao.mhttp.JSONCallbackHandler;
 import im.wangchao.mhttp.MHttp;
 import im.wangchao.mhttp.Request;
-import im.wangchao.mhttp.OkResponse;
+import im.wangchao.mhttp.Response;
 import im.wangchao.mhttp.TextCallbackHandler;
 
 /**
@@ -22,18 +22,18 @@ public class PostExample {
                 .addHeader("key", "value")
                 .addParameter("key", "value")
                 .callback(new JSONCallbackHandler(){
-                    @Override protected void onSuccess(JSON data, OkResponse response) {
+                    @Override protected void onSuccess(JSON data, Response response) {
 
                     }
                 })
                 .build()
-                .send();
+                .enqueue();
     }
 
     public static void executeAnnotationPost(){
         PostApi api = MHttp.create(PostApi.class);
         api.autoExecuteRequest("aa", "bb", new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, OkResponse response) {
+            @Override protected void onSuccess(String data, Response response) {
                 //Todo
             }
         });
@@ -42,7 +42,7 @@ public class PostExample {
     public static Request getRequest(){
         PostApi api = MHttp.create(PostApi.class);
         return api.postRequest("aa", "bb", new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, OkResponse response) {
+            @Override protected void onSuccess(String data, Response response) {
                 //Todo
             }
         });

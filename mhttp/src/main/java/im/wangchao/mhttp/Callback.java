@@ -3,7 +3,6 @@ package im.wangchao.mhttp;
 import java.io.IOException;
 
 import okhttp3.Call;
-import okhttp3.Callback;
 import okhttp3.Response;
 
 /**
@@ -13,15 +12,17 @@ import okhttp3.Response;
  * <p>Date         : 16/6/3.</p>
  * <p>Time         : 上午10:16.</p>
  */
-public interface OkCallback extends Callback {
-    OkCallback EMPTY = new OkCallback() {
-        @Override public void initialize() {
-        }
+public interface Callback extends okhttp3.Callback {
+    int START_MESSAGE      = 0;
+    int PROGRESS_MESSAGE   = 1;
+    int SUCCESS_MESSAGE    = 2;
+    int FAILURE_MESSAGE    = 3;
+    int FINISH_MESSAGE     = 4;
+    int FINALLY_MESSAGE    = 5;
+    int CANCEL_MESSAGE     = 6;
 
-        @Override public void sendStartMessage() {
-        }
-
-        @Override public void setRequest(OkRequest request) {
+    Callback EMPTY = new Callback() {
+        @Override public void initialize(Request request) {
         }
 
         @Override public String accept() {
@@ -38,20 +39,10 @@ public interface OkCallback extends Callback {
     /**
      * Initialize the callback.
      */
-    void initialize();
+    void initialize(Request request);
 
     /**
-     * Send message when the request starts to send
-     */
-    void sendStartMessage();
-
-    /**
-     * Set request
-     */
-    void setRequest(OkRequest request);
-
-    /**
-     * Request accept
+     * Request accept.
      */
     String accept();
 
