@@ -75,7 +75,7 @@ public class BindMethod {
 
         switch (returnTypeKind) {
             case DECLARED: {
-                sb.append("MRequest ");
+                sb.append("Request ");
             } break;
             case VOID: {
                 sb.append("void ");
@@ -175,7 +175,7 @@ public class BindMethod {
         }
 
         //请求 builder
-        sb.append("MRequest.Builder builder = new MRequest.Builder();\n");
+        sb.append("Request.Builder builder = new Request.Builder();\n");
         sb.append("builder.requestParams(params);\n");
 
         if (this.url.contains("://")){
@@ -236,7 +236,7 @@ public class BindMethod {
                 sb.append("return builder.build();\n");
             } break;
             case VOID:{
-                sb.append("builder.build().send();\n");
+                sb.append("builder.build().enqueue();\n");
             } break;
         }
 
