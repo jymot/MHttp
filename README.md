@@ -216,6 +216,8 @@ If you want to customize the Callback Method, you can inherit AbsCallbackHandler
  * MAIN -- Callback will be called in Android's main thread (UI thread).
  * BACKGROUND -- Callback will be called in a background thread. That is, work on the request thread(okhttp thread).
 
+Now you can make your own thread. Only need to implement java.util.concurrent.Executor, and set it to your request.
+
 ###Contact Me
 - Email:  magician.of.technique@aliyun.com
 
