@@ -82,27 +82,27 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
 
     @Override final public void onFailure(Call call, IOException e) {
         if (call.isCanceled()){
-            sendCancelMessage();
+            sendCancelEvent();
             return;
         }
-        sendFinishMessage();
+        sendFinishEvent();
 
         final Request req = request;
         Response response = Response.error(req,
                 AbsCallbackHandler.IO_EXCEPTION_CODE,
                 e.getMessage());
 
-        sendFailureMessage(response, e);
-        sendFinallyMessage(response);
+        sendFailureEvent(response, e);
+        sendFinallyEvent(response);
     }
 
     @Override final public void onResponse(Call call, okhttp3.Response response) throws IOException {
         if (call.isCanceled()){
             response.close();
-            sendCancelMessage();
+            sendCancelEvent();
             return;
         }
-        sendFinishMessage();
+        sendFinishEvent();
 
         final Request req = request;
         Response okResponse;
@@ -110,15 +110,15 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
             try {
                 okResponse = Response.newResponse(req, response);
                 Parser_Type data = backgroundParser(okResponse);
-                sendSuccessMessage(data, okResponse);
+                sendSuccessEvent(data, okResponse);
             } catch (Exception e) {
-                sendFailureMessage(okResponse = Response.newResponse(req, response), new ParserException());
+                sendFailureEvent(okResponse = Response.newResponse(req, response), new ParserException());
             }
         } else {
-            sendFailureMessage(okResponse = Response.newResponse(req, response), new ResponseFailException());
+            sendFailureEvent(okResponse = Response.newResponse(req, response), new ResponseFailException());
             response.close();
         }
-        sendFinallyMessage(okResponse);
+        sendFinallyEvent(okResponse);
     }
 
     public AbsCallbackHandler(){}
@@ -174,7 +174,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         return this.request;
     }
 
-    /*package*/ final void sendProgressMessage(final int bytesWritten, final int bytesTotal) {
+    /*package*/ final protected void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
         execute(new Runnable() {
             @Override public void run() {
                 try {
@@ -186,7 +186,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final void sendSuccessMessage(final Parser_Type data, final Response response) {
+    /*package*/ final void sendSuccessEvent(final Parser_Type data, final Response response) {
         execute(new Runnable() {
             @Override public void run() {
                 onSuccess(data, response);
@@ -194,7 +194,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final void sendFailureMessage(final Response response, @Nullable final Throwable throwable) {
+    /*package*/ final void sendFailureEvent(final Response response, @Nullable final Throwable throwable) {
         execute(new Runnable() {
             @Override public void run() {
                 onFailure(response, throwable);
@@ -202,7 +202,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final void sendStartMessage() {
+    /*package*/ final void sendStartEvent() {
         final Runnable r = new Runnable() {
             @Override public void run() {
                 onStart();
@@ -215,7 +215,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         }
     }
 
-    /*package*/ final void sendFinishMessage() {
+    /*package*/ final void sendFinishEvent() {
         execute(new Runnable() {
             @Override public void run() {
                 AbsCallbackHandler.this.isFinished = true;
@@ -224,7 +224,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final void sendFinallyMessage(final Response response) {
+    /*package*/ final void sendFinallyEvent(final Response response) {
         execute(new Runnable() {
             @Override public void run() {
                 onFinally(response);
@@ -232,7 +232,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final synchronized void sendCancelMessage() {
+    /*package*/ final synchronized void sendCancelEvent() {
         if (isCanceled){
             return;
         }

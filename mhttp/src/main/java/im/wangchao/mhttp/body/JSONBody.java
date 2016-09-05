@@ -1,4 +1,4 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.body;
 
 import android.text.TextUtils;
 

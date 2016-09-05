@@ -2,11 +2,11 @@ package im.wangchao.mhttpdemo;
 
 import im.wangchao.http.annotations.Callback;
 import im.wangchao.http.annotations.Post;
-import im.wangchao.mhttp.JSONCallbackHandler;
+import im.wangchao.mhttp.callback.JSONCallbackHandler;
 import im.wangchao.mhttp.MHttp;
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.Response;
-import im.wangchao.mhttp.TextCallbackHandler;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
 
 /**
  * <p>Description  : PostExample.</p>

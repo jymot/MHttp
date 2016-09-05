@@ -1,8 +1,12 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.callback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import im.wangchao.mhttp.AbsCallbackHandler;
+import im.wangchao.mhttp.Accept;
+import im.wangchao.mhttp.Response;
 
 /**
  * <p>Description  : JSONResponseHandler.</p>

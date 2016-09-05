@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import im.wangchao.mhttp.body.FileBody;
+import im.wangchao.mhttp.body.JSONBody;
+import im.wangchao.mhttp.body.OctetStreamBody;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;

@@ -1,4 +1,4 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.callback;
 
 import android.content.Context;
 
@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import im.wangchao.mhttp.AbsCallbackHandler;
+import im.wangchao.mhttp.Accept;
+import im.wangchao.mhttp.Response;
 import okhttp3.internal.Util;
 
 /**
@@ -75,7 +78,7 @@ public class FileCallbackHandler extends AbsCallbackHandler<File> {
                     count += l;
                     buffer.write(tmp, 0, l);
 
-                    sendProgressMessage(count, (int) contentLength);
+                    sendProgressEvent(count, (int) contentLength);
                 }
             } finally {
                 Util.closeQuietly(instream);

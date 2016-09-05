@@ -8,4 +8,7 @@ package im.wangchao.mhttp.internal.exception;
  * <p>Time         : 下午8:38.</p>
  */
 public class ParserException extends Exception{
+    public ParserException(){
+        super("Response parse exception.");
+    }
 }

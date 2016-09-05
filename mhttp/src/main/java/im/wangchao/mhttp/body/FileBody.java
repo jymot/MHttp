@@ -1,9 +1,9 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.body;
 
 import android.text.TextUtils;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -13,23 +13,23 @@ import okio.Okio;
 import okio.Source;
 
 /**
- * <p>Description  : OctetStreamBody.</p>
+ * <p>Description  : FileBody.</p>
  * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/3/8.</p>
- * <p>Time         : 下午4:31.</p>
+ * <p>Time         : 下午6:10.</p>
  */
-public final class OctetStreamBody extends RequestBody{
+public final class FileBody extends RequestBody{
     private final static MediaType CONTENT_TYPE = MediaType.parse("application/octet-stream");
     private final MediaType contentType;
-    private final InputStream stream;
+    private final File file;
 
-    public OctetStreamBody(InputStream stream){
-        this(stream, null);
+    public FileBody(File file){
+        this(file, null);
     }
 
-    public OctetStreamBody(InputStream stream, String contentType){
-        this.stream = stream;
+    public FileBody(File file, String contentType){
+        this.file = file;
         this.contentType = TextUtils.isEmpty(contentType) ? CONTENT_TYPE : MediaType.parse(contentType);
     }
 
@@ -38,21 +38,16 @@ public final class OctetStreamBody extends RequestBody{
     }
 
     @Override public long contentLength() throws IOException {
-        try {
-            return stream.available();
-        } catch (Exception e){
-            return super.contentLength();
-        }
+        return file.length();
     }
 
     @Override public void writeTo(BufferedSink sink) throws IOException {
         Source source = null;
         try {
-            source = Okio.source(stream);
+            source = Okio.source(file);
             sink.writeAll(source);
         } finally {
             Util.closeQuietly(source);
         }
     }
-
 }

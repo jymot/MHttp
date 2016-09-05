@@ -1,4 +1,7 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.callback;
+
+import im.wangchao.mhttp.Response;
+import im.wangchao.mhttp.internal.exception.ParserException;
 
 /**
  * <p>Description  : GSONResponseHandler.</p>
@@ -15,6 +18,9 @@ public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
         }
         else if (data.jsonObject != null) {
             onSuccess(parser(data.jsonObject.toString()));
+        }
+        else {
+            onFailure(response, new ParserException());
         }
     }
 

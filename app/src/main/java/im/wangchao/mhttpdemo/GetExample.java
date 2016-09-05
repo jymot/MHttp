@@ -7,7 +7,7 @@ import im.wangchao.http.annotations.Get;
 import im.wangchao.mhttp.MHttp;
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.Response;
-import im.wangchao.mhttp.TextCallbackHandler;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
 
 /**
  * <p>Description  : Get.</p>
@@ -25,8 +25,11 @@ public class GetExample {
                         Log.e(MainActivity.TAG, "normal : " + data);
                     }
 
-                    @Override
-                    protected void onCancel() {
+                    @Override protected void onFailure(Response response, Throwable throwable) {
+                        Log.e(MainActivity.TAG, "onFailure : " + response.message() + " " + response.code());
+                    }
+
+                    @Override protected void onCancel() {
                         Log.e(MainActivity.TAG, "onCancel");
                     }
                 })

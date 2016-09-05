@@ -5,7 +5,7 @@ import im.wangchao.http.annotations.Get;
 import im.wangchao.http.annotations.Tag;
 import im.wangchao.mhttp.MHttp;
 import im.wangchao.mhttp.Request;
-import im.wangchao.mhttp.TextCallbackHandler;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
 
 /**
  * <p>Description  : SampleApi.</p>

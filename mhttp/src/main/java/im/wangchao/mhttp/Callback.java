@@ -22,17 +22,16 @@ public interface Callback extends okhttp3.Callback {
     int CANCEL_MESSAGE     = 6;
 
     Callback EMPTY = new Callback() {
-        @Override public void initialize(Request request) {
-        }
+        @Override public void initialize(Request request) {}
 
         @Override public String accept() {
             return Accept.EMPTY;
         }
 
-        @Override public void onFailure(Call call, IOException e) {
-        }
+        @Override public void onFailure(Call call, IOException e) {}
 
         @Override public void onResponse(Call call, Response response) throws IOException {
+            response.close();
         }
     };
 

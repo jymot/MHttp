@@ -1,4 +1,8 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.callback;
+
+import im.wangchao.mhttp.AbsCallbackHandler;
+import im.wangchao.mhttp.Accept;
+import im.wangchao.mhttp.Response;
 
 /**
  * <p>Description  : BinaryResponseHandler.</p>
