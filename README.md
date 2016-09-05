@@ -2,7 +2,7 @@
 okhttp wrapper for Android Http.
 ###Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.4.2'
+  compile 'im.wangchao:mhttp:1.5.0'
 ```
 ###PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
@@ -29,18 +29,18 @@ ProGuard rules now ship inside of the library and are included automatically.
 ###How to use
 ####1.Normal Get
 ```java
-     MRequest.builder().url("https://www.baidu.com")
+     Request.builder().url("https://www.baidu.com")
                     .callback(new TextCallbackHandler(){
                         @Override protected void onSuccess(String data, OkResponse response) {
                             Log.e(MainActivity.TAG, data);
                         }
                     })
                     .build()
-                    .send();
+                    .enqueue();
 ```
 ####2.Normal Post
 ```java
-    MRequest.builder().url("url")
+    Request.builder().url("url")
                     .addHeader("key", "value")
                     .addParameter("key", "value")
                     .callback(new JSONCallbackHandler(){
@@ -49,7 +49,7 @@ ProGuard rules now ship inside of the library and are included automatically.
                         }
                     })
                     .build()
-                    .send();
+                    .enqueue();
 ```
 ####3.Annotation (Support Post and Get)
 Turns your HTTP API into a Java interface or abstract Class.
@@ -62,7 +62,7 @@ Turns your HTTP API into a Java interface or abstract Class.
     public interface PostApi{
 
            @Post(url = "http://www.baidu.com")
-           MRequest postRequest(String param0, String param1, @Callback TextCallbackHandler callback);
+           Request postRequest(String param0, String param1, @Callback TextCallbackHandler callback);
 
            @Post(url = "http://www.baidu.com")
            void autoExecuteRequest(String param0, String param1, @Callback TextCallbackHandler callback);
@@ -88,12 +88,12 @@ The MHttp class generates an implementation of this interface(abstract).
 
     //obtain request
     PostApi api = MHttp.create(PostApi.class);
-    MRequest request =  api.postRequest("aa", "bb", new TextCallbackHandler(){
+    Request request =  api.postRequest("aa", "bb", new TextCallbackHandler(){
              @Override protected void onSuccess(String data, OkResponse response) {
                  //Todo
              }
     });
-    request.send();
+    request.enqueue();
 ```
 
 Automatically generated classes when you use the Annotation.
@@ -116,7 +116,7 @@ public class GetExample$GetBaidu$$HttpBinder implements GetBaidu {
         builder.headers(headerBuilder.build());
         builder.method("GET");
         builder.callback(callback);
-        builder.build().send();
+        builder.build().enqueue();
     }
 }
 
@@ -127,7 +127,7 @@ public class PostExample$PostApi$$HttpBinder implements PostApi {
     public PostExample$PostApi$$HttpBinder() {
     }
 
-    public MRequest postRequest(String param0, String param1, TextCallbackHandler callback) {
+    public Request postRequest(String param0, String param1, TextCallbackHandler callback) {
         String FIELD_PARAM0 = "param0";
         String FIELD_PARAM1 = "param1";
         RequestParams params = new RequestParams();
@@ -158,7 +158,7 @@ public class PostExample$PostApi$$HttpBinder implements PostApi {
         builder.headers(headerBuilder.build());
         builder.method("POST");
         builder.callback(callback);
-        builder.build().send();
+        builder.build().enqueue();
     }
 }
 ```
@@ -192,10 +192,10 @@ public abstract class SampleApi extends SampleDefaultApi{
     public abstract void baidu(@Callback TextCallbackHandler callback);
 
     @Get(url = "s", tag = "aaa")
-    public abstract MRequest search(String wd, @Callback TextCallbackHandler callback);
+    public abstract Request search(String wd, @Callback TextCallbackHandler callback);
 
     @Get(url = "s", tag = "aaa")
-    public abstract MRequest search1(String wd, @Callback TextCallbackHandler callback, @Tag Object a);
+    public abstract Request search1(String wd, @Callback TextCallbackHandler callback, @Tag Object a);
 }
 
 ```
