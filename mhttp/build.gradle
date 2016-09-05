@@ -32,7 +32,6 @@ dependencies {
     testCompile deps.junit
     compile deps.appcompatv7
     compile deps.okhttp
-    compile deps.timber
     compile deps.mhttpcompiler
 }
 

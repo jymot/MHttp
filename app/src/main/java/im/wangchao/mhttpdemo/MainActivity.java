@@ -4,8 +4,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
-public class MainActivity extends AppCompatActivity {
+import im.wangchao.mhttp.Request;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     final static String TAG = "wcwcwc";
 
     @Override protected void onCreate(Bundle savedInstanceState) {
@@ -13,6 +17,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        final Button doRequest = (Button) findViewById(R.id.doRequest);
+        final Button cancel = (Button) findViewById(R.id.cancel);
+        assert doRequest != null;
+        assert cancel != null;
+        doRequest.setOnClickListener(this);
+        cancel.setOnClickListener(this);
 
         //Set Cache Dir
 //        MHttp.instance().cache(this, "tempcache");
@@ -52,8 +63,8 @@ public class MainActivity extends AppCompatActivity {
 //        }).build());
 
         //Get
-        GetExample.doNormalRequest();
-        GetExample.doAnnotationRequest();
+//        GetExample.doNormalRequest();
+//        GetExample.doAnnotationRequest();
 
         //Post
 //        PostExample.doNormalPost();
@@ -64,5 +75,22 @@ public class MainActivity extends AppCompatActivity {
 
     private void log(String msg){
         Log.e(TAG, msg);
+    }
+
+    Request request;
+
+    @Override public void onClick(View v) {
+        switch (v.getId()){
+            case R.id.doRequest:
+                request = GetExample.doNormalRequest();
+                GetExample.doAnnotationRequest();
+                break;
+            case R.id.cancel:
+                if (request != null){
+//                    MHttp.instance().cancel(request.tag());
+                    request.cancel();
+                }
+                break;
+        }
     }
 }

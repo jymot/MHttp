@@ -9,4 +9,7 @@ package im.wangchao.mhttp.internal.exception;
  */
 public class ResponseFailException extends Exception{
     //Response Non Successful
+    public ResponseFailException(){
+        super("Response failure exception.");
+    }
 }

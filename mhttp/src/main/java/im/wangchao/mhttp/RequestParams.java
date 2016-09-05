@@ -20,6 +20,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import im.wangchao.mhttp.body.FileBody;
+import im.wangchao.mhttp.body.JSONBody;
+import im.wangchao.mhttp.body.OctetStreamBody;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
@@ -32,12 +35,12 @@ import okhttp3.RequestBody;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午2:16.</p>
  */
-public class RequestParams implements OkRequestParams{
+public class RequestParams{
     final public static String  UTF_8_STR   = "utf-8";
     final public static Charset UTF_8       = Charset.forName(UTF_8_STR);
 
     /**
-     * 字节流
+     * Stream
      */
     final public static String APPLICATION_OCTET_STREAM     = "application/octet-stream";
     /**
@@ -45,7 +48,7 @@ public class RequestParams implements OkRequestParams{
      */
     final public static String APPLICATION_JSON             = "application/json";
     /**
-     * Form 表单
+     * Form
      */
     final public static String APPLICATION_FORM             = "application/x-www-form-urlencoded";
 
@@ -93,7 +96,7 @@ public class RequestParams implements OkRequestParams{
         this.contentType = params.getContentType();
     }
 
-    @Override public RequestBody requestBody(){
+    public RequestBody requestBody(){
         if (isEmpty()){
             return null;
         }
@@ -137,7 +140,7 @@ public class RequestParams implements OkRequestParams{
     }
 
     /**
-     * 判断请求 Content-Type 是否为 JSON
+     * @return Request body media type is JSON.
      */
     protected boolean isJSON(){
         return contentType.contains(APPLICATION_JSON) && streamParams.size() == 0
@@ -145,7 +148,7 @@ public class RequestParams implements OkRequestParams{
     }
 
     /**
-     * 判断请求 Content-Type 是否为 Form
+     * @return Request body media type is Form.
      */
     protected boolean isForm(){
         return contentType.equals(APPLICATION_FORM) && streamParams.size() == 0
@@ -153,7 +156,7 @@ public class RequestParams implements OkRequestParams{
     }
 
     /**
-     * 设置请求参数编码
+     * Request body encoding.
      */
     public RequestParams setContentEncoding(@NonNull String encoding) {
         this.contentEncoding = encoding;
@@ -195,7 +198,7 @@ public class RequestParams implements OkRequestParams{
         }
     }
 
-    @Override public void put(String key, Object value) {
+    public void put(String key, Object value) {
         if (!TextUtils.isEmpty(key) && (value != null)) {
             urlParams.put(key, String.valueOf(value));
         }
@@ -211,7 +214,7 @@ public class RequestParams implements OkRequestParams{
         put(key, stream, name, null);
     }
 
-    @Override public void put(String key, InputStream stream, String name, String contentType){
+    public void put(String key, InputStream stream, String name, String contentType){
         if (!TextUtils.isEmpty(key) && stream != null){
             streamParams.put(key, StreamWrapper.newInstance(stream, name, contentType));
         }
@@ -229,7 +232,7 @@ public class RequestParams implements OkRequestParams{
         put(key, file, null);
     }
 
-    @Override public void put(String key, File file, String contentType) throws FileNotFoundException {
+    public void put(String key, File file, String contentType) throws FileNotFoundException {
         if (file == null || !file.exists()){
             throw new FileNotFoundException();
         }
@@ -238,13 +241,13 @@ public class RequestParams implements OkRequestParams{
         }
     }
 
-    @Override public void remove(String key){
+    public void remove(String key){
         urlParams.remove(key);
         streamParams.remove(key);
         fileParams.remove(key);
     }
 
-    @Override public boolean has(String key){
+    public boolean has(String key){
         return (urlParams.containsKey(key) || streamParams.containsKey(key) || fileParams.containsKey(key));
     }
 
@@ -298,7 +301,7 @@ public class RequestParams implements OkRequestParams{
         return urlParams;
     }
 
-    @Override public HttpUrl formatURLParams(HttpUrl url) {
+    public HttpUrl formatURLParams(HttpUrl url) {
         HttpUrl.Builder builder = url.newBuilder();
         if (urlParams.size() != 0) {
             for (Map.Entry<String, String> entry : urlParams.entrySet()) {
@@ -314,7 +317,7 @@ public class RequestParams implements OkRequestParams{
     }
 
     /**
-     * format get params
+     * Format get params.
      * A=a&B=b..
      */
     public String formatURLParams() {
@@ -337,7 +340,7 @@ public class RequestParams implements OkRequestParams{
     }
 
     /**
-     * Url params convert to List<Pair<String, String>>
+     * Url params convert to List<Pair<String, String>>.
      */
     public List<Pair<String, String>> getParamsList(){
         List<Pair<String, String>> params = new LinkedList<>();

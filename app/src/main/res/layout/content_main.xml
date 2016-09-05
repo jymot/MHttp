@@ -20,14 +20,14 @@
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/get"
-        android:text="get"
+        android:id="@+id/doRequest"
+        android:text="do request"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 
     <Button
-        android:id="@+id/getBaiduText"
-        android:text="get text"
+        android:id="@+id/cancel"
+        android:text="cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

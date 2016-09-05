@@ -1,6 +1,10 @@
-package im.wangchao.mhttp;
+package im.wangchao.mhttp.callback;
 
 import android.graphics.Bitmap;
+
+import im.wangchao.mhttp.AbsCallbackHandler;
+import im.wangchao.mhttp.Accept;
+import im.wangchao.mhttp.Response;
 
 /**
  * <p>Description  : ImageResponseHandler.</p>
@@ -10,10 +14,10 @@ import android.graphics.Bitmap;
  * <p>Time         : 下午2:49.</p>
  */
 public abstract class BitmapCallbackHandler extends AbsCallbackHandler<Bitmap> {
-    @Override protected void onSuccess(Bitmap bitmap, OkResponse response) {
+    @Override protected void onSuccess(Bitmap bitmap, Response response) {
     }
 
-    @Override protected void onFailure(OkResponse response, Throwable throwable) {
+    @Override protected void onFailure(Response response, Throwable throwable) {
 
     }
 

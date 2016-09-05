@@ -4,8 +4,8 @@ import im.wangchao.http.annotations.Callback;
 import im.wangchao.http.annotations.Get;
 import im.wangchao.http.annotations.Tag;
 import im.wangchao.mhttp.MHttp;
-import im.wangchao.mhttp.MRequest;
-import im.wangchao.mhttp.TextCallbackHandler;
+import im.wangchao.mhttp.Request;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
 
 /**
  * <p>Description  : SampleApi.</p>
@@ -23,8 +23,8 @@ public abstract class SampleApi extends SampleDefaultApi{
     public abstract void baidu(@Callback TextCallbackHandler callback);
 
     @Get(url = "s", tag = "aaa")
-    public abstract MRequest search(String wd, @Callback TextCallbackHandler callback);
+    public abstract Request search(String wd, @Callback TextCallbackHandler callback);
 
     @Get(url = "s", tag = "aaa")
-    public abstract MRequest search1(String wd, @Callback TextCallbackHandler callback, @Tag Object a);
+    public abstract Request search1(String wd, @Callback TextCallbackHandler callback, @Tag Object a);
 }
