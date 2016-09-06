@@ -31,14 +31,14 @@ public class HTTPS {
     /**
      * Set Certificate
      */
-    public void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception {
+    public static void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception {
         setCertificates(builder, certificates, null, null);
     }
 
     /**
      * Set Certificate
      */
-    public void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
+    public static void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
             TrustManager[] trustManagers = prepareTrustManager(certificates);
             KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
             SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -47,7 +47,7 @@ public class HTTPS {
             builder.sslSocketFactory(sslContext.getSocketFactory()).build();
     }
 
-    private TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {
+    private static TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {
         if (certificates == null || certificates.length <= 0) return null;
 
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -66,7 +66,7 @@ public class HTTPS {
         return trustManagerFactory.getTrustManagers();
     }
 
-    private KeyManager[] prepareKeyManager(InputStream bksFile, String password) throws Exception{
+    private static KeyManager[] prepareKeyManager(InputStream bksFile, String password) throws Exception{
         if (bksFile == null || password == null) return null;
 
         KeyStore clientKeyStore = KeyStore.getInstance("BKS");
@@ -76,7 +76,7 @@ public class HTTPS {
         return keyManagerFactory.getKeyManagers();
     }
 
-    private X509TrustManager chooseTrustManager(TrustManager[] trustManagers) {
+    private static X509TrustManager chooseTrustManager(TrustManager[] trustManagers) {
         for (TrustManager trustManager : trustManagers) {
             if (trustManager instanceof X509TrustManager) {
                 return (X509TrustManager) trustManager;
@@ -86,7 +86,7 @@ public class HTTPS {
     }
 
     /*                  X509TrustManager                  */
-    private class MyTrustManager implements X509TrustManager {
+    private static class MyTrustManager implements X509TrustManager {
         private X509TrustManager defaultTrustManager;
         private X509TrustManager localTrustManager;
 
