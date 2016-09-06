@@ -53,5 +53,7 @@ ext.deps = [
         autoservice       : 'com.google.auto.service:auto-service:1.0-rc2',
         autocommon        : 'com.google.auto:auto-common:0.6',
 
-        mhttpcompiler     : 'im.wangchao:mhttp-compiler:0.3.3'
+        mhttpcompiler     : 'im.wangchao:mhttp-compiler:0.3.3',
+
+        rxjava            : 'io.reactivex:rxjava:1.1.9'
 ]

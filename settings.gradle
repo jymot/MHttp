@@ -1,1 +1,1 @@
-include ':app', ':mhttp', ':mhttp-compiler', ':mhttp-annotations'
+include ':app', ':mhttp', ':mhttp-compiler', ':mhttp-annotations', ':mhttp-adapter'
