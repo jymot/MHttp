@@ -7,7 +7,6 @@ import im.wangchao.http.compiler.HttpProcessor;
 
 /**
  * <p>Description  : BindApi.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/10/19.</p>
  * <p>Time         : 上午8:23.</p>

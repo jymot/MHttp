@@ -2,7 +2,6 @@ package im.wangchao.mhttp.internal;
 
 /**
  * <p>Description  : Version.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/8/24.</p>
  * <p>Time         : 下午2:47.</p>

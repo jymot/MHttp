@@ -30,7 +30,6 @@ import okhttp3.RequestBody;
 
 /**
  * <p>Description  : RequestParams.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午2:16.</p>
@@ -318,7 +317,6 @@ public class RequestParams{
 
     /**
      * Format get params.
-     * A=a&B=b..
      */
     public String formatURLParams() {
         StringBuilder sb = new StringBuilder();
@@ -340,7 +338,7 @@ public class RequestParams{
     }
 
     /**
-     * Url params convert to List<Pair<String, String>>.
+     * Url params convert to {@link List}.
      */
     public List<Pair<String, String>> getParamsList(){
         List<Pair<String, String>> params = new LinkedList<>();

@@ -21,7 +21,6 @@ import okhttp3.internal.Util;
 
 /**
  * <p>Description  : HTTPS.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/9/2.</p>
  * <p>Time         : 下午3:58.</p>

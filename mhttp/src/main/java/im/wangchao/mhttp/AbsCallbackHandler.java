@@ -23,18 +23,18 @@ import okhttp3.internal.Util;
  *                         -------------------------------------------------------
  *                              |
  *                              |
- *                         <is canceled> --- Y ---> onCancel()
+ *                         is canceled --- Y --- onCancel()
  *                              |
  *                              N
  *                              |
  *                          onFinish()
  *                              |
  *                              |
- *                        <is successful> --- N ---> onFailure() ------------------
+ *                        is successful --- N --- onFailure() ------------------
  *                              |                                                 |
  *                              Y                                                 |
  *                              |                                                 |
- *                        backgroundParser() --<is download>--> onProgress()      |
+ *                        backgroundParser() --is download-- onProgress()         |
  *                              |                                     |           |
  *                              |                                     |           |
  *                          onSuccess()                           onSuccess()     |
@@ -43,7 +43,6 @@ import okhttp3.internal.Util;
  *                        ---------------------------------------------------------
  *                                             onFinally()
  *                          </p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午5:56.</p>

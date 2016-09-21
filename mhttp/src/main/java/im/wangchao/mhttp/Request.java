@@ -20,7 +20,6 @@ import okhttp3.RequestBody;
 
 /**
  * <p>Description  : MRequest.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/6/2.</p>
  * <p>Time         : 下午4:16.</p>

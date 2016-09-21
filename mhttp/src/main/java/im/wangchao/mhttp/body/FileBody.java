@@ -14,7 +14,6 @@ import okio.Source;
 
 /**
  * <p>Description  : FileBody.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/3/8.</p>
  * <p>Time         : 下午6:10.</p>

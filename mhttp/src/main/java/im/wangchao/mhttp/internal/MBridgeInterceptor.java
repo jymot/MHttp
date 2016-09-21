@@ -8,7 +8,6 @@ import okhttp3.Response;
 
 /**
  * <p>Description  : MBridgeInterceptors.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/8/24.</p>
  * <p>Time         : 下午4:32.</p>

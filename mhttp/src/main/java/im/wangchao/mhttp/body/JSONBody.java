@@ -10,7 +10,6 @@ import okio.BufferedSink;
 
 /**
  * <p>Description  : JSONBody.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/3/8.</p>
  * <p>Time         : 下午4:31.</p>

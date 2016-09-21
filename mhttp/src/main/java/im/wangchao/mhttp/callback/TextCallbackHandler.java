@@ -6,7 +6,6 @@ import im.wangchao.mhttp.Response;
 
 /**
  * <p>Description  : TextResponseHandler.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午2:41.</p>

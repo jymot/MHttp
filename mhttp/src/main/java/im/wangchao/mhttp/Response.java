@@ -5,7 +5,6 @@ import okhttp3.Protocol;
 
 /**
  * <p>Description  : MResponse.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/6/3.</p>
  * <p>Time         : 下午3:03.</p>

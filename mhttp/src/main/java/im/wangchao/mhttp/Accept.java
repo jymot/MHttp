@@ -7,7 +7,6 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * <p>Description  : Accept.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/4/25.</p>
  * <p>Time         : 上午11:06.</p>

@@ -8,7 +8,6 @@ import im.wangchao.mhttp.executor.SENDING;
 
 /**
  * <p>Description  : ThreadMode.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/8/3.</p>
  * <p>Time         : 下午12:44.</p>

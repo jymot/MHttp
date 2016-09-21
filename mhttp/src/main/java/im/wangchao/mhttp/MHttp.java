@@ -14,7 +14,6 @@ import okhttp3.OkHttpClient;
 
 /**
  * <p>Description  : MHttp.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/6/2.</p>
  * <p>Time         : 上午8:40.</p>

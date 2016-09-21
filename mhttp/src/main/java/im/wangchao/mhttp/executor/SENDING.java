@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 
 /**
  * <p>Description  : SENDING.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/9/2.</p>
  * <p>Time         : 下午4:47.</p>

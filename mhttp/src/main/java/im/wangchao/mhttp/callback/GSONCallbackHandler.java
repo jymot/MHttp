@@ -5,7 +5,6 @@ import im.wangchao.mhttp.internal.exception.ParserException;
 
 /**
  * <p>Description  : GSONResponseHandler.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/3/20.</p>
  * <p>Time         : 上午9:06.</p>

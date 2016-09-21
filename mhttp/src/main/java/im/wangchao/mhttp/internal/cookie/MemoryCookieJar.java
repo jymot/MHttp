@@ -10,7 +10,6 @@ import okhttp3.HttpUrl;
 
 /**
  * <p>Description  : MemeryCookieJar.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/3/18.</p>
  * <p>Time         : 下午2:20.</p>

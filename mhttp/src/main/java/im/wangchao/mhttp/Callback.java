@@ -7,7 +7,6 @@ import okhttp3.Response;
 
 /**
  * <p>Description  : OkCallback.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/6/3.</p>
  * <p>Time         : 上午10:16.</p>

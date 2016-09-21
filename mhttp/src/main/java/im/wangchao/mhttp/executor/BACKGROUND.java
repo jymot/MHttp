@@ -6,7 +6,6 @@ import java.util.concurrent.Executor;
 
 /**
  * <p>Description  : BACKGROUND.</p>
- * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 16/9/2.</p>
  * <p>Time         : 下午4:50.</p>
