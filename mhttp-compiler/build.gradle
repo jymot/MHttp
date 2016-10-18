@@ -1,7 +1,7 @@
 apply plugin: 'java'
 
 dependencies {
-    compile 'im.wangchao:mhttp-annotations:0.1.2'
+    compile deps.mhttpannotations
 //    compile project(':mhttp-annotations')
     compile deps.autoservice
     compile deps.autocommon

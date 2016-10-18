@@ -6,7 +6,6 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
         //jcenter push
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
@@ -54,6 +53,7 @@ ext.deps = [
         autocommon        : 'com.google.auto:auto-common:0.6',
 
         mhttpcompiler     : 'im.wangchao:mhttp-compiler:0.3.3',
+        mhttpannotations  : 'im.wangchao:mhttp-annotations:0.1.2',
 
         rxjava            : 'io.reactivex:rxjava:1.1.9'
 ]

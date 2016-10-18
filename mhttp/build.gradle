@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
@@ -36,7 +35,9 @@ dependencies {
     testCompile deps.junit
     compile deps.appcompatv7
     compile deps.okhttp
+    compile deps.mhttpannotations
     compile deps.mhttpcompiler
+    annotationProcessor deps.mhttpcompiler
 }
 
 apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
