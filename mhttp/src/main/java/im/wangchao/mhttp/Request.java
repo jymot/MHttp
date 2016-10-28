@@ -29,12 +29,12 @@ public final class Request {
         return new Builder();
     }
 
-    final okhttp3.Request rawRequest;
-    final RequestParams mRequestParams;
-    final Callback mCallback;
-    final int timeout;
-    final Executor mExecutor;
-    final ThreadMode mThreadMode;
+    private final okhttp3.Request rawRequest;
+    private final RequestParams mRequestParams;
+    private final Callback mCallback;
+    private final int timeout;
+    private final Executor mExecutor;
+    private final ThreadMode mThreadMode;
 
     private okhttp3.Call rawCall;
 
@@ -333,20 +333,28 @@ public final class Request {
         }
 
         public Request build() {
-            boolean isGet = Method.GET.equals(method);
-
             MHttp.instance().timeout(timeout);
 
             if (!Accept.EMPTY.equals(mCallback.accept())) {
                 addHeader("Accept", mCallback.accept());
             }
 
-            rawBuilder.method(method, isGet ? null : mRequestParams.requestBody());
-            rawRequest = rawBuilder.build();
-
-            if (isGet){
-                rawRequest = rawBuilder.url(mRequestParams.formatURLParams(rawRequest.url())).build();
+            switch (method){
+                case Method.GET:
+                    rawBuilder.method(method, null);
+                    rawRequest = rawBuilder.build();
+                    rawRequest = rawBuilder.url(mRequestParams.formatURLParams(rawRequest.url())).build();
+                    break;
+                case Method.HEAD:
+                    rawBuilder.method(method, null);
+                    rawRequest = rawBuilder.build();
+                    break;
+                default:
+                    rawBuilder.method(method, mRequestParams.requestBody(rawBuilder.build().headers()));
+                    rawRequest = rawBuilder.build();
+                    break;
             }
+
             return new Request(this);
         }
     }

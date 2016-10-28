@@ -126,7 +126,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         isFinished = false;
         isCanceled = false;
         this.request = request;
-        this.mExecutor = request.mExecutor;
+        this.mExecutor = request.callbackExecutor();
         if (this.mExecutor == null){
             this.mExecutor = request.callbackThreadMode().executor();
         }
@@ -207,7 +207,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
                 onStart();
             }
         };
-        if (request.mThreadMode == ThreadMode.BACKGROUND){
+        if (request.callbackThreadMode() == ThreadMode.BACKGROUND){
             DEFAULT_EXECUTOR_SERVICE.execute(r);
         } else {
             execute(r);

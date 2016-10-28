@@ -24,6 +24,7 @@ import im.wangchao.mhttp.body.FileBody;
 import im.wangchao.mhttp.body.JSONBody;
 import im.wangchao.mhttp.body.OctetStreamBody;
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -95,12 +96,12 @@ public class RequestParams{
         this.contentType = params.getContentType();
     }
 
-    public RequestBody requestBody(){
+    public RequestBody requestBody(Headers headers){
         if (isEmpty()){
             return null;
         }
 
-        if (isJSON()){
+        if (isJSON(headers)){
             return new JSONBody(parseJSON(), contentEncoding);
         }
 
@@ -141,8 +142,8 @@ public class RequestParams{
     /**
      * @return Request body media type is JSON.
      */
-    protected boolean isJSON(){
-        return contentType.contains(APPLICATION_JSON) && streamParams.size() == 0
+    protected boolean isJSON(Headers headers){
+        return (contentType.contains(APPLICATION_JSON) || headers.values("Content-Type").contains(APPLICATION_JSON)) && streamParams.size() == 0
                 && fileParams.size() == 0;
     }
 
