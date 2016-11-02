@@ -96,12 +96,18 @@ public class RequestParams{
         this.contentType = params.getContentType();
     }
 
-    public RequestBody requestBody(Headers headers){
+    RequestBody requestBody(Headers headers){
         if (isEmpty()){
             return null;
         }
 
-        if (isJSON(headers)){
+        if (headers.values("Content-Type").contains(APPLICATION_JSON)){
+            return new JSONBody(parseJSON(), contentEncoding);
+        } else if (headers.values("Content-Type").contains(APPLICATION_FORM)){
+            return formBody();
+        }
+
+        if (isJSON()){
             return new JSONBody(parseJSON(), contentEncoding);
         }
 
@@ -142,8 +148,8 @@ public class RequestParams{
     /**
      * @return Request body media type is JSON.
      */
-    protected boolean isJSON(Headers headers){
-        return (contentType.contains(APPLICATION_JSON) || headers.values("Content-Type").contains(APPLICATION_JSON)) && streamParams.size() == 0
+    protected boolean isJSON(){
+        return contentType.contains(APPLICATION_JSON) && streamParams.size() == 0
                 && fileParams.size() == 0;
     }
 

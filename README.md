@@ -2,7 +2,7 @@
 okhttp wrapper for Android Http.
 ###Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.5.5'
+  compile 'im.wangchao:mhttp:1.6.0'
 ```
 ###PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
@@ -217,6 +217,16 @@ If you want to customize the Callback Method, you can inherit AbsCallbackHandler
  * BACKGROUND -- Callback will be called in a background thread. That is, work on the request thread(okhttp thread).
 
 Now you can make your own thread. Only need to implement java.util.concurrent.Executor, and set it to your request.
+
+####6.Custom okHttpClient
+```java
+CookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(this));
+OkHttpClient okHttpClient = new OkHttpClient.Builder()
+        .cookieJar(cookieJar)
+        .build();
+MHttp.instance().client(okHttpClient);
+```
+Please set before calling the request.
 
 ###Contact Me
 - Email:  magician.of.technique@aliyun.com
