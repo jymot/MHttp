@@ -12,6 +12,6 @@ public class Version {
     }
 
     public static String userAgent() {
-        return "MHttp/1.5.1";
+        return "MHttp/1.6.1";
     }
 }
