@@ -1,11 +1,11 @@
 # MHttp
 okhttp wrapper for Android Http.
-###Gradle:
+### Gradle:
 ```gradle
   compile 'im.wangchao:mhttp:1.6.3'
   annotationProcessor 'im.wangchao:mhttp-compiler:0.3.3'
 ```
-###PROGUARD
+### PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
 ```java
     -keep class im.wangchao.** { *; }
@@ -27,8 +27,8 @@ ProGuard rules now ship inside of the library and are included automatically.
         java.lang.Object readResolve();  
     }
 ```
-###How to use
-####1.Normal Get
+### How to use
+#### 1.Normal Get
 ```java
      Request.builder().url("https://www.baidu.com")
                     .callback(new TextCallbackHandler(){
@@ -39,7 +39,7 @@ ProGuard rules now ship inside of the library and are included automatically.
                     .build()
                     .enqueue();
 ```
-####2.Normal Post
+#### 2.Normal Post
 ```java
     Request.builder().url("url")
                     .addHeader("key", "value")
@@ -52,7 +52,7 @@ ProGuard rules now ship inside of the library and are included automatically.
                     .build()
                     .enqueue();
 ```
-####3.Annotation (Support Post and Get)
+#### 3.Annotation (Support Post and Get)
 Turns your HTTP API into a Java interface or abstract Class.
 ```java
     public interface GetBaidu{
@@ -200,7 +200,7 @@ public abstract class SampleApi extends SampleDefaultApi{
 }
 
 ```
-####4.Callback
+#### 4.Callback
 Several common methods are provided. as follows:
 ```
 JSONCallbackHandler
@@ -212,14 +212,14 @@ GSONCallbackHandler
 ```
 If you want to customize the Callback Method, you can inherit AbsCallbackHandler like the method above.
 
-####5.ThreadMode
+#### 5.ThreadMode
  * SENDING -- Callback will be called in the same thread, which is sending the request.
  * MAIN -- Callback will be called in Android's main thread (UI thread).
  * BACKGROUND -- Callback will be called in a background thread. That is, work on the request thread(okhttp thread).
 
 Now you can make your own thread. Only need to implement java.util.concurrent.Executor, and set it to your request.
 
-####6.Custom okHttpClient
+#### 6.Custom okHttpClient
 ```java
 CookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPrefsCookiePersistor(this));
 OkHttpClient okHttpClient = new OkHttpClient.Builder()
@@ -229,7 +229,7 @@ MHttp.instance().client(okHttpClient);
 ```
 Please set before calling the request.
 
-###Contact Me
+### Contact Me
 - Email:  magician.of.technique@aliyun.com
 
 ### License
