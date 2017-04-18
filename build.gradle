@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
+        classpath 'com.android.tools.build:gradle:2.3.1'
         //jcenter push
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
@@ -29,9 +29,9 @@ task clean(type: Delete) {
 
 ext {
     minSdkVersion = 9
-    targetSdkVersion = 24
-    compileSdkVersion = 24
-    buildToolsVersion = "24.0.2"
+    targetSdkVersion = 25
+    compileSdkVersion = 25
+    buildToolsVersion = "25.0.2"
     sourceCompatibilityVersion = JavaVersion.VERSION_1_7
     targetCompatibilityVersion = JavaVersion.VERSION_1_7
 }
@@ -44,7 +44,7 @@ ext.deps = [
 
         // Square
         javapoet          : 'com.squareup:javapoet:1.4.0',
-        okhttp            : 'com.squareup.okhttp3:okhttp:3.5.0',
+        okhttp            : 'com.squareup.okhttp3:okhttp:3.7.0',
 
         // Test dependencies
         junit             : 'junit:junit:4.12',
