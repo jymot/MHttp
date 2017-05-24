@@ -11,6 +11,9 @@ import okhttp3.Protocol;
  */
 public final class Response {
     public static Response error(Request request, int code, String message){
+        if (message == null){
+            message = "unknown exception.";
+        }
         return new Response(request, new okhttp3.Response.Builder()
                 .request(request.raw())
                 .protocol(Protocol.HTTP_1_1)
