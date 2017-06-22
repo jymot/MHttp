@@ -1,8 +1,15 @@
 package im.wangchao.mhttpdemo;
 
+import android.util.Log;
+
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import im.wangchao.mhttp.Request;
+import im.wangchao.mhttp.Response;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
+
+import static android.R.attr.data;
+import static org.junit.Assert.assertEquals;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.

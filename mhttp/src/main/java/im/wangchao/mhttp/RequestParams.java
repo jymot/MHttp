@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +52,7 @@ public class RequestParams{
     final public static String APPLICATION_FORM             = "application/x-www-form-urlencoded";
 
     //params
-    final private ConcurrentHashMap<String, String>         urlParams       = new ConcurrentHashMap<>();
+    final private ConcurrentHashMap<String, Object>         urlParams       = new ConcurrentHashMap<>();
     final private ConcurrentHashMap<String, StreamWrapper>  streamParams    = new ConcurrentHashMap<>();
     final private ConcurrentHashMap<String, FileWrapper>    fileParams      = new ConcurrentHashMap<>();
 
@@ -118,8 +117,8 @@ public class RequestParams{
         MultipartBody.Builder builder = new MultipartBody.Builder();
         builder.setType(MultipartBody.FORM);
         //form
-        for (Map.Entry<String, String> entry: urlParams.entrySet()){
-            builder.addFormDataPart(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
+            builder.addFormDataPart(entry.getKey(), String.valueOf(entry.getValue()));
         }
         //stream
         for (Map.Entry<String, RequestParams.StreamWrapper> streamEntry: streamParams.entrySet()){
@@ -139,8 +138,8 @@ public class RequestParams{
 
     private FormBody formBody(){
         FormBody.Builder builder = new FormBody.Builder();
-        for (Map.Entry<String, String> entry: urlParams.entrySet()){
-            builder.add(entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
+            builder.add(entry.getKey(), String.valueOf(entry.getValue()));
         }
         return builder.build();
     }
@@ -190,14 +189,6 @@ public class RequestParams{
         }
     }
 
-    public void put(String key, JSONArray value){
-        put(key, value.toString());
-    }
-
-    public void put(String key, JSONObject value){
-        put(key, value.toString());
-    }
-
     public void put(String key, String value) {
         if (!TextUtils.isEmpty(key) && !TextUtils.isEmpty(value)) {
             urlParams.put(key, value);
@@ -206,7 +197,15 @@ public class RequestParams{
 
     public void put(String key, Object value) {
         if (!TextUtils.isEmpty(key) && (value != null)) {
-            urlParams.put(key, String.valueOf(value));
+            if (value instanceof File){
+                try {
+                    put(key, (File)value);
+                } catch (FileNotFoundException e) {
+                    // Silent
+                }
+            } else {
+                urlParams.put(key, value);
+            }
         }
     }
 
@@ -264,31 +263,20 @@ public class RequestParams{
     public String parseJSON(){
         JSONObject json = new JSONObject();
 
-        String key, value;
-        JSONObject tempObj;
-        JSONArray tempArray;
-        for (Map.Entry<String, String> entry: urlParams.entrySet()){
+        String key;
+        Object value;
+        for (Map.Entry<String, Object> entry: urlParams.entrySet()){
             key = entry.getKey();
             value = entry.getValue();
 
-            if (key.isEmpty() || value.isEmpty()){
+            if (key.isEmpty() || value == null){
                 continue;
             }
 
             try {
-                tempObj = new JSONObject(value);
-                json.put(key, tempObj);
+                json.put(key, value);
             } catch (JSONException e) {
-                try {
-                    tempArray = new JSONArray(value);
-                    json.put(key, tempArray);
-                } catch (JSONException e1) {
-                    try {
-                        json.put(key, value);
-                    } catch (JSONException e2) {
-                       //Silent
-                    }
-                }
+                // Silent
             }
         }
 
@@ -303,17 +291,17 @@ public class RequestParams{
         return fileParams;
     }
 
-    public ConcurrentHashMap<String, String> getUrlParams() {
+    public ConcurrentHashMap<String, Object> getUrlParams() {
         return urlParams;
     }
 
     public HttpUrl formatURLParams(HttpUrl url) {
         HttpUrl.Builder builder = url.newBuilder();
         if (urlParams.size() != 0) {
-            for (Map.Entry<String, String> entry : urlParams.entrySet()) {
+            for (Map.Entry<String, Object> entry : urlParams.entrySet()) {
                 try {
                     builder.addEncodedQueryParameter(URLEncoder.encode(entry.getKey(), contentEncoding),
-                            URLEncoder.encode(entry.getValue(), contentEncoding));
+                            URLEncoder.encode(String.valueOf(entry.getValue()), contentEncoding));
                 } catch (UnsupportedEncodingException e) {
                     //Silent
                 }
@@ -328,10 +316,10 @@ public class RequestParams{
     public String formatURLParams() {
         StringBuilder sb = new StringBuilder();
         if (urlParams.size() != 0) {
-            for (Map.Entry<String, String> entry : urlParams.entrySet()) {
+            for (Map.Entry<String, Object> entry : urlParams.entrySet()) {
                 String encode = "";
                 try {
-                    encode = URLEncoder.encode(entry.getValue(), contentEncoding);
+                    encode = URLEncoder.encode(String.valueOf(entry.getValue()), contentEncoding);
                 } catch (UnsupportedEncodingException e) {
                     //Silent
                 }
@@ -347,10 +335,10 @@ public class RequestParams{
     /**
      * Url params convert to {@link List}.
      */
-    public List<Pair<String, String>> getParamsList(){
-        List<Pair<String, String>> params = new LinkedList<>();
+    public List<Pair<String, Object>> getParamsList(){
+        List<Pair<String, Object>> params = new LinkedList<>();
 
-        for (ConcurrentHashMap.Entry<String, String> entry : urlParams.entrySet()) {
+        for (ConcurrentHashMap.Entry<String, Object> entry : urlParams.entrySet()) {
             params.add(new Pair<>(entry.getKey(), entry.getValue()));
         }
 
