@@ -3,8 +3,6 @@ package im.wangchao.mhttp;
 
 import android.util.Log;
 
-import im.wangchao.http.compiler.HttpProcessor;
-
 /**
  * <p>Description  : BindApi.</p>
  * <p>Author       : wangchao.</p>
@@ -12,7 +10,8 @@ import im.wangchao.http.compiler.HttpProcessor;
  * <p>Time         : 上午8:23.</p>
  */
 final class BindApi {
-    private static final String SUFFIX = HttpProcessor.SUFFIX;
+    /** HttpProcessor.SUFFIX */
+    private static final String SUFFIX = "$$HttpBinder";
 
     @SuppressWarnings("unchecked") public static <T> T bind(Class<T> type) {
         String name = type.getName() + SUFFIX;

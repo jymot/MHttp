@@ -31,13 +31,9 @@ android {
 }
 
 dependencies {
-//    compile project(':mhttp-compiler')
-    testCompile deps.junit
-    compile deps.appcompatv7
+    provided deps.appcompatv7
     compile deps.okhttp
     compile deps.mhttpannotations
-    compile deps.mhttpcompiler
-    annotationProcessor deps.mhttpcompiler
 }
 
 apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'

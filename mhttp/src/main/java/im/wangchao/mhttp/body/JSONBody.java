@@ -27,6 +27,9 @@ public final class JSONBody extends RequestBody{
         if (TextUtils.isEmpty(content)){
             throw new NullPointerException("content == null");
         }
+        if (TextUtils.isEmpty(charset)){
+            charset = "utf-8";
+        }
         this.contentType = TextUtils.isEmpty(charset) ? CONTENT_TYPE : MediaType.parse("application/json; charset=" + charset);
         bytes = content.getBytes(contentType.charset());
     }
