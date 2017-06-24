@@ -1,7 +1,6 @@
 package im.wangchao.mhttp;
 
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Pair;
 
@@ -21,12 +20,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import im.wangchao.mhttp.body.FileBody;
 import im.wangchao.mhttp.body.JSONBody;
+import im.wangchao.mhttp.body.MediaTypeUtils;
 import im.wangchao.mhttp.body.OctetStreamBody;
 import okhttp3.FormBody;
-import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+
+import static im.wangchao.mhttp.body.MediaTypeUtils.APPLICATION_OCTET_STREAM;
 
 /**
  * <p>Description  : RequestParams.</p>
@@ -35,21 +37,8 @@ import okhttp3.RequestBody;
  * <p>Time         : 下午2:16.</p>
  */
 public class RequestParams{
-    final public static String  UTF_8_STR   = "utf-8";
-    final public static Charset UTF_8       = Charset.forName(UTF_8_STR);
-
-    /**
-     * Stream
-     */
-    final public static String APPLICATION_OCTET_STREAM     = "application/octet-stream";
-    /**
-     * JSON
-     */
-    final public static String APPLICATION_JSON             = "application/json";
-    /**
-     * Form
-     */
-    final public static String APPLICATION_FORM             = "application/x-www-form-urlencoded";
+    final private static String  UTF_8_STR   = "utf-8";
+    final private static Charset UTF_8       = Charset.forName(UTF_8_STR);
 
     //params
     final private ConcurrentHashMap<String, Object>         urlParams       = new ConcurrentHashMap<>();
@@ -58,7 +47,6 @@ public class RequestParams{
 
     //default
     private String contentEncoding  = UTF_8_STR;
-    private String contentType      = APPLICATION_JSON;
 
     public RequestParams(){
         this((Map<String, String>)null);
@@ -91,26 +79,23 @@ public class RequestParams{
         this.urlParams.putAll(params.getUrlParams());
         this.streamParams.putAll(params.getStreamParams());
         this.fileParams.putAll(params.getFileParams());
-        this.contentEncoding = params.getContentEncoding();
-        this.contentType = params.getContentType();
+        this.contentEncoding = params.contentEncoding();
     }
 
-    RequestBody requestBody(Headers headers){
+    RequestBody requestBody(MediaType mediaType){
         if (isEmpty()){
             return null;
         }
 
-        if (headers.values("Content-Type").contains(APPLICATION_JSON)){
-            return new JSONBody(parseJSON(), contentEncoding);
-        } else if (headers.values("Content-Type").contains(APPLICATION_FORM)){
-            return formBody();
+        if (isJSON(mediaType)){
+            Charset charset = mediaType.charset();
+            if (charset == null){
+                charset = UTF_8;
+            }
+            return new JSONBody(parseJSON(), charset.name());
         }
 
-        if (isJSON()){
-            return new JSONBody(parseJSON(), contentEncoding);
-        }
-
-        if (isForm()){
+        if (isForm(mediaType)){
             return formBody();
         }
 
@@ -147,38 +132,31 @@ public class RequestParams{
     /**
      * @return Request body media type is JSON.
      */
-    protected boolean isJSON(){
-        return contentType.contains(APPLICATION_JSON) && streamParams.size() == 0
+    private boolean isJSON(MediaType mediaType){
+        return MediaTypeUtils.isJSON(mediaType) && streamParams.size() == 0
                 && fileParams.size() == 0;
     }
 
     /**
      * @return Request body media type is Form.
      */
-    protected boolean isForm(){
-        return contentType.equals(APPLICATION_FORM) && streamParams.size() == 0
+    private boolean isForm(MediaType mediaType){
+        return MediaTypeUtils.isFORM(mediaType) && streamParams.size() == 0
                 && fileParams.size() == 0;
     }
 
     /**
      * Request body encoding.
      */
-    public RequestParams setContentEncoding(@NonNull String encoding) {
-        this.contentEncoding = encoding;
+    public RequestParams contentEncoding(@NonNull String encoding) {
+        if (Charset.isSupported(encoding)){
+            this.contentEncoding = encoding;
+        }
         return this;
     }
 
-    public String getContentEncoding(){
+    public String contentEncoding(){
         return contentEncoding;
-    }
-
-    public RequestParams setContentType(@Nullable String contentType){
-        this.contentType = contentType == null || contentType.isEmpty() ? APPLICATION_JSON : contentType;
-        return this;
-    }
-
-    public String getContentType(){
-        return contentType;
     }
 
     public void put(Map<String, String> params){
@@ -260,7 +238,7 @@ public class RequestParams{
         return urlParams.isEmpty() && streamParams.isEmpty() && fileParams.isEmpty();
     }
 
-    public String parseJSON(){
+    private String parseJSON(){
         JSONObject json = new JSONObject();
 
         String key;

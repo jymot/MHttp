@@ -15,7 +15,7 @@ import okio.BufferedSink;
  * <p>Time         : 下午4:31.</p>
  */
 public final class JSONBody extends RequestBody{
-    private final static MediaType CONTENT_TYPE = MediaType.parse("application/json; charset=utf-8");
+    private final static MediaType CONTENT_TYPE = MediaTypeUtils.JSON;
     private final MediaType contentType;
     private final byte[] bytes;
 

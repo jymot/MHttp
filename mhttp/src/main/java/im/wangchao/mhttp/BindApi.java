@@ -11,7 +11,7 @@ import android.util.Log;
  */
 final class BindApi {
     /** HttpProcessor.SUFFIX */
-    private static final String SUFFIX = "$$HttpBinder";
+    private static final String SUFFIX = "_HttpBinder";
 
     @SuppressWarnings("unchecked") public static <T> T bind(Class<T> type) {
         String name = type.getName() + SUFFIX;

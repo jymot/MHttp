@@ -169,14 +169,14 @@ public class BindMethod {
             sb.append(variableName + ");\n");
         }
 
-        if (injectClass.getContentType() != null &&
-                injectClass.getContentType().length() != 0){
-            sb.append("params.setContentType(\"" + injectClass.getContentType() + "\");\n");
-        }
-
         //请求 builder
         sb.append("Request.Builder builder = new Request.Builder();\n");
         sb.append("builder.requestParams(params);\n");
+
+        if (injectClass.getContentType() != null &&
+                injectClass.getContentType().length() != 0){
+            sb.append("builder.contentType(\"" + injectClass.getContentType() + "\");\n");
+        }
 
         if (this.url.contains("://")){
             sb.append("builder.url(\"" + this.url + "\");\n");

@@ -11,10 +11,12 @@ import java.net.URL;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import im.wangchao.mhttp.body.MediaTypeUtils;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.RequestBody;
 
@@ -29,54 +31,56 @@ public final class Request {
         return new Builder();
     }
 
-    private final okhttp3.Request rawRequest;
+    private final okhttp3.Request mRawRequest;
     private final RequestParams mRequestParams;
     private final Callback mCallback;
-    private final int timeout;
+    private final int mTimeout;
+    private final MediaType mMediaType;
     private final Executor mExecutor;
     private final ThreadMode mThreadMode;
 
-    private okhttp3.Call rawCall;
+    private okhttp3.Call mRawCall;
 
     private Request(Builder builder){
-        rawRequest = builder.rawRequest;
+        mRawRequest = builder.mRawRequest;
         mRequestParams = builder.mRequestParams;
         mCallback = builder.mCallback;
-        timeout = builder.timeout;
+        mTimeout = builder.mTimeout;
+        mMediaType = builder.mMediaType;
         mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
     }
 
     public okhttp3.Request raw() {
-        return rawRequest;
+        return mRawRequest;
     }
 
     public HttpUrl url() {
-        return rawRequest.url();
+        return mRawRequest.url();
     }
 
     public String method() {
-        return rawRequest.method();
+        return mRawRequest.method();
     }
 
     public Headers headers() {
-        return rawRequest.headers();
+        return mRawRequest.headers();
     }
 
     public String header(String name) {
-        return rawRequest.header(name);
+        return mRawRequest.header(name);
     }
 
     public List<String> headers(String name) {
-        return rawRequest.headers(name);
+        return mRawRequest.headers(name);
     }
 
     public RequestBody body() {
-        return rawRequest.body();
+        return mRawRequest.body();
     }
 
     public Object tag() {
-        return rawRequest.tag();
+        return mRawRequest.tag();
     }
 
     public Builder newBuilder() {
@@ -92,15 +96,15 @@ public final class Request {
      * response contains no {@code Cache-Control} header.
      */
     public CacheControl cacheControl() {
-        return rawRequest.cacheControl();
+        return mRawRequest.cacheControl();
     }
 
     public boolean isHttps() {
-        return rawRequest.isHttps();
+        return mRawRequest.isHttps();
     }
 
     public int timeout() {
-        return timeout;
+        return mTimeout;
     }
 
     /**
@@ -156,85 +160,87 @@ public final class Request {
     }
 
     private Call rawCall(){
-        if (rawCall == null){
+        if (mRawCall == null){
             OkHttpClient client = MHttp.instance().client();
-            rawCall = client.newCall(raw());
+            mRawCall = client.newCall(raw());
         }
-        return rawCall;
+        return mRawCall;
     }
 
     @Override public String toString() {
-        return rawRequest.toString();
+        return mRawRequest.toString();
     }
 
     public static class Builder {
         private static final String TAG = Builder.class.getSimpleName();
 
-        okhttp3.Request rawRequest;
-        okhttp3.Request.Builder rawBuilder;
+        okhttp3.Request mRawRequest;
+        okhttp3.Request.Builder mRawBuilder;
         RequestParams mRequestParams;
         Callback mCallback;
-        int timeout;
-        private String method;
+        int mTimeout;
+        String mMethod;
+        MediaType mMediaType;
         Executor mExecutor;
         ThreadMode mThreadMode;
 
         public Builder() {
             mCallback = Callback.EMPTY;
-            method = Method.GET;
-            rawBuilder = new okhttp3.Request.Builder();
+            mMethod = Method.GET;
+            mRawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
-            timeout = 30;
+            mTimeout = 30;
             mThreadMode = ThreadMode.MAIN;
+
         }
 
         private Builder(Request request) {
             mCallback = request.mCallback;
-            method = request.method();
+            mMethod = request.method();
             mRequestParams = request.mRequestParams;
-            rawBuilder = request.rawRequest.newBuilder();
-            timeout = request.timeout;
+            mRawBuilder = request.mRawRequest.newBuilder();
+            mTimeout = request.mTimeout;
             mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
         }
 
         public Builder url(HttpUrl url) {
-            rawBuilder.url(url);
+            mRawBuilder.url(url);
             return this;
         }
 
         public Builder url(String url) {
-            rawBuilder.url(url);
+            mRawBuilder.url(url);
             return this;
         }
 
         public Builder url(URL url) {
-            rawBuilder.url(url);
+            mRawBuilder.url(url);
             return this;
         }
 
         public Builder header(String name, String value) {
-            rawBuilder.header(name, value);
+            mRawBuilder.header(name, value);
             return this;
         }
 
         public Builder addHeader(String name, String value) {
-            rawBuilder.addHeader(name, value);
+            mRawBuilder.addHeader(name, value);
             return this;
         }
 
         public Builder removeHeader(String name) {
-            rawBuilder.removeHeader(name);
+            mRawBuilder.removeHeader(name);
             return this;
         }
 
         public Builder headers(Headers headers) {
-            rawBuilder.headers(headers);
+            mRawBuilder.headers(headers);
             return this;
         }
 
         public Builder cacheControl(CacheControl cacheControl) {
-            rawBuilder.cacheControl(cacheControl);
+            mRawBuilder.cacheControl(cacheControl);
             return this;
         }
 
@@ -298,12 +304,12 @@ public final class Request {
         }
 
         public Builder method(@NonNull String method) {
-            this.method = method;
+            this.mMethod = method;
             return this;
         }
 
         public Builder tag(Object tag) {
-            rawBuilder.tag(tag);
+            mRawBuilder.tag(tag);
             return this;
         }
 
@@ -313,7 +319,7 @@ public final class Request {
         }
 
         public Builder timeout(int timeout){
-            this.timeout = timeout;
+            this.mTimeout = timeout;
             return this;
         }
 
@@ -332,26 +338,43 @@ public final class Request {
             return this;
         }
 
+        public Builder contentType(@NonNull String contentType){
+            this.mMediaType = MediaType.parse(contentType);
+            header("Content-Type", contentType);
+            return this;
+        }
+
+        public Builder contentType(@NonNull MediaType mediaType){
+            this.mMediaType = mediaType;
+            header("Content-Type", this.mMediaType.toString());
+            return this;
+        }
+
         public Request build() {
-            MHttp.instance().timeout(timeout);
+            MHttp.instance().timeout(mTimeout);
+
+            if (mMediaType == null){
+                // default is Application/json; charset=utf-8
+                mMediaType = MediaTypeUtils.DEFAULT;
+            }
 
             if (!Accept.EMPTY.equals(mCallback.accept())) {
                 addHeader("Accept", mCallback.accept());
             }
 
-            switch (method){
+            switch (mMethod){
                 case Method.GET:
-                    rawBuilder.method(method, null);
-                    rawRequest = rawBuilder.build();
-                    rawRequest = rawBuilder.url(mRequestParams.formatURLParams(rawRequest.url())).build();
+                    mRawBuilder.method(mMethod, null);
+                    mRawRequest = mRawBuilder.build();
+                    mRawRequest = mRawBuilder.url(mRequestParams.formatURLParams(mRawRequest.url())).build();
                     break;
                 case Method.HEAD:
-                    rawBuilder.method(method, null);
-                    rawRequest = rawBuilder.build();
+                    mRawBuilder.method(mMethod, null);
+                    mRawRequest = mRawBuilder.build();
                     break;
                 default:
-                    rawBuilder.method(method, mRequestParams.requestBody(rawBuilder.build().headers()));
-                    rawRequest = rawBuilder.build();
+                    mRawBuilder.method(mMethod, mRequestParams.requestBody(mMediaType));
+                    mRawRequest = mRawBuilder.build();
                     break;
             }
 

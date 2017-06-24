@@ -1,5 +1,7 @@
 package im.wangchao.mhttp.internal;
 
+import im.wangchao.mhttp.BuildConfig;
+
 /**
  * <p>Description  : Version.</p>
  * <p>Author       : wangchao.</p>
@@ -12,6 +14,6 @@ public class Version {
     }
 
     public static String userAgent() {
-        return "MHttp/1.6.1";
+        return "MHttp/" + BuildConfig.VERSION_NAME;
     }
 }

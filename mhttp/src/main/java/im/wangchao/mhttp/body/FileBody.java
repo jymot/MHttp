@@ -19,7 +19,7 @@ import okio.Source;
  * <p>Time         : 下午6:10.</p>
  */
 public final class FileBody extends RequestBody{
-    private final static MediaType CONTENT_TYPE = MediaType.parse("application/octet-stream");
+    private final static MediaType CONTENT_TYPE = MediaTypeUtils.OCTET;
     private final MediaType contentType;
     private final File file;
 

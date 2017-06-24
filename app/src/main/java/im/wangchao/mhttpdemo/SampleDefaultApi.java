@@ -8,7 +8,8 @@ import im.wangchao.http.annotations.Header;
 import im.wangchao.http.annotations.RequestContentType;
 import im.wangchao.http.annotations.RootURL;
 import im.wangchao.http.annotations.Timeout;
-import im.wangchao.mhttp.RequestParams;
+
+import static im.wangchao.mhttp.body.MediaTypeUtils.APPLICATION_JSON;
 
 /**
  * <p>Description  : SampleDefaultApi.</p>
@@ -21,7 +22,7 @@ public abstract class SampleDefaultApi {
 
     @RootURL("https://www.baidu.com/") String baseURL;
     @Timeout(40) String timeout;
-    @RequestContentType(RequestParams.APPLICATION_JSON) String Content_Type;
+    @RequestContentType(APPLICATION_JSON) String Content_Type;
     @Header("Android") String User_Agent;
 
     @CommonParamsMethod

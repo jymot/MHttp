@@ -9,7 +9,7 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         consumerProguardFiles 'proguard-rules.pro'
         versionCode 1
-        versionName "1.0"
+        versionName PROJ_VERSION
     }
     buildTypes {
         release {

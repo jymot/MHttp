@@ -4,6 +4,8 @@ import android.util.Log;
 
 import org.junit.Test;
 
+import java.nio.charset.Charset;
+
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.Response;
 import im.wangchao.mhttp.callback.TextCallbackHandler;

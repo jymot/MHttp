@@ -52,7 +52,7 @@ import static javax.tools.Diagnostic.Kind.NOTE;
  */
 @AutoService(Processor.class)
 public class HttpProcessor extends AbstractProcessor{
-    public static final String SUFFIX = "$$HttpBinder";
+    public static final String SUFFIX = "_HttpBinder";
     private static final List<Class<? extends Annotation>> METHOD_ANNOTATION = Arrays.asList(
             Post.class,
             Get.class
