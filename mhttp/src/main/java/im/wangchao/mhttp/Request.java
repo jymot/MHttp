@@ -354,8 +354,23 @@ public final class Request {
             MHttp.instance().timeout(mTimeout);
 
             if (mMediaType == null){
+                // judgment request header
+                List<String> headers = mRawBuilder.build().headers("Content-Type");
+                final int len = headers.size();
+                if (len != 0){
+                    StringBuilder mediaType = new StringBuilder();
+                    for (int i = 0; i < len; i++){
+                        mediaType.append(headers.get(i));
+                    }
+                    mMediaType = MediaType.parse(mediaType.toString());
+                    if (mMediaType == null){
+                        mMediaType = MediaTypeUtils.DEFAULT;
+                    }
+                }
                 // default is Application/json; charset=utf-8
-                mMediaType = MediaTypeUtils.DEFAULT;
+                else {
+                    mMediaType = MediaTypeUtils.DEFAULT;
+                }
             }
 
             if (!Accept.EMPTY.equals(mCallback.accept())) {
