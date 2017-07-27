@@ -1,11 +1,16 @@
 package im.wangchao.http.compiler;
 
+import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.lang.model.element.ExecutableElement;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.TypeKind;
 import javax.lang.model.type.TypeMirror;
@@ -20,7 +25,7 @@ import im.wangchao.http.annotations.Tag;
  * <p>Date         : 15/10/18.</p>
  * <p>Time         : 下午7:25.</p>
  */
-public class BindMethod {
+/*package*/ class BindMethod {
 
     private final TypeMirror returnType;
     private final List<? extends VariableElement> arguments;
@@ -34,7 +39,7 @@ public class BindMethod {
 
     private BindClass injectClass;
 
-    public BindMethod(BindClass injectClass, ExecutableElement executableElement) {
+    /*package*/ BindMethod(BindClass injectClass, ExecutableElement executableElement) {
         this.injectClass = injectClass;
         String methodName = executableElement.getSimpleName().toString();
         TypeMirror returnType = executableElement.getReturnType();
@@ -62,142 +67,90 @@ public class BindMethod {
 
     }
 
-    public String brewJava() throws Exception{
-        StringBuilder sb = new StringBuilder("@Override public ");
+    MethodSpec brewMethod() throws Exception{
+        MethodSpec.Builder result = MethodSpec.methodBuilder(methodName);
+        result.addModifiers(Modifier.PUBLIC);
 
         //build return type
         TypeKind returnTypeKind = returnType.getKind();
-
-        //tag object
-        String tagObj = null;
-        String responseListenerName = null;
-        Map<String, String> parameterNameMap = new LinkedHashMap<>();
-
         switch (returnTypeKind) {
             case DECLARED: {
-                sb.append("Request ");
+                result.returns(TypeName.get(Class.forName("im.wangchao.mhttp.Request")));
             } break;
             case VOID: {
-                sb.append("void ");
+                result.returns(void.class);
             } break;
             default: {
                 throw new Exception("other types are not supported");
             }
         }
 
-        sb.append(methodName + "(");
-        boolean isFirst = true;
+        Map<String, String> parameterNameMap = new LinkedHashMap<>();
+        //tag object
+        String tagObjVariableName = null;
+        String callbackVariableName = null;
 
-
-        for (VariableElement variableElement : arguments) {
-//            DeclaredType type = (DeclaredType)variableElement.asType();
-//            String typeName = type.asElement().toString();
-            String typeName = variableElement.asType().toString();
+        VariableElement variableElement;
+        for (int i = 0, len = arguments.size(); i < len; i++){
+            variableElement = arguments.get(i);
+            TypeMirror type = variableElement.asType();
             String variableName = variableElement.getSimpleName().toString();
 
             im.wangchao.http.annotations.Callback callback = variableElement.getAnnotation(im.wangchao.http.annotations.Callback.class);
             Tag t = variableElement.getAnnotation(Tag.class);
 
             if (callback != null){
-                responseListenerName = variableName;
+                callbackVariableName = variableName;
             } else if (t != null){
-                tagObj = variableName;
+                tagObjVariableName = variableName;
             } else {
                 parameterNameMap.put(variableName, variableName);
             }
 
-
-            if (!isFirst) {
-                sb.append(", ");
-            }
-
-            sb.append(typeName);
-            sb.append(" " + variableName);
-
-            if (isFirst) {
-                isFirst = false;
-            }
+            result.addParameter(TypeName.get(type), variableName);
         }
 
-        sb.append(") {\n");
-        sb.append(buildFunctionBody(parameterNameMap, responseListenerName, returnTypeKind, tagObj));
-        sb.append("}\n");
+        buildFunctionBody(result, parameterNameMap, returnTypeKind, callbackVariableName, tagObjVariableName);
 
-        return sb.toString();
+        return result.build();
     }
 
-    /**
-     * make func body
-     * @param parameters            request parameters
-     * @param responseListenerName  callback name
-     * @param returnTypeKind        return type
-     * @param tagObj                tag name
-     */
-    private String buildFunctionBody(Map<String, String> parameters, String responseListenerName, TypeKind returnTypeKind, String tagObj) {
-        StringBuilder sb = new StringBuilder();
+    private void buildFunctionBody(MethodSpec.Builder result, Map<String, String> parameters, TypeKind returnTypeKind, String callbackVariableName, String tagObjVariableName) throws Exception{
+        addRequestParams(result, parameters);
+        addHeaders(result);
+        addRequest(result, returnTypeKind, callbackVariableName, tagObjVariableName);
+    }
+
+    private void addRequestParams(MethodSpec.Builder result, Map<String, String> parameters) throws Exception{
+        // RequestParams 参数 key
         for (Map.Entry<String, String> parameter: parameters.entrySet()) {
             String name = parameter.getKey();
-
-            sb.append(" final String FIELD_" + name.toUpperCase() + " = \"");
-            sb.append(name);
-            sb.append("\";\n");
+            result.addStatement("final String FIELD_" + name.toUpperCase() + " = $S", name);
         }
 
-        //请求参数
+        ClassName requestParamsClass = ClassName.bestGuess("im.wangchao.mhttp.RequestParams");
+        // 请求参数
         if (injectClass.getParamMethod() != null
                 && injectClass.getParamMethod().length() != 0){
-            sb.append("RequestParams params = new RequestParams(" + injectClass.getParamMethod() + "());\n");
+            result.addStatement("$T params = new $T(" + injectClass.getParamMethod() + "())", requestParamsClass, requestParamsClass);
         } else {
-            sb.append("RequestParams params = new RequestParams();\n");
-        }
-//        //common
-        if (injectClass.getCommonParams() != null){
-            for (Map.Entry<String, String> parameter: injectClass.getCommonParams().entrySet()){
-                String parameterName = parameter.getKey();
-                String variableName = parameter.getValue();
-
-                sb.append("params.put(\"" + parameterName + "\", ");
-                sb.append("\"" + variableName + "\");\n");
-            }
+            result.addStatement("$T params = new $T()", requestParamsClass, requestParamsClass);
         }
 
         for (Map.Entry<String, String> parameter: parameters.entrySet()) {
             String parameterName = parameter.getKey();
             String variableName = parameter.getValue();
 
-            sb.append("params.put(FIELD_" + parameterName.toUpperCase() + ", ");
-            sb.append(variableName + ");\n");
+            result.addStatement("params.put(FIELD_" + parameterName.toUpperCase() + ", " + variableName + ")");
         }
+    }
 
-        //请求 builder
-        sb.append("Request.Builder builder = new Request.Builder();\n");
-        sb.append("builder.requestParams(params);\n");
+    private void addHeaders(MethodSpec.Builder result) throws Exception{
+        ClassName headersBuilderClass = ClassName.bestGuess("okhttp3.Headers.Builder");
 
-        if (injectClass.getContentType() != null &&
-                injectClass.getContentType().length() != 0){
-            sb.append("builder.contentType(\"" + injectClass.getContentType() + "\");\n");
-        }
-
-        if (this.url.contains("://")){
-            sb.append("builder.url(\"" + this.url + "\");\n");
-        } else {
-            sb.append("builder.url(\"" + this.injectClass.getRootURL().concat(this.url) + "\");\n");
-        }
-
-        if (this.timeout != 0){
-            sb.append("MHttp.instance().timeout(" + this.timeout + ");\n");
-        } else {
-            sb.append("MHttp.instance().timeout(" + this.injectClass.getDefaultTimeout() + ");\n");
-        }
-
-        if (tagObj != null){
-            sb.append("builder.tag(" + tagObj + ");\n");
-        } else if (this.tag != null && this.tag.toString().length() != 0){
-            sb.append("builder.tag(\"" + this.tag + "\");\n");
-        }
+        result.addStatement("$T headerBuilder = new $T()", headersBuilderClass, headersBuilderClass);
 
         //Header
-        sb.append("Headers.Builder headerBuilder = new Headers.Builder();\n");
         if (this.headers != null){
             int len = headers.length;
             if (len % 2 != 0){
@@ -206,40 +159,71 @@ public class BindMethod {
             for (int i = 0; i < len; i += 2){
                 String key = String.valueOf(headers[i]);
                 String val = String.valueOf(headers[i + 1]);
-                sb.append("headerBuilder.add(\"" + key + "\", \"" + val + "\");\n");
+                result.addStatement("headerBuilder.add($S, $S)", key, val);
             }
         }
         if (this.injectClass.getHeaders() != null){
             Map<String, Set<String>> defaultHeaders = this.injectClass.getHeaders();
-            int len = defaultHeaders.size();
             for (Map.Entry<String, Set<String>> header : defaultHeaders.entrySet()){
                 String key = header.getKey();
                 Set<String> values = header.getValue();
                 for (String val : values){
-                    sb.append("headerBuilder.add(\"" + key + "\", \"" + val + "\");\n");
+                    result.addStatement("headerBuilder.add($S, $S)", key, val);
                 }
             }
         }
-        sb.append("builder.headers(headerBuilder.build());\n");
+    }
+
+    private void addRequest(MethodSpec.Builder result, TypeKind returnTypeKind, String callbackVariableName, String tagObjVariableName) throws Exception{
+        ClassName requestBuilderClass = ClassName.bestGuess("im.wangchao.mhttp.Request.Builder");
+
+//        Class<?> requestBuilderClass = Class.forName("im.wangchao.mhttp.Request$Builder");
+        result.addStatement("$T builder = new $T()", requestBuilderClass, requestBuilderClass);
+
+        result.addStatement("builder.requestParams(params)");
+        result.addStatement("builder.headers(headerBuilder.build())");
+
+        if (injectClass.getContentType() != null &&
+                injectClass.getContentType().length() != 0){
+            result.addStatement("builder.contentType($S)", injectClass.getContentType());
+        }
+
+        if (this.url.contains("://")){
+            result.addStatement("builder.url($S)", url);
+        } else {
+            result.addStatement("builder.url($S)", this.injectClass.getRootURL().concat(this.url));
+        }
+
+        ClassName mHttpClass = ClassName.bestGuess("im.wangchao.mhttp.MHttp");
+        if (this.timeout != 0){
+            result.addStatement("$T.instance().timeout(" + this.timeout + ")", mHttpClass);
+        } else {
+            result.addStatement("$T.instance().timeout(" + this.injectClass.getDefaultTimeout() + ")", mHttpClass);
+        }
+
+        if (tagObjVariableName != null){
+            result.addStatement("builder.tag(" + tagObjVariableName + ")");
+        } else if (this.tag != null && this.tag.toString().length() != 0){
+            result.addStatement("builder.tag($S)", this.tag);
+        }
 
         //method
         if (this.httpMethod != null) {
-            sb.append("builder.method(\"" + this.httpMethod + "\");\n");
+            result.addStatement("builder.method($S)", this.httpMethod);
         }
 
-        if (responseListenerName != null) {
-            sb.append("builder.callback(" + responseListenerName + ");\n");
+        if (callbackVariableName != null) {
+            result.addStatement("builder.callback(" + callbackVariableName + ")");
         }
 
         switch (returnTypeKind){
             case DECLARED:{
-                sb.append("return builder.build();\n");
+                result.addStatement("return builder.build()");
             } break;
             case VOID:{
-                sb.append("builder.build().enqueue();\n");
+                result.addStatement("builder.build().enqueue()");
             } break;
         }
-
-        return sb.toString();
     }
+
 }

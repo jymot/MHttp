@@ -1,10 +1,16 @@
 apply plugin: 'java'
 
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
 dependencies {
     compile deps.mhttpannotations
 //    compile project(':mhttp-annotations')
     compile deps.autoservice
     compile deps.autocommon
+    compile deps.javapoet
+
+    testCompile deps.junit
 }
 
 //apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray-java.gradle'

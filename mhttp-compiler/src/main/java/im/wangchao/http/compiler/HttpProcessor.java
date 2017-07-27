@@ -4,7 +4,6 @@ import com.google.auto.service.AutoService;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,9 +26,7 @@ import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
 
-import im.wangchao.http.annotations.CommonParams;
 import im.wangchao.http.annotations.CommonParamsMethod;
 import im.wangchao.http.annotations.Get;
 import im.wangchao.http.annotations.Header;
@@ -62,7 +59,6 @@ public class HttpProcessor extends AbstractProcessor{
             RootURL.class,
             Timeout.class,
             RequestContentType.class,
-            CommonParams.class,
             Header.class,
             CommonParamsMethod.class
     );
@@ -101,13 +97,10 @@ public class HttpProcessor extends AbstractProcessor{
             BindClass bindingClass = entry.getValue();
 
             try {
-                JavaFileObject jfo = filer.createSourceFile(bindingClass.getFqcn(), typeElement);
-                Writer writer = jfo.openWriter();
-                writer.write(bindingClass.brewJava());
-                writer.flush();
-                writer.close();
+                bindingClass.brewJava(typeElement).writeTo(filer);
             } catch (Exception e) {
-                error(typeElement, "Unable to write view binder for type %s: %s", typeElement,
+                e.printStackTrace();
+                error(typeElement, "Unable to write http binder for type %s: %s", typeElement,
                         e.getMessage());
             }
         }
@@ -160,16 +153,6 @@ public class HttpProcessor extends AbstractProcessor{
                 injectClass.setDefaultTimeout(timeout);
             } catch (Exception e) {
                 logParsingError(member, Timeout.class, e);
-            }
-        }
-        // @CommonParams element.
-        else if (env.getElementsAnnotatedWith(CommonParams.class).contains(member)) {
-            try {
-                String params = member.getAnnotation(CommonParams.class).value();
-                String key = member.getSimpleName().toString();
-                injectClass.addParams(key, params);
-            } catch (Exception e) {
-                logParsingError(member, CommonParams.class, e);
             }
         }
         // @Header element.
@@ -260,14 +243,17 @@ public class HttpProcessor extends AbstractProcessor{
     private BindClass getOrCreateTargetClass(Map<TypeElement, BindClass> targetClassMap, TypeElement enclosingElement) {
         BindClass injector = targetClassMap.get(enclosingElement);
         if (injector == null) {
+            // super class name
             String targetType = enclosingElement.getQualifiedName().toString();
             String classPackage = getPackageName(enclosingElement);
+            // 需要生成的 class name
             String className = getClassName(enclosingElement, classPackage) + SUFFIX;
 
-            TypeMirror elementType = enclosingElement.asType();
-            boolean isInterface = isInterface(elementType);
+            // super class
+            TypeMirror superClassType = enclosingElement.asType();
+            boolean isInterface = isInterface(superClassType);
 
-            injector = new BindClass(classPackage, className, targetType, isInterface);
+            injector = new BindClass(classPackage, className, superClassType, isInterface);
             targetClassMap.put(enclosingElement, injector);
         }
         return injector;
