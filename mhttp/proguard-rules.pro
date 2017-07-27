@@ -17,7 +17,7 @@
 #}
 -keep class im.wangchao.** { *; }
 -dontwarn im.wangchao.**
--keep class **$$HttpBinder { *; }
+-keep class **_HttpBinder { *; }
 -keepclasseswithmembernames class * {
     @im.wangchao.* <fields>;
 }

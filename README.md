@@ -10,7 +10,7 @@ ProGuard rules now ship inside of the library and are included automatically.
 ```java
     -keep class im.wangchao.** { *; }
     -dontwarn im.wangchao.**
-    -keep class **$$HttpBinder { *; }
+    -keep class **_HttpBinder { *; }
     -keepclasseswithmembernames class * {
         @im.wangchao.* <fields>;
     }
