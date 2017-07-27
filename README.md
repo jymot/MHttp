@@ -233,7 +233,7 @@ Please set before calling the request.
 - Email:  magician.of.technique@aliyun.com
 
 ### TODO
-- optmize
+- optmize annotation
 
 ### License
 
