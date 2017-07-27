@@ -15,8 +15,11 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keep class im.wangchao.** { *; }
 -dontwarn im.wangchao.**
+-dontwarn okio.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+-keep class im.wangchao.** { *; }
 -keep class **_HttpBinder { *; }
 -keepclasseswithmembernames class * {
     @im.wangchao.* <fields>;

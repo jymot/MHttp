@@ -49,7 +49,7 @@ public class RequestParams{
     private String contentEncoding  = UTF_8_STR;
 
     public RequestParams(){
-        this((Map<String, String>)null);
+        this((Map<String, Object>)null);
     }
 
     public RequestParams(Map<String, Object> params){

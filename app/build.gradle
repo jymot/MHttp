@@ -17,9 +17,18 @@ android {
 //            enabled true
 //        }
     }
+    signingConfigs {
+        release {
+            storeFile file("./lakala_test.jks")
+            storePassword "lakala123"
+            keyAlias "lakala_alias"
+            keyPassword "lakala123"
+        }
+    }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
@@ -45,8 +54,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:design:25.3.1'
 
-    annotationProcessor 'im.wangchao:mhttp-compiler:0.5.0'
-    compile 'im.wangchao:mhttp:1.8.2'
+    annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
+    compile 'im.wangchao:mhttp:1.8.3'
 //    annotationProcessor project(':mhttp-compiler')
 //    compile project(':mhttp')
 }
