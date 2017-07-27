@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Description  : RequestParams.</p>
- * <p/>
+ * <p>Description  : CommonParamsMethod.
+ *                   method name will return Map(String, Object) </p>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/11/2.</p>
  * <p>Time         : 下午8:23.</p>
