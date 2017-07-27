@@ -22,7 +22,7 @@ import javax.lang.model.type.TypeMirror;
  */
 /*package*/ class BindClass {
     private final String classPackage;
-    public final String className;
+    private final String className;
     private final TypeMirror superClassType;
     private final boolean isInterface;
     private final Set<BindMethod> methods = new LinkedHashSet<>();

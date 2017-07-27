@@ -52,9 +52,9 @@ public class RequestParams{
         this((Map<String, String>)null);
     }
 
-    public RequestParams(Map<String, String> params){
+    public RequestParams(Map<String, Object> params){
         if (params != null){
-            for(Map.Entry<String, String> entry : params.entrySet()){
+            for(Map.Entry<String, Object> entry : params.entrySet()){
                 put(entry.getKey(), entry.getValue());
             }
         }

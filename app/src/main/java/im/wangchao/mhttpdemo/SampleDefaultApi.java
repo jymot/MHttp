@@ -26,8 +26,8 @@ public abstract class SampleDefaultApi {
     @Header("Android") String User_Agent;
 
     @CommonParamsMethod
-    public Map<String, String> getCommonParams() {
-        Map<String, String> params = new HashMap<>();
+    public Map<String, Object> getCommonParams() {
+        Map<String, Object> params = new HashMap<>();
         // TODO: 15/12/4 Common params
         return params;
     }

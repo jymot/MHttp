@@ -36,4 +36,4 @@ dependencies {
     compile deps.mhttpannotations
 }
 
-apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
+//apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
