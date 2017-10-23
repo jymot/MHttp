@@ -24,8 +24,8 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    testCompile deps.junit
-    compile deps.appcompatv7
-    provided deps.rxjava
-    provided project(':mhttp')
+    testImplementation deps.junit
+    implementation deps.appcompatv7
+    compileOnly deps.rxjava
+    compileOnly project(':mhttp')
 }

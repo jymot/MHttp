@@ -4,13 +4,13 @@ sourceCompatibility = rootProject.ext.sourceCompatibilityVersion
 targetCompatibility = rootProject.ext.targetCompatibilityVersion
 
 dependencies {
-    compile deps.mhttpannotations
-//    compile project(':mhttp-annotations')
-    compile deps.autoservice
-    compile deps.autocommon
-    compile deps.javapoet
+    implementation deps.mhttpannotations
+//    implementation project(':mhttp-annotations')
+    implementation deps.autoservice
+    implementation deps.autocommon
+    implementation deps.javapoet
 
-    testCompile deps.junit
+    testImplementation deps.junit
 }
 
 //apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray-java.gradle'

@@ -10,6 +10,11 @@ android {
         consumerProguardFiles 'proguard-rules.pro'
         versionCode 1
         versionName PROJ_VERSION
+        javaCompileOptions {
+            annotationProcessorOptions {
+                includeCompileClasspath = true
+            }
+        }
     }
     buildTypes {
         release {
@@ -31,10 +36,10 @@ android {
 }
 
 dependencies {
-    provided deps.appcompatv7
-    compile deps.okhttp
-    compile deps.mhttpannotations
-//    compile project(':mhttp-annotations')
+    compileOnly deps.appcompatv7
+    implementation deps.okhttp
+    implementation deps.mhttpannotations
+//    implementation project(':mhttp-annotations')
 }
 
-//apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
+apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'

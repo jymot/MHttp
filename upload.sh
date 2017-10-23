@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 source ~/.bash_profile
-gradle bintrayUpload --stacktrace
+#gradle bintrayUpload --stacktrace
+./gradlew bintrayUpload --stacktrace
