@@ -5,6 +5,8 @@ okhttp wrapper for Android Http.
   compile 'im.wangchao:mhttp:1.8.6'
   annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
 ```
+you can use `implementation` replace of `compile`.
+
 ### PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
 ```java
