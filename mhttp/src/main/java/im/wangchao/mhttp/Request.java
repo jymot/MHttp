@@ -205,17 +205,17 @@ public final class Request {
         }
 
         public Builder url(HttpUrl url) {
-            mRawBuilder.url(url);
+            mRawBuilder.url(MHttp.instance().proceedURL(url));
             return this;
         }
 
         public Builder url(String url) {
-            mRawBuilder.url(url);
+            mRawBuilder.url(MHttp.instance().proceedURL(url));
             return this;
         }
 
         public Builder url(URL url) {
-            mRawBuilder.url(url);
+            mRawBuilder.url(MHttp.instance().proceedURL(url));
             return this;
         }
 

@@ -5,11 +5,13 @@ import android.os.Build;
 import android.os.StatFs;
 
 import java.io.File;
+import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 import im.wangchao.mhttp.internal.MBridgeInterceptor;
 import okhttp3.Cache;
 import okhttp3.Call;
+import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 
 /**
@@ -22,6 +24,7 @@ public final class MHttp {
     private static volatile MHttp instance;
 
     private OkHttpClient mOkHttpClient;
+    private URLInterceptor mURLInterceptor;
 
     public static MHttp instance(){
         if (instance == null) {
@@ -38,6 +41,38 @@ public final class MHttp {
     public static <T> T create(Class<T> api){
         return BindApi.bind(api);
     }
+
+    /**
+     * Set cache Dir
+     */
+    public static void cache(Context context, OkHttpClient.Builder builder, String dirName) {
+        File cache = new File(context.getApplicationContext().getCacheDir(), dirName);
+        if (!cache.exists()) {
+            //noinspection ResultOfMethodCallIgnored
+            cache.mkdirs();
+        }
+        long size = 5 * 1024 * 1024;
+        try {
+            StatFs statFs = new StatFs(cache.getAbsolutePath());
+            long count, blockSize;
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1){
+                count = statFs.getBlockCountLong();
+                blockSize = statFs.getBlockSizeLong();
+            } else {
+                count = statFs.getBlockCount();
+                blockSize = statFs.getBlockSize();
+            }
+            long available = count * blockSize;
+            // Target 2% of the total space.
+            size = available / 50;
+        } catch (IllegalArgumentException ignored) {
+        }
+        // Bound inside min/max size for disk cache.
+        size = Math.max(Math.min(size, size * 10), size);
+
+        builder.cache(new Cache(cache, size)).build();
+    }
+
 
     /**
      * OkHttpClient
@@ -86,6 +121,11 @@ public final class MHttp {
         return this;
     }
 
+    public MHttp setURLInterceptor(URLInterceptor interceptor){
+        this.mURLInterceptor = interceptor;
+        return this;
+    }
+
     /**
      * Cancel all request.
      */
@@ -111,35 +151,25 @@ public final class MHttp {
         return this;
     }
 
-    /**
-     * Set cache Dir
-     */
-    public static void cache(Context context, OkHttpClient.Builder builder, String dirName) {
-        File cache = new File(context.getApplicationContext().getCacheDir(), dirName);
-        if (!cache.exists()) {
-            //noinspection ResultOfMethodCallIgnored
-            cache.mkdirs();
+    /*package*/ String proceedURL(String url){
+        if (mURLInterceptor != null){
+            return mURLInterceptor.interceptor(url);
         }
-        long size = 5 * 1024 * 1024;
-        try {
-            StatFs statFs = new StatFs(cache.getAbsolutePath());
-            long count, blockSize;
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR1){
-                count = statFs.getBlockCountLong();
-                blockSize = statFs.getBlockSizeLong();
-            } else {
-                count = statFs.getBlockCount();
-                blockSize = statFs.getBlockSize();
-            }
-            long available = count * blockSize;
-            // Target 2% of the total space.
-            size = available / 50;
-        } catch (IllegalArgumentException ignored) {
-        }
-        // Bound inside min/max size for disk cache.
-        size = Math.max(Math.min(size, size * 10), size);
+        return url;
+    }
 
-        builder.cache(new Cache(cache, size)).build();
+    /*package*/ HttpUrl proceedURL(HttpUrl url){
+        if (mURLInterceptor != null){
+            return mURLInterceptor.interceptor(url);
+        }
+        return url;
+    }
+
+    /*package*/ URL proceedURL(URL url){
+        if (mURLInterceptor != null){
+            return mURLInterceptor.interceptor(url);
+        }
+        return url;
     }
 
     //@private
