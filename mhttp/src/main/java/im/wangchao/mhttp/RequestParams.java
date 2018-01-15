@@ -83,9 +83,9 @@ public class RequestParams{
     }
 
     RequestBody requestBody(MediaType mediaType){
-        if (isEmpty()){
-            return null;
-        }
+//        if (isEmpty()){
+//            return null;
+//        }
 
         if (isJSON(mediaType)){
             Charset charset = mediaType.charset();
