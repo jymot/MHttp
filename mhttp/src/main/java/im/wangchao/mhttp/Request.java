@@ -388,7 +388,9 @@ public final class Request {
                     mRawRequest = mRawBuilder.build();
                     break;
                 default:
-                    mRawBuilder.method(mMethod, mRequestParams.requestBody(mMediaType));
+                    // inject callback if exist.
+                    mRawBuilder.method(mMethod, mRequestParams.requestBody(mMediaType,
+                            (mCallback instanceof AbsCallbackHandler ? (AbsCallbackHandler) mCallback : null)));
                     mRawRequest = mRawBuilder.build();
                     break;
             }

@@ -74,12 +74,14 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
     /** Working thread depends on {@link #mExecutor}, default UI. */
     protected void onProgress(int bytesWritten, int bytesTotal){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
+    protected void onUploadProgress(int bytesWritten, int bytesTotal){}
+    /** Working thread depends on {@link #mExecutor}, default UI. */
     protected void onFinish(){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
     protected void onFinally(Response response){}
 
 
-    @Override final public void onFailure(Call call, IOException e) {
+    @Override final public void onFailure(@NonNull Call call, @NonNull IOException e) {
         if (call.isCanceled()){
             sendCancelEvent();
             return;
@@ -95,7 +97,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         sendFinallyEvent(response);
     }
 
-    @Override final public void onResponse(Call call, okhttp3.Response response) throws IOException {
+    @Override final public void onResponse(@NonNull Call call, @NonNull okhttp3.Response response) throws IOException {
         if (call.isCanceled()){
             response.close();
             sendCancelEvent();
@@ -173,73 +175,60 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         return this.request;
     }
 
-    /*package*/ final protected void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
-        execute(new Runnable() {
-            @Override public void run() {
-                try {
-                    onProgress(bytesWritten, bytesTotal);
-                } catch (Throwable t) {
-                    //Silent
-                }
+    /*package*/ final public void sendUploadProgressEvent(final int bytesWritten, final int bytesTotal) {
+        execute(()->{
+            try {
+                onUploadProgress(bytesWritten, bytesTotal);
+            } catch (Throwable t) {
+                //Silent
+            }
+        });
+    }
+
+    /*package*/ final public void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
+        execute(()->{
+            try {
+                onProgress(bytesWritten, bytesTotal);
+            } catch (Throwable t) {
+                //Silent
             }
         });
     }
 
     /*package*/ final void sendSuccessEvent(final Parser_Type data, final Response response) {
-        execute(new Runnable() {
-            @Override public void run() {
-                onSuccess(data, response);
-            }
-        });
+        execute(() -> onSuccess(data, response));
     }
 
     /*package*/ final void sendFailureEvent(final Response response, @Nullable final Throwable throwable) {
-        execute(new Runnable() {
-            @Override public void run() {
-                onFailure(response, throwable);
-            }
-        });
+        execute(() -> onFailure(response, throwable));
     }
 
     /*package*/ final void sendStartEvent() {
-        final Runnable r = new Runnable() {
-            @Override public void run() {
-                onStart();
-            }
-        };
         if (request.callbackThreadMode() == ThreadMode.BACKGROUND){
-            DEFAULT_EXECUTOR_SERVICE.execute(r);
+            DEFAULT_EXECUTOR_SERVICE.execute(this::onStart);
         } else {
-            execute(r);
+            execute(this::onStart);
         }
     }
 
     /*package*/ final void sendFinishEvent() {
-        execute(new Runnable() {
-            @Override public void run() {
-                AbsCallbackHandler.this.isFinished = true;
-                onFinish();
-            }
+        execute(() -> {
+            AbsCallbackHandler.this.isFinished = true;
+            onFinish();
         });
     }
 
     /*package*/ final void sendFinallyEvent(final Response response) {
-        execute(new Runnable() {
-            @Override public void run() {
-                onFinally(response);
-            }
-        });
+        execute(() -> onFinally(response));
     }
 
     /*package*/ final synchronized void sendCancelEvent() {
         if (isCanceled){
             return;
         }
-        execute(new Runnable() {
-            @Override public void run() {
-                AbsCallbackHandler.this.isCanceled = true;
-                onCancel();
-            }
+        execute(() -> {
+            AbsCallbackHandler.this.isCanceled = true;
+            onCancel();
         });
     }
 

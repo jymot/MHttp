@@ -48,7 +48,7 @@ android {
 }
 
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
     androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
@@ -57,8 +57,10 @@ dependencies {
     implementation 'com.android.support:design:25.3.1'
 
 //    annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
-    implementation 'im.wangchao:mhttp:1.8.6'
+    implementation 'im.wangchao:mhttp:1.9.0'
+//    implementation project(':mhttp')
     annotationProcessor project(':mhttp-compiler')
-//    compile project(':mhttp')
+//    implementation deps.okhttp
+//    implementation deps.mhttpannotations
 }
 

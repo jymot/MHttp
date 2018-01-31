@@ -12,13 +12,6 @@ import okhttp3.Response;
  * <p>Time         : 上午10:16.</p>
  */
 public interface Callback extends okhttp3.Callback {
-    int START_MESSAGE      = 0;
-    int PROGRESS_MESSAGE   = 1;
-    int SUCCESS_MESSAGE    = 2;
-    int FAILURE_MESSAGE    = 3;
-    int FINISH_MESSAGE     = 4;
-    int FINALLY_MESSAGE    = 5;
-    int CANCEL_MESSAGE     = 6;
 
     Callback EMPTY = new Callback() {
         @Override public void initialize(Request request) {}

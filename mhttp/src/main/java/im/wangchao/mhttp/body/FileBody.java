@@ -1,5 +1,6 @@
 package im.wangchao.mhttp.body;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.io.File;
@@ -40,7 +41,7 @@ public final class FileBody extends RequestBody{
         return file.length();
     }
 
-    @Override public void writeTo(BufferedSink sink) throws IOException {
+    @Override public void writeTo(@NonNull BufferedSink sink) throws IOException {
         Source source = null;
         try {
             source = Okio.source(file);

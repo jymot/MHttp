@@ -22,6 +22,7 @@ import im.wangchao.mhttp.body.FileBody;
 import im.wangchao.mhttp.body.JSONBody;
 import im.wangchao.mhttp.body.MediaTypeUtils;
 import im.wangchao.mhttp.body.OctetStreamBody;
+import im.wangchao.mhttp.body.ProgressRequestBody;
 import okhttp3.FormBody;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
@@ -82,11 +83,7 @@ public class RequestParams{
         this.contentEncoding = params.contentEncoding();
     }
 
-    RequestBody requestBody(MediaType mediaType){
-//        if (isEmpty()){
-//            return null;
-//        }
-
+    RequestBody requestBody(MediaType mediaType, AbsCallbackHandler callback){
         if (isJSON(mediaType)){
             Charset charset = mediaType.charset();
             if (charset == null){
@@ -111,14 +108,23 @@ public class RequestParams{
                     okhttp3.Headers.of("Content-Disposition",
                             String.format("form-data;name=\"%s\";filename=\"%s\"", streamEntry.getKey(), streamEntry.getValue().name),
                             "Content-Transfer-Encoding", "binary"),
-                    new OctetStreamBody(streamEntry.getValue().inputStream, streamEntry.getValue().contentType));
+                    uploadProgressRequestBody(
+                            new OctetStreamBody(streamEntry.getValue().inputStream, streamEntry.getValue().contentType),
+                            callback));
         }
         //file
         for (Map.Entry<String, RequestParams.FileWrapper> file: fileParams.entrySet()){
-            builder.addPart(new FileBody(file.getValue().file, file.getValue().contentType));
+            builder.addPart(uploadProgressRequestBody(
+                    new FileBody(file.getValue().file, file.getValue().contentType),
+                    callback
+            ));
         }
 
         return builder.build();
+    }
+
+    private ProgressRequestBody uploadProgressRequestBody(RequestBody requestBody, AbsCallbackHandler callback){
+        return new ProgressRequestBody(requestBody, callback);
     }
 
     private FormBody formBody(){

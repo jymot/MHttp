@@ -2,7 +2,7 @@
 okhttp wrapper for Android Http.
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.8.8'
+  compile 'im.wangchao:mhttp:1.9.1'
   annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
 ```
 you can use `implementation` replace of `compile`.

@@ -6,7 +6,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.0'
+        classpath 'com.android.tools.build:gradle:3.0.1'
         //jcenter push
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.0'
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
@@ -46,7 +46,7 @@ ext.deps = [
 
         // Square
         javapoet          : 'com.squareup:javapoet:1.9.0',
-        okhttp            : 'com.squareup.okhttp3:okhttp:3.8.1',
+        okhttp            : 'com.squareup.okhttp3:okhttp:3.9.1',
 
         // Test dependencies
         junit             : 'junit:junit:4.12',

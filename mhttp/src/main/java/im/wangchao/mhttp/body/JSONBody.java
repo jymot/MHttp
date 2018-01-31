@@ -1,5 +1,6 @@
 package im.wangchao.mhttp.body;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import java.io.IOException;
@@ -42,7 +43,7 @@ public final class JSONBody extends RequestBody{
         return bytes.length;
     }
 
-    @Override public void writeTo(BufferedSink sink) throws IOException {
+    @Override public void writeTo(@NonNull BufferedSink sink) throws IOException {
         sink.write(bytes, 0, bytes.length);
     }
 
