@@ -70,7 +70,7 @@ public final class MHttp {
         // Bound inside min/max size for disk cache.
         size = Math.max(Math.min(size, size * 10), size);
 
-        builder.cache(new Cache(cache, size)).build();
+        builder.cache(new Cache(cache, size));
     }
 
 

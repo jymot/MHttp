@@ -19,7 +19,7 @@ import im.wangchao.mhttp.callback.TextCallbackHandler;
 public class GetExample {
 
     public static Request doNormalRequest(){
-        return Request.builder().url("http://wangchao.im")
+        return Request.builder().url("https://www.baidu.com")
                 .callback(new TextCallbackHandler(){
                     @Override protected void onSuccess(String data, Response response) {
                         Log.e(MainActivity.TAG, "normal : " + data);
@@ -47,7 +47,7 @@ public class GetExample {
     }
 
     public interface GetBaidu{
-        @Get(url = "http://wangchao.im")
+        @Get(url = "https://www.baidu.com")
         void baidu(@Callback TextCallbackHandler callback);
     }
 }

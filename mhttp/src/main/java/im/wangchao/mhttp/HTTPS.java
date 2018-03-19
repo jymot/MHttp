@@ -25,7 +25,27 @@ import okhttp3.internal.Util;
  * <p>Date         : 16/9/2.</p>
  * <p>Time         : 下午3:58.</p>
  */
-public class HTTPS {
+public final class HTTPS {
+
+    /**
+     * Trust all certificate for debug
+     */
+    public static void trustAllCertificate(OkHttpClient.Builder builder) {
+        // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
+        final X509TrustManager trustAllCert =
+                new X509TrustManager() {
+                    @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                };
+        builder.sslSocketFactory(new Android5SSL(trustAllCert), trustAllCert);
+    }
 
     /**
      * Set Certificate
@@ -42,8 +62,9 @@ public class HTTPS {
             KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
             SSLContext sslContext = SSLContext.getInstance("TLS");
 
-            sslContext.init(keyManagers, new TrustManager[]{new MyTrustManager(chooseTrustManager(trustManagers))}, new SecureRandom());
-            builder.sslSocketFactory(sslContext.getSocketFactory()).build();
+            MyTrustManager trustManager = new MyTrustManager(chooseTrustManager(trustManagers));
+            sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
+            builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
     }
 
     private static TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {

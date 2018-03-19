@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         doRequest.setOnClickListener(this);
         cancel.setOnClickListener(this);
 
+        Cache.setCacheDir(this);
+
         //Get
 //        GetExample.doNormalRequest();
 //        GetExample.doAnnotationRequest();
@@ -45,7 +47,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (v.getId()){
             case R.id.doRequest:
                 request = GetExample.doNormalRequest();
-                GetExample.doAnnotationRequest();
+//                GetExample.doAnnotationRequest();
                 break;
             case R.id.cancel:
                 if (request != null){
