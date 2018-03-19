@@ -34,7 +34,6 @@ public final class Request {
     private final okhttp3.Request mRawRequest;
     private final RequestParams mRequestParams;
     private final Callback mCallback;
-    private final int mTimeout;
     private final MediaType mMediaType;
     private final Executor mExecutor;
     private final ThreadMode mThreadMode;
@@ -45,7 +44,6 @@ public final class Request {
         mRawRequest = builder.mRawRequest;
         mRequestParams = builder.mRequestParams;
         mCallback = builder.mCallback;
-        mTimeout = builder.mTimeout;
         mMediaType = builder.mMediaType;
         mExecutor = builder.mExecutor;
         mThreadMode = builder.mThreadMode;
@@ -103,10 +101,6 @@ public final class Request {
         return mRawRequest.isHttps();
     }
 
-    public int timeout() {
-        return mTimeout;
-    }
-
     /**
      * The executor used for {@link Callback} methods on which thread work.
      */
@@ -129,8 +123,6 @@ public final class Request {
      * Send the async request.
      */
     public Request enqueue(){
-        MHttp.instance().timeout(timeout());
-
         Callback callback = callback();
         callback.initialize(this);
         if (callback instanceof AbsCallbackHandler){
@@ -144,7 +136,6 @@ public final class Request {
      * Send the sync request.
      */
     public Response execute() throws IOException {
-        MHttp.instance().timeout(timeout());
         return Response.newResponse(this, rawCall().execute());
     }
 
@@ -178,7 +169,6 @@ public final class Request {
         okhttp3.Request.Builder mRawBuilder;
         RequestParams mRequestParams;
         Callback mCallback;
-        int mTimeout;
         String mMethod;
         MediaType mMediaType;
         Executor mExecutor;
@@ -189,7 +179,6 @@ public final class Request {
             mMethod = Method.GET;
             mRawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
-            mTimeout = 30;
             mThreadMode = ThreadMode.MAIN;
 
         }
@@ -199,7 +188,6 @@ public final class Request {
             mMethod = request.method();
             mRequestParams = request.mRequestParams;
             mRawBuilder = request.mRawRequest.newBuilder();
-            mTimeout = request.mTimeout;
             mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
         }
@@ -279,6 +267,14 @@ public final class Request {
         /**
          * Simple to add request parameter
          */
+        public Builder addParameter(String key, InputStream stream, String name){
+            mRequestParams.put(key, stream, name);
+            return this;
+        }
+
+        /**
+         * Simple to add request parameter
+         */
         public Builder addParameter(String key, InputStream stream, String name, String contentType){
             mRequestParams.put(key, stream, name, contentType);
             return this;
@@ -318,11 +314,6 @@ public final class Request {
             return this;
         }
 
-        public Builder timeout(int timeout){
-            this.mTimeout = timeout;
-            return this;
-        }
-
         public Builder callbackExecutor(Executor executor){
             mExecutor = executor;
             return this;
@@ -351,8 +342,6 @@ public final class Request {
         }
 
         public Request build() {
-            MHttp.instance().timeout(mTimeout);
-
             if (mMediaType == null){
                 // judgment request header
                 List<String> headers = mRawBuilder.build().headers("Content-Type");

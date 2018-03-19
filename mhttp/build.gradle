@@ -37,7 +37,7 @@ android {
 
 dependencies {
     compileOnly deps.appcompatv7
-    implementation deps.okhttp
+    compileOnly deps.okhttp
     implementation deps.mhttpannotations
 //    implementation project(':mhttp-annotations')
 }

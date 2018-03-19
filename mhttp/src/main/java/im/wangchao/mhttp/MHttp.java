@@ -100,9 +100,14 @@ public final class MHttp {
      * Set connect, read and write time with {@link TimeUnit#SECONDS}
      */
     public MHttp timeout(int timeout){
-        connectTimeout(timeout, TimeUnit.SECONDS);
-        readTimeout(timeout, TimeUnit.SECONDS);
-        writeTimeout(timeout, TimeUnit.SECONDS);
+        timeout(timeout, TimeUnit.SECONDS);
+        return this;
+    }
+
+    public MHttp timeout(int timeout, TimeUnit unit){
+        connectTimeout(timeout, unit);
+        readTimeout(timeout, unit);
+        writeTimeout(timeout, unit);
         return this;
     }
 
