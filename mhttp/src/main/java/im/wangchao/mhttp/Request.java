@@ -180,7 +180,6 @@ public final class Request {
             mRawBuilder = new okhttp3.Request.Builder();
             mRequestParams = new RequestParams();
             mThreadMode = ThreadMode.MAIN;
-
         }
 
         private Builder(Request request) {
