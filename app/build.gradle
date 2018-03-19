@@ -60,7 +60,5 @@ dependencies {
 //    implementation 'im.wangchao:mhttp:1.9.0'
     implementation project(':mhttp')
     annotationProcessor project(':mhttp-compiler')
-    implementation deps.okhttp
-//    implementation deps.mhttpannotations
 }
 
