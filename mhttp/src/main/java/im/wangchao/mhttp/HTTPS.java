@@ -25,12 +25,12 @@ import okhttp3.internal.Util;
  * <p>Date         : 16/9/2.</p>
  * <p>Time         : 下午3:58.</p>
  */
-public final class HTTPS {
+/*package*/ final class HTTPS {
 
     /**
      * Trust all certificate for debug
      */
-    public static void trustAllCertificate(OkHttpClient.Builder builder) {
+    /*package*/ static void trustAllCertificate(OkHttpClient.Builder builder) {
         // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
         final X509TrustManager trustAllCert =
                 new X509TrustManager() {
@@ -50,14 +50,14 @@ public final class HTTPS {
     /**
      * Set Certificate
      */
-    public static void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception {
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception {
         setCertificates(builder, certificates, null, null);
     }
 
     /**
      * Set Certificate
      */
-    public static void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
             TrustManager[] trustManagers = prepareTrustManager(certificates);
             KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
             SSLContext sslContext = SSLContext.getInstance("TLS");
@@ -67,7 +67,7 @@ public final class HTTPS {
             builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
     }
 
-    private static TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {
+    /*package*/ static TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {
         if (certificates == null || certificates.length <= 0) return null;
 
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
@@ -86,7 +86,7 @@ public final class HTTPS {
         return trustManagerFactory.getTrustManagers();
     }
 
-    private static KeyManager[] prepareKeyManager(InputStream bksFile, String password) throws Exception{
+    /*package*/ static KeyManager[] prepareKeyManager(InputStream bksFile, String password) throws Exception{
         if (bksFile == null || password == null) return null;
 
         KeyStore clientKeyStore = KeyStore.getInstance("BKS");
@@ -96,7 +96,7 @@ public final class HTTPS {
         return keyManagerFactory.getKeyManagers();
     }
 
-    private static X509TrustManager chooseTrustManager(TrustManager[] trustManagers) {
+    /*package*/ static X509TrustManager chooseTrustManager(TrustManager[] trustManagers) {
         for (TrustManager trustManager : trustManagers) {
             if (trustManager instanceof X509TrustManager) {
                 return (X509TrustManager) trustManager;
@@ -106,11 +106,11 @@ public final class HTTPS {
     }
 
     /*                  X509TrustManager                  */
-    private static class MyTrustManager implements X509TrustManager {
+    /*package*/ static class MyTrustManager implements X509TrustManager {
         private X509TrustManager defaultTrustManager;
         private X509TrustManager localTrustManager;
 
-        public MyTrustManager(X509TrustManager localTrustManager) throws NoSuchAlgorithmException, KeyStoreException {
+        /*package*/ MyTrustManager(X509TrustManager localTrustManager) throws NoSuchAlgorithmException, KeyStoreException {
             TrustManagerFactory var4 = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             var4.init((KeyStore) null);
             defaultTrustManager = chooseTrustManager(var4.getTrustManagers());
