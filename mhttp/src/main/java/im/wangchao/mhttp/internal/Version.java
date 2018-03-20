@@ -14,6 +14,10 @@ public class Version {
     }
 
     public static String userAgent() {
-        return "MHttp/" + BuildConfig.VERSION_NAME;
+        return moduleName().concat(BuildConfig.VERSION_NAME);
+    }
+
+    public static String moduleName() {
+        return "mhttp";
     }
 }

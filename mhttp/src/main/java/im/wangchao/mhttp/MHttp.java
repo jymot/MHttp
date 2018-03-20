@@ -3,6 +3,7 @@ package im.wangchao.mhttp;
 import android.content.Context;
 import android.os.Build;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 
 import java.io.File;
 import java.io.InputStream;
@@ -16,7 +17,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import im.wangchao.mhttp.internal.MBridgeInterceptor;
+import im.wangchao.mhttp.internal.interceptor.HttpLoggingInterceptor;
+import im.wangchao.mhttp.internal.interceptor.MBridgeInterceptor;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -35,8 +37,10 @@ import static im.wangchao.mhttp.HTTPS.prepareTrustManager;
 public final class MHttp {
     private static volatile MHttp instance;
 
-    private OkHttpClient mOkHttpClient;
+    private OkHttpClient.Builder mOkBuilder;
+    private OkHttpClient mInnerClient;
     private URLInterceptor mURLInterceptor;
+    private HttpLoggingInterceptor.Level mLogLevel = HttpLoggingInterceptor.Level.NONE;
 
     public static MHttp instance(){
         if (instance == null) {
@@ -54,10 +58,21 @@ public final class MHttp {
         return BindApi.bind(api);
     }
 
+
+
+    /**
+     * OkHttpClient
+     */
+    public MHttp customOkHttpClient(@NonNull OkHttpClient client){
+        mOkBuilder = client.newBuilder()
+                .addInterceptor(MBridgeInterceptor.instance.get());
+        return this;
+    }
+
     /**
      * Set cache Dir
      */
-    public static void cache(Context context, OkHttpClient.Builder builder, String dirName) {
+    public MHttp cache(Context context, String dirName) {
         File cache = new File(context.getApplicationContext().getCacheDir(), dirName);
         if (!cache.exists()) {
             //noinspection ResultOfMethodCallIgnored
@@ -82,69 +97,8 @@ public final class MHttp {
         // Bound inside min/max size for disk cache.
         size = Math.max(Math.min(size, size * 10), size);
 
-        builder.cache(new Cache(cache, size));
-    }
-
-    /**
-     * Trust all certificate for debug
-     */
-    public static void trustAllCertificate(OkHttpClient.Builder builder){
-        // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
-        final X509TrustManager trustAllCert =
-                new X509TrustManager() {
-                    @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                };
-        builder.sslSocketFactory(new Android5SSL(trustAllCert), trustAllCert);
-    }
-
-    /**
-     * Set Certificate
-     */
-    public static void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception{
-        setCertificates(builder, certificates, null, null);
-    }
-
-    /**
-     * Set Certificate
-     */
-    public static void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
-        TrustManager[] trustManagers = prepareTrustManager(certificates);
-        KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
-        SSLContext sslContext = SSLContext.getInstance("TLS");
-
-        HTTPS.MyTrustManager trustManager = new HTTPS.MyTrustManager(chooseTrustManager(trustManagers));
-        sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
-        builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
-    }
-
-    /**
-     * OkHttpClient
-     */
-    public MHttp client(OkHttpClient client){
-        OkHttpClient.Builder builder = client.newBuilder();
-        if (!builder.interceptors().contains(MBridgeInterceptor.instance.get())){
-            builder.addInterceptor(MBridgeInterceptor.instance.get());
-        }
-        mOkHttpClient = builder.build();
+        mOkBuilder.cache(new Cache(cache, size));
         return this;
-    }
-
-    /**
-     * @return Current client.
-     */
-    public OkHttpClient client(){
-        if (mOkHttpClient == null){
-            throw new IllegalArgumentException("OkHttpClient cannot be null, please call the MHttp#client(OkHttpClient client) method first.");
-        }
-        return mOkHttpClient;
     }
 
     /**
@@ -163,17 +117,17 @@ public final class MHttp {
     }
 
     public MHttp connectTimeout(long timeout, TimeUnit unit){
-        mOkHttpClient = mOkHttpClient.newBuilder().connectTimeout(timeout, unit).build();
+        mOkBuilder.connectTimeout(timeout, unit);
         return this;
     }
 
     public MHttp readTimeout(long timeout, TimeUnit unit){
-        mOkHttpClient = mOkHttpClient.newBuilder().readTimeout(timeout, unit).build();
+        mOkBuilder.readTimeout(timeout, unit);
         return this;
     }
 
     public MHttp writeTimeout(long timeout, TimeUnit unit){
-        mOkHttpClient = mOkHttpClient.newBuilder().writeTimeout(timeout, unit).build();
+        mOkBuilder.writeTimeout(timeout, unit);
         return this;
     }
 
@@ -183,10 +137,67 @@ public final class MHttp {
     }
 
     /**
+     * Trust all certificate for debug
+     */
+    public MHttp trustAllCertificate(){
+        // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
+        final X509TrustManager trustAllCert =
+                new X509TrustManager() {
+                    @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+
+                    @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                        return new java.security.cert.X509Certificate[]{};
+                    }
+                };
+
+        mOkBuilder.sslSocketFactory(new Android5SSL(trustAllCert), trustAllCert);
+        return this;
+    }
+
+    /**
+     * Set Certificate
+     */
+    public MHttp setCertificates(InputStream... certificates) throws Exception{
+        return setCertificates(certificates, null, null);
+    }
+
+    /**
+     * Set Certificate
+     */
+    public MHttp setCertificates(InputStream[] certificates, InputStream bksFile, String password) throws Exception {
+        TrustManager[] trustManagers = prepareTrustManager(certificates);
+        KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+
+        HTTPS.MyTrustManager trustManager = new HTTPS.MyTrustManager(chooseTrustManager(trustManagers));
+        sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
+
+        mOkBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+        return this;
+    }
+
+    /**
+     * @return Current client.
+     */
+    public OkHttpClient client(){
+        if (mOkBuilder == null){
+            throw new IllegalArgumentException("OkHttpClient cannot be null, please call the MHttp#client(OkHttpClient client) method first.");
+        }
+        if (mInnerClient == null){
+            mInnerClient = mOkBuilder.build();
+        }
+        return mInnerClient;
+    }
+
+    /**
      * Cancel all request.
      */
     public MHttp cancelAll(){
-        mOkHttpClient.dispatcher().cancelAll();
+        client().dispatcher().cancelAll();
         return this;
     }
 
@@ -194,12 +205,12 @@ public final class MHttp {
      * Cancel request with {@code tag}
      */
     public MHttp cancel(Object tag){
-        for (Call call : mOkHttpClient.dispatcher().queuedCalls()) {
+        for (Call call : client().dispatcher().queuedCalls()) {
             if (tag.equals(call.request().tag())) {
                 call.cancel();
             }
         }
-        for (Call call : mOkHttpClient.dispatcher().runningCalls()) {
+        for (Call call : client().dispatcher().runningCalls()) {
             if (tag.equals(call.request().tag())) {
                 call.cancel();
             }
@@ -231,9 +242,8 @@ public final class MHttp {
     //@private
     private MHttp(){
         //default instance
-        mOkHttpClient = new OkHttpClient.Builder()
-                .addInterceptor(MBridgeInterceptor.instance.get())
-                .build();
+        mOkBuilder = new OkHttpClient.Builder()
+                .addInterceptor(MBridgeInterceptor.instance.get());
     }
 
 }

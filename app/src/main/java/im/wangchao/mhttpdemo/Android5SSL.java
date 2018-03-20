@@ -44,7 +44,7 @@ public class Android5SSL {
                     }
                 };
         OkHttpClient client = new OkHttpClient.Builder().sslSocketFactory(new SSL(trustAllCert), trustAllCert).build();
-        MHttp.instance().client(client);
+        MHttp.instance().customOkHttpClient(client);
     }
 
     private static class SSL extends SSLSocketFactory {

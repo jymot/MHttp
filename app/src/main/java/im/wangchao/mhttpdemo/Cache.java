@@ -20,8 +20,6 @@ public class Cache {
     public static void setCacheDir(Context context){
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
 
-        //Set Cache Dir
-        MHttp.cache(context, builder, "tempcache");
         OkHttpClient client = builder.addNetworkInterceptor(chain -> {
             log("addNetworkInterceptor!");
             Request request = chain.request();
@@ -51,7 +49,10 @@ public class Cache {
                     .build();
         }).build();
 
-        MHttp.instance().client(client);
+        //Set Cache Dir
+        MHttp.instance()
+                .customOkHttpClient(client)
+                .cache(context, "tempcache");
     }
 
     private static void log(String msg){
