@@ -49,7 +49,7 @@ import static im.wangchao.mhttp.Response.IO_EXCEPTION_CODE;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午5:56.</p>
  */
-public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Converter<Parser_Type, Response>{
+public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Converter<Response, Parser_Type>{
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
 
     public final static String  DEFAULT_CHARSET     = "UTF-8";
