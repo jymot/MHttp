@@ -10,6 +10,8 @@ import okhttp3.Protocol;
  * <p>Time         : 下午3:03.</p>
  */
 public final class Response {
+    public final static int IO_EXCEPTION_CODE   = 1000;
+
     public static Response error(Request request, int code, String message){
         if (message == null){
             message = "unknown exception.";

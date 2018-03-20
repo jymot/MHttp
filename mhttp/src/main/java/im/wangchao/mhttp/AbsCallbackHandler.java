@@ -16,6 +16,8 @@ import im.wangchao.mhttp.internal.exception.ResponseFailException;
 import okhttp3.Call;
 import okhttp3.internal.Util;
 
+import static im.wangchao.mhttp.Response.IO_EXCEPTION_CODE;
+
 /**
  * <p>Description  : AbsResponseHandler.
  *                   Callback lifecycle as follow:
@@ -48,10 +50,9 @@ import okhttp3.internal.Util;
  * <p>Time         : 下午5:56.</p>
  */
 public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
-    final private static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
+    private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
 
-    final public static int     IO_EXCEPTION_CODE   = 1000;
-    final public static String  DEFAULT_CHARSET     = "UTF-8";
+    public final static String  DEFAULT_CHARSET     = "UTF-8";
 
     private Request request;
     private String responseCharset = DEFAULT_CHARSET;
@@ -61,11 +62,11 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
     private Executor mExecutor;
 
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    abstract protected void onSuccess(Parser_Type data, Response response);
+    protected abstract void onSuccess(Parser_Type data, Response response);
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    abstract protected void onFailure(Response response, Throwable throwable);
+    protected abstract void onFailure(Response response, Throwable throwable);
     /** Work on the request thread, that is okhttp thread. */
-    abstract protected Parser_Type backgroundParser(Response response) throws Exception;
+    protected abstract Parser_Type backgroundParser(Response response) throws Exception;
 
     /** Working thread depends on {@link #mExecutor}, default UI. */
     protected void onStart(){}
@@ -90,7 +91,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
 
         final Request req = request;
         Response response = Response.error(req,
-                AbsCallbackHandler.IO_EXCEPTION_CODE,
+                IO_EXCEPTION_CODE,
                 e.getMessage());
 
         sendFailureEvent(response, e);
@@ -134,14 +135,14 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         }
     }
 
-    final public boolean isFinished(){
+    public final boolean isFinished(){
         return isFinished;
     }
 
     /**
      * Sets the charset for the response string. If not set, the default is UTF-8.
      */
-    final public void setCharset(@NonNull final String charset) {
+    public final void setCharset(@NonNull final String charset) {
         this.responseCharset = charset;
     }
 
@@ -159,11 +160,11 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         return Accept.EMPTY;
     }
 
-    final protected void print(String message){
+    protected final void print(String message){
         Log.d(AbsCallbackHandler.class.getSimpleName(), message);
     }
 
-    @Nullable final protected String byteArrayToString(byte[] bytes){
+    @Nullable protected final String byteArrayToString(byte[] bytes){
         try {
             return bytes == null ? null : new String(bytes, charset());
         } catch (UnsupportedEncodingException e) {
@@ -171,11 +172,11 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         }
     }
 
-    final protected Request getRequest(){
+    protected final Request getRequest(){
         return this.request;
     }
 
-    /*package*/ final public void sendUploadProgressEvent(final int bytesWritten, final int bytesTotal) {
+    public final void sendUploadProgressEvent(final int bytesWritten, final int bytesTotal) {
         execute(()->{
             try {
                 onUploadProgress(bytesWritten, bytesTotal);
@@ -185,7 +186,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         });
     }
 
-    /*package*/ final public void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
+    public final void sendProgressEvent(final int bytesWritten, final int bytesTotal) {
         execute(()->{
             try {
                 onProgress(bytesWritten, bytesTotal);
