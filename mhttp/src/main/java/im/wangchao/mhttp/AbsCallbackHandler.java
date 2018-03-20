@@ -49,7 +49,7 @@ import static im.wangchao.mhttp.Response.IO_EXCEPTION_CODE;
  * <p>Date         : 15/8/17.</p>
  * <p>Time         : 下午5:56.</p>
  */
-public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
+public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Converter<Parser_Type, Response>{
     private final static ExecutorService DEFAULT_EXECUTOR_SERVICE = Executors.newCachedThreadPool(Util.threadFactory("OkHttp", false));
 
     public final static String  DEFAULT_CHARSET     = "UTF-8";
@@ -66,7 +66,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
     /** Working thread depends on {@link #mExecutor}, default UI. */
     protected abstract void onFailure(Response response, Throwable throwable);
     /** Work on the request thread, that is okhttp thread. */
+    @Deprecated
     protected abstract Parser_Type backgroundParser(Response response) throws Exception;
+    /** Work on the request thread, that is okhttp thread. */
+    @Override public Parser_Type apply(Response response) throws Exception {
+        return backgroundParser(response);
+    }
 
     /** Working thread depends on {@link #mExecutor}, default UI. */
     protected void onStart(){}
@@ -111,7 +116,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback {
         if (response.isSuccessful()) {
             try {
                 okResponse = Response.newResponse(req, response);
-                Parser_Type data = backgroundParser(okResponse);
+                Parser_Type data = apply(okResponse);
                 sendSuccessEvent(data, okResponse);
             } catch (Exception e) {
                 sendFailureEvent(okResponse = Response.newResponse(req, response), new ParserException());
