@@ -19,6 +19,7 @@ import javax.net.ssl.X509TrustManager;
 
 import im.wangchao.mhttp.internal.interceptor.HttpLoggingInterceptor;
 import im.wangchao.mhttp.internal.interceptor.MBridgeInterceptor;
+import im.wangchao.mhttp.internal.log.LoggerImpl;
 import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
@@ -40,7 +41,7 @@ public final class MHttp {
     private OkHttpClient.Builder mOkBuilder;
     private OkHttpClient mInnerClient;
     private URLInterceptor mURLInterceptor;
-    private HttpLoggingInterceptor.Level mLogLevel = HttpLoggingInterceptor.Level.NONE;
+    private final HttpLoggingInterceptor mLoggingInterceptor = new HttpLoggingInterceptor(new LoggerImpl());
 
     public static MHttp instance(){
         if (instance == null) {
@@ -58,14 +59,23 @@ public final class MHttp {
         return BindApi.bind(api);
     }
 
-
-
     /**
      * OkHttpClient
      */
     public MHttp customOkHttpClient(@NonNull OkHttpClient client){
         mOkBuilder = client.newBuilder()
                 .addInterceptor(MBridgeInterceptor.instance.get());
+        return this;
+    }
+
+    /**
+     * Set logging level
+     */
+    public MHttp loggingLevel(HttpLoggingInterceptor.Level level){
+        mLoggingInterceptor.setLevel(level);
+        if (!mOkBuilder.interceptors().contains(mLoggingInterceptor)) {
+            mOkBuilder.addInterceptor(mLoggingInterceptor);
+        }
         return this;
     }
 
