@@ -12,6 +12,7 @@ import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -187,6 +188,11 @@ public final class MHttp {
         sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
 
         mOkBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+        return this;
+    }
+
+    public MHttp hostnameVerifier(HostnameVerifier hostnameVerifier){
+        mOkBuilder.hostnameVerifier(hostnameVerifier);
         return this;
     }
 
