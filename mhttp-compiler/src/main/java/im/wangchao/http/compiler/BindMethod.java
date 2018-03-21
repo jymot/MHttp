@@ -194,12 +194,13 @@ import im.wangchao.http.annotations.Tag;
             result.addStatement("builder.url($S)", this.injectClass.getRootURL().concat(this.url));
         }
 
-        ClassName mHttpClass = ClassName.bestGuess("im.wangchao.mhttp.MHttp");
-        if (this.timeout != 0){
-            result.addStatement("$T.instance().timeout(" + this.timeout + ")", mHttpClass);
-        } else {
-            result.addStatement("$T.instance().timeout(" + this.injectClass.getDefaultTimeout() + ")", mHttpClass);
-        }
+        // 不处理 timeout
+//        ClassName mHttpClass = ClassName.bestGuess("im.wangchao.mhttp.MHttp");
+//        if (this.timeout != 0){
+//            result.addStatement("$T.instance().timeout(" + this.timeout + ")", mHttpClass);
+//        } else {
+//            result.addStatement("$T.instance().timeout(" + this.injectClass.getDefaultTimeout() + ")", mHttpClass);
+//        }
 
         if (tagObjVariableName != null){
             result.addStatement("builder.tag(" + tagObjVariableName + ")");

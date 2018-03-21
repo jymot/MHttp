@@ -146,7 +146,7 @@ public class HttpProcessor extends AbstractProcessor{
                 logParsingError(member, RootURL.class, e);
             }
         }
-        // @Timeout element.
+        // @Timeout element. @Deprecated
         else if (env.getElementsAnnotatedWith(Timeout.class).contains(member)) {
             try {
                 int timeout = member.getAnnotation(Timeout.class).value();

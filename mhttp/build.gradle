@@ -42,4 +42,4 @@ dependencies {
 //    implementation project(':mhttp-annotations')
 }
 
-apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
+//apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray.gradle'
