@@ -7,4 +7,4 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }
 
-//apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray-java.gradle'
+apply from: 'https://raw.githubusercontent.com/motcwang/Utils/master/bintray-publish/bintray-java.gradle'
