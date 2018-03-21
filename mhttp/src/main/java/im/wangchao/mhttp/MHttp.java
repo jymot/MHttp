@@ -8,14 +8,9 @@ import android.support.annotation.NonNull;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.SecureRandom;
-import java.security.cert.CertificateException;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
 import im.wangchao.mhttp.internal.interceptor.HttpLoggingInterceptor;
@@ -25,10 +20,6 @@ import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-
-import static im.wangchao.mhttp.HTTPS.chooseTrustManager;
-import static im.wangchao.mhttp.HTTPS.prepareKeyManager;
-import static im.wangchao.mhttp.HTTPS.prepareTrustManager;
 
 /**
  * <p>Description  : MHttp.</p>
@@ -42,7 +33,7 @@ public final class MHttp {
     private OkHttpClient.Builder mOkBuilder;
     private OkHttpClient mInnerClient;
     private URLInterceptor mURLInterceptor;
-    private final HttpLoggingInterceptor mLoggingInterceptor = new HttpLoggingInterceptor(new LoggerImpl());
+    private final HttpLoggingInterceptor mLoggingInterceptor = new HttpLoggingInterceptor(LoggerImpl.instance.get());
 
     public static MHttp instance(){
         if (instance == null) {
@@ -74,6 +65,7 @@ public final class MHttp {
      */
     public MHttp loggingLevel(HttpLoggingInterceptor.Level level){
         mLoggingInterceptor.setLevel(level);
+        LoggerImpl.instance.get().setLevel(level);
         if (!mOkBuilder.interceptors().contains(mLoggingInterceptor)) {
             mOkBuilder.addInterceptor(mLoggingInterceptor);
         }
@@ -151,43 +143,38 @@ public final class MHttp {
      * Trust all certificate for debug
      */
     public MHttp trustAllCertificate(){
-        // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
-        final X509TrustManager trustAllCert =
-                new X509TrustManager() {
-                    @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                };
-
-        mOkBuilder.sslSocketFactory(new Android5SSL(trustAllCert), trustAllCert);
+        HTTPS.trustAllCertificate(mOkBuilder);
         return this;
     }
 
     /**
      * Set Certificate
      */
-    public MHttp setCertificates(InputStream... certificates) throws Exception{
+    public MHttp setCertificates(InputStream... certificates){
         return setCertificates(certificates, null, null);
     }
 
     /**
      * Set Certificate
      */
-    public MHttp setCertificates(InputStream[] certificates, InputStream bksFile, String password) throws Exception {
-        TrustManager[] trustManagers = prepareTrustManager(certificates);
-        KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
-        SSLContext sslContext = SSLContext.getInstance("TLS");
+    public MHttp setCertificates(X509TrustManager trustManager, InputStream bksFile, String password) {
+        try {
+            HTTPS.setCertificates(mOkBuilder, trustManager, null, bksFile, password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return this;
+    }
 
-        HTTPS.MyTrustManager trustManager = new HTTPS.MyTrustManager(chooseTrustManager(trustManagers));
-        sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
-
-        mOkBuilder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+    /**
+     * Set Certificate
+     */
+    public MHttp setCertificates(InputStream[] certificates, InputStream bksFile, String password) {
+        try {
+            HTTPS.setCertificates(mOkBuilder, null, certificates, bksFile, password);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return this;
     }
 

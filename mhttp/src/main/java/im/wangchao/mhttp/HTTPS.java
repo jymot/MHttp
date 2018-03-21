@@ -27,50 +27,87 @@ import okhttp3.internal.Util;
  */
 /*package*/ final class HTTPS {
 
+    // 信任所有证书的 TrustManager
+    private static X509TrustManager TrustAllCertificate = new X509TrustManager() {
+        @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
+        }
+
+        @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+            return new java.security.cert.X509Certificate[]{};
+        }
+    };
+
     /**
      * Trust all certificate for debug
      */
     /*package*/ static void trustAllCertificate(OkHttpClient.Builder builder) {
-        // 自定义一个信任所有证书的TrustManager，添加SSLSocketFactory的时候要用到
-        final X509TrustManager trustAllCert =
-                new X509TrustManager() {
-                    @Override public void checkClientTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public void checkServerTrusted(java.security.cert.X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-
-                    @Override public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                        return new java.security.cert.X509Certificate[]{};
-                    }
-                };
-        builder.sslSocketFactory(new Android5SSL(trustAllCert), trustAllCert);
+        builder.sslSocketFactory(new Android5SSL(TrustAllCertificate), TrustAllCertificate);
     }
 
     /**
      * Set Certificate
      */
-    /*package*/ static void setCertificates(OkHttpClient.Builder builder, InputStream... certificates) throws Exception {
-        setCertificates(builder, certificates, null, null);
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder,
+                                            InputStream... certificates) throws Exception {
+        setCertificates(builder, null, certificates, null, null);
     }
 
     /**
      * Set Certificate
      */
-    /*package*/ static void setCertificates(OkHttpClient.Builder builder, InputStream[] certificates, InputStream bksFile, String password) throws Exception {
-            TrustManager[] trustManagers = prepareTrustManager(certificates);
-            KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
-            SSLContext sslContext = SSLContext.getInstance("TLS");
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder,
+                                            X509TrustManager trustManager,
+                                            InputStream bksFile,
+                                            String password) throws Exception {
+        setCertificates(builder, trustManager, null, bksFile, password);
+    }
 
-            MyTrustManager trustManager = new MyTrustManager(chooseTrustManager(trustManagers));
-            sslContext.init(keyManagers, new TrustManager[]{trustManager}, new SecureRandom());
-            builder.sslSocketFactory(sslContext.getSocketFactory(), trustManager);
+    /**
+     * Set Certificate
+     */
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder,
+                                            InputStream[] certificates,
+                                            InputStream bksFile,
+                                            String password) throws Exception {
+        setCertificates(builder, null, certificates, bksFile, password);
+    }
+
+    /**
+     * Set Certificate
+     */
+    /*package*/ static void setCertificates(OkHttpClient.Builder builder,
+                                            X509TrustManager trustManager,
+                                            InputStream[] certificates,
+                                            InputStream bksFile,
+                                            String password) throws Exception {
+        TrustManager[] trustManagers = prepareTrustManager(certificates);
+        KeyManager[] keyManagers = prepareKeyManager(bksFile, password);
+
+        X509TrustManager manager;
+        if (trustManager != null) {
+            manager = trustManager;
+        } else if (trustManagers != null) {
+            manager = chooseTrustManager(trustManagers);
+        } else {
+            manager = TrustAllCertificate;
+        }
+
+        // 创建TLS类型的SSLContext对象， that uses our finalTrustManager
+        SSLContext sslContext = SSLContext.getInstance("TLS");
+        // 用上面得到的trustManagers初始化SSLContext，这样sslContext就会信任keyStore中的证书
+        // 第一个参数是授权的密钥管理器，用来授权验证，比如授权自签名的证书验证。第二个是被授权的证书管理器，用来验证服务器端的证书
+        sslContext.init(keyManagers, new TrustManager[]{manager}, new SecureRandom());
+        builder.sslSocketFactory(sslContext.getSocketFactory(), manager);
     }
 
     /*package*/ static TrustManager[] prepareTrustManager(InputStream... certificates) throws Exception {
         if (certificates == null || certificates.length <= 0) return null;
 
         CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
+        // 创建一个默认类型的KeyStore，存储我们信任的证书
         KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
         keyStore.load(null);
         int index = 0;
@@ -82,6 +119,7 @@ import okhttp3.internal.Util;
 
         TrustManagerFactory trustManagerFactory = TrustManagerFactory.
                 getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        //用我们之前的keyStore实例初始化TrustManagerFactory，使TrustManagerFactory信任keyStore中的证书
         trustManagerFactory.init(keyStore);
         return trustManagerFactory.getTrustManagers();
     }
