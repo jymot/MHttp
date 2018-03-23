@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import im.wangchao.mhttp.body.MediaTypeUtils;
+import im.wangchao.mhttp.rxjava2.ResponseExecuteObservable;
+import io.reactivex.Observable;
 import okhttp3.CacheControl;
 import okhttp3.Call;
 import okhttp3.Headers;
@@ -148,6 +150,12 @@ public final class Request {
         }
         rawCall().cancel();
         return this;
+    }
+
+    // todo
+
+    public <R> Observable<R> convert(Converter<Response, R> converter){
+        return new ResponseExecuteObservable<>(this, converter);
     }
 
     private Call rawCall(){

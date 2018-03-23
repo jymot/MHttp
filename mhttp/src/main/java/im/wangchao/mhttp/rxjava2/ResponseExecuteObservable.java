@@ -1,5 +1,6 @@
-package im.wangchao.mhttp.adapter.rxjava2;
+package im.wangchao.mhttp.rxjava2;
 
+import im.wangchao.mhttp.Converter;
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.Response;
 import io.reactivex.Observable;
@@ -15,21 +16,23 @@ import io.reactivex.plugins.RxJavaPlugins;
  * <p>Date         : 2018/3/19.</p>
  * <p>Time         : 下午4:46.</p>
  */
-public class ResponseExecuteObservable extends Observable<Response> {
+public class ResponseExecuteObservable<R> extends Observable<R> {
     private final Request request;
+    private final Converter<Response, R> converter;
 
-    ResponseExecuteObservable(Request request){
+    public ResponseExecuteObservable(Request request, Converter<Response, R> converter){
         this.request = request;
+        this.converter = converter;
     }
 
-    @Override protected void subscribeActual(Observer<? super Response> observer) {
+    @Override protected void subscribeActual(Observer<? super R> observer) {
 
         ExecuteDisposable disposable = new ExecuteDisposable(request);
         observer.onSubscribe(disposable);
 
         boolean terminated = false;
         try {
-            Response response = request.execute();
+            R response = converter.apply(request.execute());
             if (!disposable.isDisposed()) {
                 observer.onNext(response);
             }
