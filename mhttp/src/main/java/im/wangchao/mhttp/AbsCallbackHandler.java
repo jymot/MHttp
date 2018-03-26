@@ -67,7 +67,9 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
     protected abstract void onFailure(Response response, Throwable throwable);
     /** Work on the request thread, that is okhttp thread. */
     @Deprecated
-    protected abstract Parser_Type backgroundParser(Response response) throws Exception;
+    protected Parser_Type backgroundParser(Response response) throws Exception{
+        return null;
+    }
     /** Work on the request thread, that is okhttp thread. */
     @Override public Parser_Type apply(Response response) throws Exception {
         return backgroundParser(response);
