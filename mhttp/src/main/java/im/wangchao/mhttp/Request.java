@@ -152,8 +152,6 @@ public final class Request {
         return this;
     }
 
-    // todo
-
     public <R> Observable<R> convert(Converter<Response, R> converter){
         return new ResponseExecuteObservable<>(this, converter);
     }
