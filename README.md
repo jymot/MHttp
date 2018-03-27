@@ -2,10 +2,15 @@
 okhttp wrapper for Android Http.
 ### Gradle:
 ```gradle
-  compile 'im.wangchao:mhttp:1.9.2'
+  compile 'im.wangchao:mhttp:1.10.0'
   annotationProcessor 'im.wangchao:mhttp-compiler:0.5.2'
 ```
 you can use `implementation` replace of `compile`.
+
+If you use RxJava
+```gradle
+  compile 'io.reactivex.rxjava2:rxjava:2.x.y'
+```
 
 ### PROGUARD
 ProGuard rules now ship inside of the library and are included automatically.
