@@ -58,8 +58,8 @@ dependencies {
 
     implementation deps.rxjava
 //    annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
-//    implementation 'im.wangchao:mhttp:1.9.0'
-    implementation project(':mhttp')
-    annotationProcessor project(':mhttp-compiler')
+    implementation 'im.wangchao:mhttp:1.10.0'
+//    implementation project(':mhttp')
+//    annotationProcessor project(':mhttp-compiler')
 }
 
