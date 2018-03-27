@@ -33,6 +33,8 @@ ProGuard rules now ship inside of the library and are included automatically.
         java.lang.Object writeReplace();  
         java.lang.Object readResolve();  
     }
+    # If you do not use Rx:
+    -dontwarn rx.**
 ```
 ### How to use
 #### 1.Normal Get
