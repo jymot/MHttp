@@ -16,23 +16,23 @@ import io.reactivex.plugins.RxJavaPlugins;
  * <p>Date         : 2018/3/19.</p>
  * <p>Time         : 下午4:46.</p>
  */
-public class ResponseExecuteObservable<R> extends Observable<R> {
-    private final Request request;
-    private final Converter<Response, R> converter;
+public class ResponseExecuteObservable<T> extends Observable<T> {
+    private final RxRequest<T> request;
+    private final Converter<Response, T> converter;
 
-    public ResponseExecuteObservable(Request request, Converter<Response, R> converter){
+    public ResponseExecuteObservable(RxRequest<T> request, Converter<Response, T> converter){
         this.request = request;
         this.converter = converter;
     }
 
-    @Override protected void subscribeActual(Observer<? super R> observer) {
+    @Override protected void subscribeActual(Observer<? super T> observer) {
 
-        ExecuteDisposable disposable = new ExecuteDisposable(request);
+        ExecuteDisposable disposable = new ExecuteDisposable(request.request());
         observer.onSubscribe(disposable);
 
         boolean terminated = false;
         try {
-            R response = converter.apply(request.execute());
+            T response = converter.apply(request.request().execute());
             if (!disposable.isDisposed()) {
                 observer.onNext(response);
             }

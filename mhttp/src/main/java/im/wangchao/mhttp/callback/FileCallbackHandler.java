@@ -34,15 +34,15 @@ public class FileCallbackHandler extends AbsCallbackHandler<File> {
         return file;
     }
 
-    @Override protected void onSuccess(File file, Response response){
+    @Override public void onSuccess(File file, Response response){
 
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected File backgroundParser(Response response) throws IOException{
+    @Override public File backgroundParser(Response response) throws IOException{
         writeFile(response.raw(), file);
         return file;
     }

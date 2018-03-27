@@ -62,12 +62,12 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
     private Executor mExecutor;
 
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected abstract void onSuccess(Parser_Type data, Response response);
+    public abstract void onSuccess(Parser_Type data, Response response);
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected abstract void onFailure(Response response, Throwable throwable);
+    public abstract void onFailure(Response response, Throwable throwable);
     /** Work on the request thread, that is okhttp thread. */
     @Deprecated
-    protected Parser_Type backgroundParser(Response response) throws Exception{
+    public Parser_Type backgroundParser(Response response) throws Exception{
         return null;
     }
     /** Work on the request thread, that is okhttp thread. */
@@ -76,17 +76,17 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
     }
 
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onStart(){}
+    public void onStart(){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onCancel(){}
+    public void onCancel(){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onProgress(int bytesWritten, int bytesTotal){}
+    public void onProgress(int bytesWritten, int bytesTotal){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onUploadProgress(int bytesWritten, int bytesTotal){}
+    public void onUploadProgress(int bytesWritten, int bytesTotal){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onFinish(){}
+    public void onFinish(){}
     /** Working thread depends on {@link #mExecutor}, default UI. */
-    protected void onFinally(Response response){}
+    public void onFinally(Response response){}
 
 
     @Override final public void onFailure(@NonNull Call call, @NonNull IOException e) {
@@ -156,7 +156,7 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
     /**
      * subclass can override this method to change charset.
      */
-    protected String charset() {
+    public String charset() {
         return TextUtils.isEmpty(responseCharset) ? DEFAULT_CHARSET : responseCharset;
     }
 

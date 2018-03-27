@@ -12,15 +12,15 @@ import im.wangchao.mhttp.Response;
  */
 public class BinaryCallbackHandler extends AbsCallbackHandler<byte[]> {
 
-    @Override protected void onSuccess(byte[] data, Response response) {
+    @Override public void onSuccess(byte[] data, Response response) {
 
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected byte[] backgroundParser(Response response) throws Exception {
+    @Override public byte[] backgroundParser(Response response) throws Exception {
         return response.raw().body().bytes();
     }
 

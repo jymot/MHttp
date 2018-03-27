@@ -11,7 +11,7 @@ import im.wangchao.mhttp.internal.exception.ParserException;
  */
 public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
 
-    @Override final protected void onSuccess(JSON data, Response response) {
+    @Override final public void onSuccess(JSON data, Response response) {
         if (data.jsonArray != null) {
             onSuccess(parser(data.jsonArray.toString()));
         }
@@ -23,7 +23,7 @@ public abstract class GSONCallbackHandler<T> extends JSONCallbackHandler {
         }
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
 
     }
 

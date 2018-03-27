@@ -8,6 +8,10 @@ import android.view.View;
 import android.widget.Button;
 
 import im.wangchao.mhttp.Request;
+import im.wangchao.mhttp.callback.TextCallbackHandler;
+import im.wangchao.mhttp.rxjava2.RxRequest;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     final static String TAG = "wcwcwc";
@@ -37,6 +41,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        PostExample.executeAnnotationPost();
 //        MRequest request = PostExample.getRequest();
 //        request.send();
+
+        Disposable disposable = RxRequest.<String>builder()
+                .get()
+                .url("https://www.baidu.com")
+                .callback(new TextCallbackHandler(){
+                    @Override public void onStart() {
+                        Log.e("wcwcwc", "onStart");
+                    }
+
+                    @Override public void onFinish() {
+                        Log.e("wcwcwc", "onFinish");
+                    }
+
+                    @Override public void onCancel() {
+                        Log.e("wcwcwc", "onCancel");
+                    }
+                }).build()
+                .enqueue()
+                .observeOn(Schedulers.io())
+                .doOnDispose(()->{
+                    Log.e("wcwcwc", "cancel");
+                })
+                .subscribe(result -> {
+                    Log.e("wcwcwc", Thread.currentThread().getName() + " result: " + result);
+                }, throwable -> {
+                    Log.e("wcwcwc", Thread.currentThread().getName() + " throwable: " + throwable.getMessage());
+                });
+
+        disposable.dispose();
     }
 
     private void log(String msg){
