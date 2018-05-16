@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:25.3.1'
     implementation 'com.android.support:design:25.3.1'
 
+    implementation deps.rxandroid
     implementation deps.rxjava
 //    annotationProcessor 'im.wangchao:mhttp-compiler:0.5.1'
     implementation 'im.wangchao:mhttp:1.10.0'
