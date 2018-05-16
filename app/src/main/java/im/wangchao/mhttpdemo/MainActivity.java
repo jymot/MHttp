@@ -10,6 +10,8 @@ import android.widget.Button;
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.callback.TextCallbackHandler;
 import im.wangchao.mhttp.rxjava2.RxRequest;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     final static String TAG = "wcwcwc";

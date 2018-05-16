@@ -41,7 +41,7 @@ ProGuard rules now ship inside of the library and are included automatically.
 ```java
      Request.builder().url("https://www.baidu.com")
                     .callback(new TextCallbackHandler(){
-                        @Override protected void onSuccess(String data, OkResponse response) {
+                        @Override public void onSuccess(String data, Response response) {
                             Log.e(MainActivity.TAG, data);
                         }
                     })
@@ -54,7 +54,7 @@ ProGuard rules now ship inside of the library and are included automatically.
                     .addHeader("key", "value")
                     .addParameter("key", "value")
                     .callback(new JSONCallbackHandler(){
-                        @Override protected void onSuccess(JSON data, OkResponse response) {
+                        @Override public void onSuccess(JSON data, Response response) {
                             //TODO
                         }
                     })
@@ -234,9 +234,59 @@ CookieJar cookieJar = new PersistentCookieJar(new SetCookieCache(), new SharedPr
 OkHttpClient okHttpClient = new OkHttpClient.Builder()
         .cookieJar(cookieJar)
         .build();
-MHttp.instance().client(okHttpClient);
+MHttp.instance()
+        .customOkHttpClient(okHttpClient) // custom client
+        .cache(/*context*/, /*cache dir*/)
+        .setURLInterceptor(new URLInterceptor() {
+            @Override public String interceptor(String origin) {
+                // handle url
+                return origin;
+            }
+
+            @Override public HttpUrl interceptor(HttpUrl origin) {
+                return origin;
+            }
+
+            @Override public URL interceptor(URL origin) {
+                return origin;
+            }
+        });
 ```
 Please set before calling the request.
+
+#### 7.RxRequest
+```java
+Disposable disposable = RxRequest.<String>builder()
+        .get()
+        .url("https://www.baidu.com")
+        .callback(new TextCallbackHandler(){
+            @Override public void onStart() {
+                Log.e("wcwcwc", "onStart");
+            }
+
+            @Override public void onFinish() {
+                Log.e("wcwcwc", "onFinish");
+            }
+
+            @Override public void onCancel() {
+                Log.e("wcwcwc", "onCancel");
+            }
+        }).build()
+        .enqueue()
+        .observeOn(Schedulers.io())
+        .doOnDispose(()->{
+            Log.e("wcwcwc", "cancel");
+        })
+        .subscribe(result -> {
+            Log.e("wcwcwc", Thread.currentThread().getName() + " result: " + result);
+        }, throwable -> {
+            Log.e("wcwcwc", Thread.currentThread().getName() + " throwable: " + throwable.getMessage());
+        });
+
+...
+// dispose
+disposable.dispose();
+```
 
 ### Contact Me
 - Email:  magician.of.technique@aliyun.com
@@ -246,7 +296,7 @@ Please set before calling the request.
 
 ### License
 
-    Copyright 2016 Mot. All rights reserved.
+    Copyright 2018 Mot. All rights reserved.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
