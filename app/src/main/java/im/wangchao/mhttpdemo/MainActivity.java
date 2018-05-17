@@ -10,12 +10,13 @@ import android.widget.Button;
 import im.wangchao.mhttp.Request;
 import im.wangchao.mhttp.callback.TextCallbackHandler;
 import im.wangchao.mhttp.rxjava2.RxRequest;
-import io.reactivex.disposables.Disposable;
+import io.reactivex.Observable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener{
     final static String TAG = "wcwcwc";
     Request request;
+    Observable<String> ob;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //        MRequest request = PostExample.getRequest();
 //        request.send();
 
-        Disposable disposable = RxRequest.<String>builder()
+         ob = RxRequest.<String>builder()
                 .get()
                 .url("https://www.baidu.com")
                 .callback(new TextCallbackHandler(){
@@ -62,14 +63,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .observeOn(Schedulers.io())
                 .doOnDispose(()->{
                     Log.e("wcwcwc", "cancel");
-                })
-                .subscribe(result -> {
-                    Log.e("wcwcwc", Thread.currentThread().getName() + " result: " + result);
-                }, throwable -> {
-                    Log.e("wcwcwc", Thread.currentThread().getName() + " throwable: " + throwable.getMessage());
                 });
 
-        disposable.dispose();
+
+
+//        disposable.dispose();
     }
 
     private void log(String msg){
@@ -79,7 +77,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override public void onClick(View v) {
         switch (v.getId()){
             case R.id.doRequest:
-                request = GetExample.doNormalRequest();
+                ob.subscribe(result -> {
+                    Log.e("wcwcwc", Thread.currentThread().getName() + " result: " + result);
+                }, throwable -> {
+                    Log.e("wcwcwc", Thread.currentThread().getName() + " throwable: " + throwable.getMessage());
+                });
+//                request = GetExample.doNormalRequest();
 //                GetExample.doAnnotationRequest();
                 break;
             case R.id.cancel:
