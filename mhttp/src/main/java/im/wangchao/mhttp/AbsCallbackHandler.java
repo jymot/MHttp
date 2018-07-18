@@ -125,8 +125,8 @@ public abstract class AbsCallbackHandler<Parser_Type> implements Callback, Conve
             }
         } else {
             sendFailureEvent(okResponse = Response.newResponse(req, response), new ResponseFailException());
-            response.close();
         }
+        // todo response.close()
         sendFinallyEvent(okResponse);
     }
 
