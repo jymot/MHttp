@@ -2,7 +2,6 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
 
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
@@ -37,6 +36,7 @@ android {
 
 dependencies {
     compileOnly deps.appcompatv7
+    compileOnly deps.rxjava
     api deps.okhttp
     api deps.mhttpannotations
 //    implementation project(':mhttp-annotations')

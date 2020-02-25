@@ -16,15 +16,15 @@ import im.wangchao.mhttp.Response;
  */
 public class JSONCallbackHandler extends AbsCallbackHandler<JSONCallbackHandler.JSON> {
 
-    @Override protected void onSuccess(JSON data, Response response) {
+    @Override public void onSuccess(JSON data, Response response) {
 
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
 
     }
 
-    @Override protected JSON backgroundParser(Response response) throws Exception {
+    @Override public JSON backgroundParser(Response response) throws Exception {
         final byte[] body = response.raw().body().bytes();
         final String bodyString = byteArrayToString(body);
         JSON json = new JSON();

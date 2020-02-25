@@ -13,10 +13,10 @@ import im.wangchao.mhttp.Response;
  * <p>Time         : 下午2:49.</p>
  */
 public abstract class BitmapCallbackHandler extends AbsCallbackHandler<Bitmap> {
-    @Override protected void onSuccess(Bitmap bitmap, Response response) {
+    @Override public void onSuccess(Bitmap bitmap, Response response) {
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
 
     }
 

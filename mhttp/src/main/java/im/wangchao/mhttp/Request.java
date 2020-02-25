@@ -189,6 +189,7 @@ public final class Request {
             mRawBuilder = request.mRawRequest.newBuilder();
             mExecutor = request.mExecutor;
             mThreadMode = request.mThreadMode;
+            mMediaType = request.mMediaType;
         }
 
         public Builder url(HttpUrl url) {

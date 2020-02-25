@@ -28,6 +28,7 @@ public @interface Post {
     /**
      * timeout
      */
+    @Deprecated
     int timeout() default 0;
 
     /**

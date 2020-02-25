@@ -22,7 +22,7 @@ public class PostExample {
                 .addHeader("key", "value")
                 .addParameter("key", "value")
                 .callback(new JSONCallbackHandler(){
-                    @Override protected void onSuccess(JSON data, Response response) {
+                    @Override public void onSuccess(JSON data, Response response) {
 
                     }
                 })
@@ -33,7 +33,7 @@ public class PostExample {
     public static void executeAnnotationPost(){
         PostApi api = MHttp.create(PostApi.class);
         api.autoExecuteRequest("aa", "bb", new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, Response response) {
+            @Override public void onSuccess(String data, Response response) {
                 //Todo
             }
         });
@@ -42,7 +42,7 @@ public class PostExample {
     public static Request getRequest(){
         PostApi api = MHttp.create(PostApi.class);
         return api.postRequest("aa", "bb", new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, Response response) {
+            @Override public void onSuccess(String data, Response response) {
                 //Todo
             }
         });

@@ -11,13 +11,13 @@ import im.wangchao.mhttp.Response;
  * <p>Time         : 下午2:41.</p>
  */
 public class TextCallbackHandler extends AbsCallbackHandler<String> {
-    @Override protected void onSuccess(String data, Response response) {
+    @Override public void onSuccess(String data, Response response) {
     }
 
-    @Override protected void onFailure(Response response, Throwable throwable) {
+    @Override public void onFailure(Response response, Throwable throwable) {
     }
 
-    @Override protected String backgroundParser(Response response) throws Exception {
+    @Override public String backgroundParser(Response response) throws Exception {
         return byteArrayToString(response.raw().body().bytes());
     }
 

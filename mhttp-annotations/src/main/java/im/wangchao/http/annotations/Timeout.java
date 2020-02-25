@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * <p>Description  : Timeout.</p>
+ * <p>Description  : Timeout.废弃，不处理该 Annotation</p>
  * <p/>
  * <p>Author       : wangchao.</p>
  * <p>Date         : 15/10/31.</p>
@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.FIELD)
+@Deprecated
 public @interface Timeout {
     int value();
 }

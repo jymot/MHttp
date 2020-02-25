@@ -21,15 +21,15 @@ public class GetExample {
     public static Request doNormalRequest(){
         return Request.builder().url("https://www.baidu.com")
                 .callback(new TextCallbackHandler(){
-                    @Override protected void onSuccess(String data, Response response) {
+                    @Override public void onSuccess(String data, Response response) {
                         Log.e(MainActivity.TAG, "normal : " + data);
                     }
 
-                    @Override protected void onFailure(Response response, Throwable throwable) {
+                    @Override public void onFailure(Response response, Throwable throwable) {
                         Log.e(MainActivity.TAG, "onFailure : " + response.message() + " " + response.code());
                     }
 
-                    @Override protected void onCancel() {
+                    @Override public void onCancel() {
                         Log.e(MainActivity.TAG, "onCancel");
                     }
                 })
@@ -40,7 +40,7 @@ public class GetExample {
     public static void doAnnotationRequest(){
         GetBaidu baidu = MHttp.create(GetBaidu.class);
         baidu.baidu(new TextCallbackHandler(){
-            @Override protected void onSuccess(String data, Response response) {
+            @Override public void onSuccess(String data, Response response) {
                 Log.e(MainActivity.TAG, data);
             }
         });

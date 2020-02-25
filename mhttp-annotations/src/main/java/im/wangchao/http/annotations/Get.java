@@ -15,8 +15,22 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.CLASS)
 @Target(ElementType.METHOD)
 public @interface Get {
+
+    /**
+     * the request url
+     */
     String url();
+
+    /**
+     * the request tag
+     */
     String tag() default "";
+
+    @Deprecated
     int timeout() default 0;
+
+    /**
+     * request heads
+     */
     String[] heads() default {};
 }
